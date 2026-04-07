@@ -1,0 +1,9 @@
+build/
+logs/
+*.o
+*.out
+*.a
+*.so
+*.so.*
+*.swp
+*.tmp
