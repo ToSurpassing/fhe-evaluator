@@ -67,3 +67,4 @@ add_executable(ckks_smoke_02_relin_add_same_scale src/smoke/ckks_smoke_02_relin_
 add_executable(ckks_smoke_03_rescale_manual src/smoke/ckks_smoke_03_rescale_manual.cpp)
 add_executable(ckks_smoke_04_scaling_modes src/smoke/ckks_smoke_04_scaling_modes.cpp)
 add_executable(ckks_smoke_05_evalpolyps src/smoke/ckks_smoke_05_evalpolyps.cpp)
+add_executable(ckks_smoke_06_mixed_add src/smoke/ckks_smoke_06_mixed_add.cpp)
