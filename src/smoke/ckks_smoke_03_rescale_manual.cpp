@@ -1,0 +1,113 @@
+#include "openfhe.h"
+
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+using namespace lbcrypto;
+using CC = CryptoContext<DCRTPoly>;
+
+static std::vector<double> kInput = {0.10, -0.20, 0.30, -0.40, 0.05, -0.15, 0.25, -0.35};
+static constexpr size_t kSlots = 8;
+
+double MaxAbsErrReal(const std::vector<std::complex<double>>& got, const std::vector<double>& ref) {
+    double ans = 0.0;
+    for (size_t i = 0; i < ref.size(); ++i) {
+        ans = std::max(ans, std::abs(got[i].real() - ref[i]));
+    }
+    return ans;
+}
+
+std::vector<std::complex<double>> DecryptVec(CC cc, const PrivateKey<DCRTPoly>& sk,
+                                             const Ciphertext<DCRTPoly>& ct, size_t slots) {
+    Plaintext result;
+    cc->Decrypt(sk, ct, &result);
+    result->SetLength(slots);
+    return result->GetCKKSPackedValue();
+}
+
+void PrintCtState(const std::string& tag, const Ciphertext<DCRTPoly>& ct) {
+    std::cout << tag
+              << " | level = " << ct->GetLevel()
+              << ", noiseScaleDeg = " << ct->GetNoiseScaleDeg()
+              << '\n';
+}
+
+CC BuildContext(ScalingTechnique scalTech) {
+    CCParams<CryptoContextCKKSRNS> parameters;
+
+    parameters.SetSecretKeyDist(UNIFORM_TERNARY);
+    parameters.SetSecurityLevel(HEStd_NotSet);
+    parameters.SetRingDim(1 << 12);
+    parameters.SetMultiplicativeDepth(6);
+    parameters.SetBatchSize(kSlots);
+    parameters.SetFirstModSize(60);
+    parameters.SetScalingModSize(50);
+    parameters.SetScalingTechnique(scalTech);
+
+    if (scalTech == COMPOSITESCALINGMANUAL) {
+        parameters.SetCompositeDegree(2);
+        parameters.SetRegisterWordSize(32);
+    }
+
+    CC cc = GenCryptoContext(parameters);
+    cc->Enable(PKE);
+    cc->Enable(KEYSWITCH);
+    cc->Enable(LEVELEDSHE);
+    cc->Enable(ADVANCEDSHE);
+    return cc;
+}
+
+void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
+    std::cout << "\n============================================================\n";
+    std::cout << "[MODE] " << modeName << "\n";
+
+    auto cc = BuildContext(scalTech);
+    auto kp = cc->KeyGen();
+    cc->EvalMultKeyGen(kp.secretKey);
+
+    Plaintext pt = cc->MakeCKKSPackedPlaintext(kInput);
+    pt->SetLength(kSlots);
+    auto ct = cc->Encrypt(kp.publicKey, pt);
+
+    std::cout << "ringDim = " << cc->GetRingDimension() << "\n";
+    PrintCtState("input", ct);
+
+    auto ct_nr = cc->EvalMultNoRelin(ct, ct);
+    cc->RelinearizeInPlace(ct_nr);
+
+    std::vector<double> ref_sq;
+    for (double x : kInput)
+        ref_sq.push_back(x * x);
+
+    std::cout << "\n[Test] RescaleInPlace\n";
+    PrintCtState("before RescaleInPlace", ct_nr);
+
+    auto dec_before = DecryptVec(cc, kp.secretKey, ct_nr, kSlots);
+    std::cout << "max_abs_err before rescale vs x^2 = "
+              << std::scientific << MaxAbsErrReal(dec_before, ref_sq) << "\n";
+
+    cc->RescaleInPlace(ct_nr);
+    PrintCtState("after RescaleInPlace", ct_nr);
+
+    auto dec_after = DecryptVec(cc, kp.secretKey, ct_nr, kSlots);
+    std::cout << "max_abs_err after  rescale vs x^2 = "
+              << std::scientific << MaxAbsErrReal(dec_after, ref_sq) << "\n";
+}
+
+int main() {
+    try {
+        RunOneMode("FIXEDMANUAL", FIXEDMANUAL);
+        RunOneMode("COMPOSITESCALINGMANUAL", COMPOSITESCALINGMANUAL);
+    }
+    catch (const std::exception& e) {
+        std::cerr << "\n[EXCEPTION] " << e.what() << '\n';
+        return 1;
+    }
+    return 0;
+}
