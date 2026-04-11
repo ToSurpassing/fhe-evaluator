@@ -40,6 +40,7 @@ include_directories(${OpenFHE_INCLUDE}/third-party/include)
 include_directories(${OpenFHE_INCLUDE}/core)
 include_directories(${OpenFHE_INCLUDE}/pke)
 include_directories(${OpenFHE_INCLUDE}/binfhe)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) #新增smoke测试
 ### add directories for other OpenFHE modules as needed for your project
 
 if(UNIX AND NOT APPLE)
@@ -61,6 +62,8 @@ endif()
 ###
 ### EXAMPLE:
 ### add_executable(test demo-simple-example.cpp)
+add_library(smoke_common src/smoke_common.cpp) #新增
+target_include_directories(smoke_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include) #新增smoke
 add_executable(fhe-evaluator src/main.cpp)
 add_executable(ckks_smoke_01_norelin src/smoke/ckks_smoke_01_norelin.cpp)
 add_executable(ckks_smoke_02_relin_add_same_scale src/smoke/ckks_smoke_02_relin_add_same_scale.cpp)
@@ -68,3 +71,10 @@ add_executable(ckks_smoke_03_rescale_manual src/smoke/ckks_smoke_03_rescale_manu
 add_executable(ckks_smoke_04_scaling_modes src/smoke/ckks_smoke_04_scaling_modes.cpp)
 add_executable(ckks_smoke_05_evalpolyps src/smoke/ckks_smoke_05_evalpolyps.cpp)
 add_executable(ckks_smoke_06_mixed_add src/smoke/ckks_smoke_06_mixed_add.cpp)
+
+target_link_libraries(ckks_smoke_01_norelin PRIVATE smoke_common)
+target_link_libraries(ckks_smoke_02_relin_add_same_scale PRIVATE smoke_common)
+target_link_libraries(ckks_smoke_03_rescale_manual PRIVATE smoke_common)
+target_link_libraries(ckks_smoke_04_scaling_modes PRIVATE smoke_common)
+target_link_libraries(ckks_smoke_05_evalpolyps PRIVATE smoke_common)
+target_link_libraries(ckks_smoke_06_mixed_add PRIVATE smoke_common)
