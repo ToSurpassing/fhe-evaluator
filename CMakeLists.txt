@@ -64,6 +64,9 @@ endif()
 ### add_executable(test demo-simple-example.cpp)
 add_library(smoke_common src/smoke_common.cpp) #新增
 target_include_directories(smoke_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include) #新增smoke
+add_library(ckks_lazy_poly_evaluator src/evaluator/ckks_lazy_poly_evaluator.cpp)
+target_link_libraries(ckks_lazy_poly_evaluator PUBLIC smoke_common)
+target_include_directories(ckks_lazy_poly_evaluator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 add_executable(fhe-evaluator src/main.cpp)
 add_executable(ckks_smoke_01_norelin src/smoke/ckks_smoke_01_norelin.cpp)
 add_executable(ckks_smoke_02_relin_add_same_scale src/smoke/ckks_smoke_02_relin_add_same_scale.cpp)
@@ -90,6 +93,7 @@ add_executable(ckks_evaluator_07_baby_step_linear_block_eval src/evaluator/ckks_
 add_executable(ckks_evaluator_08_grouped_same_state_block_eval src/evaluator/ckks_evaluator_08_grouped_same_state_block_eval.cpp)
 add_executable(ckks_evaluator_09_two_block_outer_assembly src/evaluator/ckks_evaluator_09_two_block_outer_assembly.cpp)
 add_executable(ckks_evaluator_10_coeff_block_outer_assembly src/evaluator/ckks_evaluator_10_coeff_block_outer_assembly.cpp)
+add_executable(ckks_evaluator_11_param_coeff_blocks src/evaluator/ckks_evaluator_11_param_coeff_blocks.cpp)
 
 target_link_libraries(ckks_smoke_01_norelin PRIVATE smoke_common)
 target_link_libraries(ckks_smoke_02_relin_add_same_scale PRIVATE smoke_common)
@@ -116,3 +120,4 @@ target_link_libraries(ckks_evaluator_07_baby_step_linear_block_eval PRIVATE smok
 target_link_libraries(ckks_evaluator_08_grouped_same_state_block_eval PRIVATE smoke_common)
 target_link_libraries(ckks_evaluator_09_two_block_outer_assembly PRIVATE smoke_common)
 target_link_libraries(ckks_evaluator_10_coeff_block_outer_assembly PRIVATE smoke_common)
+target_link_libraries(ckks_evaluator_11_param_coeff_blocks PRIVATE ckks_lazy_poly_evaluator)
