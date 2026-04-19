@@ -12,10 +12,9 @@ using Clock = std::chrono::high_resolution_clock;
 
 namespace {
 
-struct BlockCoeffs {
-    double x2 = 0.0;
-    double x3 = 0.0;
-    double x4 = 0.0;
+struct BlockTerm {
+    size_t power = 0;
+    double coeff = 0.0;
 };
 
 struct TailCoeffs {
@@ -36,7 +35,7 @@ enum class Degree8Layout {
 
 struct BlockPlan {
     std::string name;
-    BlockCoeffs coeffs;
+    std::vector<BlockTerm> terms;
     OuterMultiplier outerMultiplier = OuterMultiplier::One;
 };
 
@@ -60,7 +59,7 @@ struct Basis {
 
 struct EvaluatedBlock {
     std::string name;
-    BlockCoeffs coeffs;
+    std::vector<BlockTerm> terms;
     OuterMultiplier outerMultiplier = OuterMultiplier::One;
     Ciphertext<DCRTPoly> value;
 };
@@ -75,12 +74,20 @@ bool IsActiveCoeff(double coeff) {
     return std::abs(coeff) > kZeroTol;
 }
 
-bool IsActiveBlock(const BlockCoeffs& coeffs) {
-    return IsActiveCoeff(coeffs.x2) || IsActiveCoeff(coeffs.x3) || IsActiveCoeff(coeffs.x4);
+bool IsActiveTerm(const BlockTerm& term) {
+    return IsActiveCoeff(term.coeff);
+}
+
+size_t CountActiveTerms(const std::vector<BlockTerm>& terms) {
+    return static_cast<size_t>(std::count_if(terms.begin(), terms.end(), IsActiveTerm));
+}
+
+bool IsActiveBlock(const std::vector<BlockTerm>& terms) {
+    return CountActiveTerms(terms) > 0;
 }
 
 bool IsActiveBlock(const BlockPlan& block) {
-    return IsActiveBlock(block.coeffs);
+    return IsActiveBlock(block.terms);
 }
 
 bool AnyActiveBlock(const Degree8ExecutionPlan& execPlan) {
@@ -129,15 +136,24 @@ std::string LayoutName(Degree8Layout layout) {
     throw std::runtime_error("LayoutName: unknown degree8 layout");
 }
 
-Degree8Layout SelectDegree8Layout(const BlockCoeffs& block0, const BlockCoeffs& block1) {
+Degree8Layout SelectDegree8Layout(const std::vector<BlockTerm>& block0,
+                                  const std::vector<BlockTerm>& block1) {
     return IsActiveBlock(block0) && IsActiveBlock(block1) ?
            Degree8Layout::TwoBlockZ4 :
            Degree8Layout::CompactActive;
 }
 
+std::vector<BlockTerm> MakeBlockTerms(double c2, double c3, double c4) {
+    return std::vector<BlockTerm>{
+        BlockTerm{2, c2},
+        BlockTerm{3, c3},
+        BlockTerm{4, c4},
+    };
+}
+
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
-    const auto block0 = BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)};
-    const auto block1 = BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)};
+    const auto block0 = MakeBlockTerms(CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4));
+    const auto block1 = MakeBlockTerms(CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8));
     const auto layout = SelectDegree8Layout(block0, block1);
 
     std::vector<BlockPlan> blocks;
@@ -175,27 +191,37 @@ std::vector<double> ScaleRef(std::vector<double> ref, double scalar) {
     return ref;
 }
 
-double PlainBlock(double x, const BlockCoeffs& coeffs) {
-    const double x2 = x * x;
-    const double x3 = x2 * x;
-    const double x4 = x2 * x2;
-    return coeffs.x2 * x2 + coeffs.x3 * x3 + coeffs.x4 * x4;
+double PlainPower(double x, size_t power) {
+    double y = 1.0;
+    for (size_t i = 0; i < power; ++i) {
+        y *= x;
+    }
+    return y;
 }
 
-std::vector<double> RefBlock(const std::vector<double>& input, const BlockCoeffs& coeffs) {
+double PlainBlock(double x, const std::vector<BlockTerm>& terms) {
+    double y = 0.0;
+    for (const auto& term : terms) {
+        y += term.coeff * PlainPower(x, term.power);
+    }
+    return y;
+}
+
+std::vector<double> RefBlock(const std::vector<double>& input, const std::vector<BlockTerm>& terms) {
     std::vector<double> ref;
     ref.reserve(input.size());
     for (double x : input) {
-        ref.push_back(PlainBlock(x, coeffs));
+        ref.push_back(PlainBlock(x, terms));
     }
     return ref;
 }
 
-std::vector<double> RefOuterProduct(const std::vector<double>& input, const BlockCoeffs& block1) {
+std::vector<double> RefOuterProduct(const std::vector<double>& input,
+                                    const std::vector<BlockTerm>& terms) {
     std::vector<double> ref;
     ref.reserve(input.size());
     for (double x : input) {
-        ref.push_back(PlainBlock(x, block1) * x * x * x * x);
+        ref.push_back(PlainBlock(x, terms) * x * x * x * x);
     }
     return ref;
 }
@@ -413,105 +439,119 @@ Ciphertext<DCRTPoly> AddPreparedTerms(CC cc,
 Ciphertext<DCRTPoly> EvalBlockExpandedEager(CC cc,
                                             const PrivateKey<DCRTPoly>& sk,
                                             const std::string& blockName,
-                                            const BlockCoeffs& coeffs,
+                                            const std::vector<BlockTerm>& blockTerms,
                                             const Basis& basis,
                                             const std::vector<double>& inputPlain,
                                             const RestrictedDegree8Plan& plan,
                                             EvalResult& result) {
-    std::vector<Ciphertext<DCRTPoly>> terms;
-    terms.reserve(4);
+    std::vector<Ciphertext<DCRTPoly>> preparedTerms;
+    preparedTerms.reserve(blockTerms.size() + 1);
 
-    if (IsActiveCoeff(coeffs.x2)) {
-        auto x2Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x",
-                                          basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
-        x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
-        AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^2", cc, sk, x2Term,
-                 ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
-        terms.push_back(x2Term);
-    }
+    for (const auto& term : blockTerms) {
+        if (!IsActiveTerm(term)) {
+            continue;
+        }
 
-    if (IsActiveCoeff(coeffs.x3)) {
-        auto x3Left = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x^2",
-                                          basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
-        x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
-        AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x*x^2", cc, sk, x3Left,
-                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-        terms.push_back(x3Left);
+        if (term.power == 2) {
+            auto x2Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x",
+                                              basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
+            x2Term = Scale(cc, x2Term, term.coeff, result.stats);
+            AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^2", cc, sk, x2Term,
+                     ScaleRef(RefPower(inputPlain, 2), term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(x2Term);
+        }
+        else if (term.power == 3) {
+            auto x3Left = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x^2",
+                                              basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
+            x3Left = Scale(cc, x3Left, term.coeff * 0.5, result.stats);
+            AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x*x^2", cc, sk, x3Left,
+                     ScaleRef(RefPower(inputPlain, 3), term.coeff * 0.5), plan.slots, 0.0);
+            preparedTerms.push_back(x3Left);
 
-        auto x3Right = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x",
-                                           basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
-        x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
-        AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x^2*x", cc, sk, x3Right,
-                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-        terms.push_back(x3Right);
-    }
-
-    if (IsActiveCoeff(coeffs.x4)) {
-        auto x4Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x^2",
-                                          basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
-        x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
-        AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^4", cc, sk, x4Term,
-                 ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
-        terms.push_back(x4Term);
+            auto x3Right = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x",
+                                               basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
+            x3Right = Scale(cc, x3Right, term.coeff * 0.5, result.stats);
+            AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x^2*x", cc, sk, x3Right,
+                     ScaleRef(RefPower(inputPlain, 3), term.coeff * 0.5), plan.slots, 0.0);
+            preparedTerms.push_back(x3Right);
+        }
+        else if (term.power == 4) {
+            auto x4Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x^2",
+                                              basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
+            x4Term = Scale(cc, x4Term, term.coeff, result.stats);
+            AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^4", cc, sk, x4Term,
+                     ScaleRef(RefPower(inputPlain, 4), term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(x4Term);
+        }
+        else {
+            throw std::runtime_error("EvalBlockExpandedEager: unsupported local block power");
+        }
     }
 
     return AddPreparedTerms(cc, sk, "expanded-eager", blockName + " materialized coeff block",
-                            terms, RefBlock(inputPlain, coeffs), plan, result);
+                            preparedTerms, RefBlock(inputPlain, blockTerms), plan, result);
 }
 
 Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
                                           const PrivateKey<DCRTPoly>& sk,
                                           const std::string& blockName,
-                                          const BlockCoeffs& coeffs,
+                                          const std::vector<BlockTerm>& blockTerms,
                                           const Basis& basis,
                                           const std::vector<double>& inputPlain,
                                           const RestrictedDegree8Plan& plan,
                                           EvalResult& result) {
-    std::vector<Ciphertext<DCRTPoly>> terms;
-    terms.reserve(4);
+    std::vector<Ciphertext<DCRTPoly>> preparedTerms;
+    preparedTerms.reserve(blockTerms.size() + 1);
 
-    if (IsActiveCoeff(coeffs.x2)) {
-        auto x2Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x",
-                                 basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
-        x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
-        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^2", cc, sk, x2Term,
-                 ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
-        terms.push_back(x2Term);
-    }
+    for (const auto& term : blockTerms) {
+        if (!IsActiveTerm(term)) {
+            continue;
+        }
 
-    if (IsActiveCoeff(coeffs.x3)) {
-        auto x3Left = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x^2",
-                                 basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
-        x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
-        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x*x^2", cc, sk, x3Left,
-                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-        terms.push_back(x3Left);
+        if (term.power == 2) {
+            auto x2Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x",
+                                     basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
+            x2Term = Scale(cc, x2Term, term.coeff, result.stats);
+            AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^2", cc, sk, x2Term,
+                     ScaleRef(RefPower(inputPlain, 2), term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(x2Term);
+        }
+        else if (term.power == 3) {
+            auto x3Left = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x^2",
+                                     basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
+            x3Left = Scale(cc, x3Left, term.coeff * 0.5, result.stats);
+            AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x*x^2", cc, sk, x3Left,
+                     ScaleRef(RefPower(inputPlain, 3), term.coeff * 0.5), plan.slots, 0.0);
+            preparedTerms.push_back(x3Left);
 
-        auto x3Right = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x",
-                                  basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
-        x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
-        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x^2*x", cc, sk, x3Right,
-                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-        terms.push_back(x3Right);
-    }
-
-    if (IsActiveCoeff(coeffs.x4)) {
-        auto x4Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x^2",
-                                 basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
-        x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
-        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^4", cc, sk, x4Term,
-                 ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
-        terms.push_back(x4Term);
+            auto x3Right = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x",
+                                      basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
+            x3Right = Scale(cc, x3Right, term.coeff * 0.5, result.stats);
+            AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x^2*x", cc, sk, x3Right,
+                     ScaleRef(RefPower(inputPlain, 3), term.coeff * 0.5), plan.slots, 0.0);
+            preparedTerms.push_back(x3Right);
+        }
+        else if (term.power == 4) {
+            auto x4Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x^2",
+                                     basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
+            x4Term = Scale(cc, x4Term, term.coeff, result.stats);
+            AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^4", cc, sk, x4Term,
+                     ScaleRef(RefPower(inputPlain, 4), term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(x4Term);
+        }
+        else {
+            throw std::runtime_error("EvalBlockGroupedLazy: unsupported local block power");
+        }
     }
 
     auto rawBlock = AddPreparedTerms(cc, sk, "grouped-lazy", blockName + " raw coeff block folded",
-                                     terms, RefBlock(inputPlain, coeffs), plan, result);
+                                     preparedTerms, RefBlock(inputPlain, blockTerms), plan, result);
 
     auto t0 = Clock::now();
     auto out = Materialize(cc, rawBlock, result.stats);
     auto t1 = Clock::now();
     AddTrace(result.trace, "grouped-lazy", blockName + " materialized coeff block",
-             cc, sk, out, RefBlock(inputPlain, coeffs), plan.slots,
+             cc, sk, out, RefBlock(inputPlain, blockTerms), plan.slots,
              std::chrono::duration<double>(t1 - t0).count());
     return out;
 }
@@ -538,10 +578,10 @@ Ciphertext<DCRTPoly> AssembleOuter(CC cc,
 
         if (block.outerMultiplier == OuterMultiplier::One) {
             term = block.value->Clone();
-            blockRef = RefBlock(inputPlain, block.coeffs);
+            blockRef = RefBlock(inputPlain, block.terms);
         }
         else if (block.outerMultiplier == OuterMultiplier::Z) {
-            blockRef = RefOuterProduct(inputPlain, block.coeffs);
+            blockRef = RefOuterProduct(inputPlain, block.terms);
             term = MaterializedProduct(cc, sk, strategy, "outer " + block.name + "*z",
                                        block.value, basis.z, blockRef, plan, result);
         }
@@ -686,10 +726,10 @@ Ciphertext<DCRTPoly> EvalBlockForStrategy(CC cc,
                                           EvalResult& result) {
     switch (strategy) {
         case EvaluationStrategy::ExpandedEager:
-            return EvalBlockExpandedEager(cc, sk, block.name, block.coeffs, basis,
+            return EvalBlockExpandedEager(cc, sk, block.name, block.terms, basis,
                                           inputPlain, plan, result);
         case EvaluationStrategy::GroupedLazy:
-            return EvalBlockGroupedLazy(cc, sk, block.name, block.coeffs, basis,
+            return EvalBlockGroupedLazy(cc, sk, block.name, block.terms, basis,
                                         inputPlain, plan, result);
     }
     throw std::runtime_error("EvalBlockForStrategy: unknown evaluation strategy");
@@ -708,7 +748,7 @@ std::optional<EvaluatedBlock> EvalBlockIfActive(CC cc,
     }
     auto value = EvalBlockForStrategy(cc, sk, strategy, block, basis,
                                       inputPlain, plan, result);
-    return EvaluatedBlock{block.name, block.coeffs, block.outerMultiplier, value};
+    return EvaluatedBlock{block.name, block.terms, block.outerMultiplier, value};
 }
 
 EvalResult ExecuteDegree8Plan(CC cc,
@@ -777,9 +817,7 @@ Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coe
 
     summary.blocks.reserve(execPlan.blocks.size());
     for (const auto& block : execPlan.blocks) {
-        const size_t termCount = static_cast<size_t>(IsActiveCoeff(block.coeffs.x2)) +
-                                 static_cast<size_t>(IsActiveCoeff(block.coeffs.x3)) +
-                                 static_cast<size_t>(IsActiveCoeff(block.coeffs.x4));
+        const size_t termCount = CountActiveTerms(block.terms);
         summary.blocks.push_back(
             Degree8BlockSummary{block.name, termCount, OuterMultiplierName(block.outerMultiplier)});
         if (block.name == "block0") {
