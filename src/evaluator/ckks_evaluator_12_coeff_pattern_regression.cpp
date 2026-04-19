@@ -17,6 +17,8 @@ struct CaseDef {
     size_t expectedBlock0Terms = 0;
     size_t expectedBlock1Terms = 0;
     size_t expectedTailTerms = 0;
+    std::string expectedBlock0Outer;
+    std::string expectedBlock1Outer;
     size_t expectedEagerTensor = 0;
     size_t expectedLazyTensor = 0;
     size_t expectedEagerRelin = 0;
@@ -44,14 +46,14 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
-        CaseDef{"only_c0", {0.25}, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c1", {0.0, -0.3}, 0, 0, 1, 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, 0, 0, 1, 3, 3, 3, 3, 3, 3},
-        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, 3, 0, 0, 5, 5, 5, 2, 5, 2},
-        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, 0, 3, 0, 7, 7, 7, 4, 7, 4},
-        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, 1, 1, 2, 6, 6, 6, 6, 6, 6},
-        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, 1, 1, 1, 6, 6, 6, 5, 6, 5},
-        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, 3, 3, 3, 12, 12, 12, 6, 12, 6},
+        CaseDef{"only_c0", {0.25}, 0, 0, 1, "One", "Z", 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c1", {0.0, -0.3}, 0, 0, 1, "One", "Z", 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, 0, 0, 1, "One", "Z", 3, 3, 3, 3, 3, 3},
+        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, 3, 0, 0, "One", "Z", 5, 5, 5, 2, 5, 2},
+        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, 0, 3, 0, "One", "Z", 7, 7, 7, 4, 7, 4},
+        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, 1, 1, 2, "One", "Z", 6, 6, 6, 6, 6, 6},
+        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, 1, 1, 1, "One", "Z", 6, 6, 6, 5, 6, 5},
+        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, 3, 3, 3, "One", "Z", 12, 12, 12, 6, 12, 6},
     };
 }
 
@@ -59,7 +61,7 @@ void PrintSummaryHeader() {
     std::cout << std::left
               << std::setw(23) << "case"
               << std::setw(24) << "mode"
-              << std::setw(38) << "plan"
+              << std::setw(56) << "plan"
               << std::setw(14) << "eager_err"
               << std::setw(14) << "lazy_err"
               << std::setw(12) << "tensor"
@@ -67,14 +69,14 @@ void PrintSummaryHeader() {
               << std::setw(12) << "rescale"
               << std::setw(8) << "pass"
               << '\n';
-    std::cout << std::string(155, '-') << '\n';
+    std::cout << std::string(173, '-') << '\n';
 }
 
 void PrintSummaryRow(const CaseResult& row) {
     std::cout << std::left
               << std::setw(23) << row.name
               << std::setw(24) << row.mode
-              << std::setw(38) << row.planSummary
+              << std::setw(56) << row.planSummary
               << std::setw(14) << std::scientific << row.eagerErr
               << std::setw(14) << std::scientific << row.lazyErr
               << std::setw(12) << (std::to_string(row.eagerTensor) + "/" + std::to_string(row.lazyTensor))
@@ -92,7 +94,14 @@ bool LazyNoWorseOnSwitches(const fhe_eval::PairedEvalResult& result) {
 bool PlanSummaryMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseDef& testCase) {
     return summary.block0Terms == testCase.expectedBlock0Terms &&
            summary.block1Terms == testCase.expectedBlock1Terms &&
-           summary.tailTerms == testCase.expectedTailTerms;
+           summary.tailTerms == testCase.expectedTailTerms &&
+           summary.blocks.size() == 2 &&
+           summary.blocks[0].name == "block0" &&
+           summary.blocks[0].terms == testCase.expectedBlock0Terms &&
+           summary.blocks[0].outerMultiplier == testCase.expectedBlock0Outer &&
+           summary.blocks[1].name == "block1" &&
+           summary.blocks[1].terms == testCase.expectedBlock1Terms &&
+           summary.blocks[1].outerMultiplier == testCase.expectedBlock1Outer;
 }
 
 bool StatsMatchExpected(const fhe_eval::PairedEvalResult& result, const CaseDef& testCase) {

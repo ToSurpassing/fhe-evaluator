@@ -103,6 +103,16 @@ std::string StrategyName(EvaluationStrategy strategy) {
     throw std::runtime_error("StrategyName: unknown evaluation strategy");
 }
 
+std::string OuterMultiplierName(OuterMultiplier multiplier) {
+    switch (multiplier) {
+        case OuterMultiplier::One:
+            return "One";
+        case OuterMultiplier::Z:
+            return "Z";
+    }
+    throw std::runtime_error("OuterMultiplierName: unknown outer multiplier");
+}
+
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
     return Degree8ExecutionPlan{
         std::vector<BlockPlan>{
@@ -735,15 +745,22 @@ std::vector<double> EvalRestrictedDegree8Plain(const std::vector<double>& input,
 Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coeffs) {
     const auto execPlan = BuildDegree8ExecutionPlan(coeffs);
     Degree8PlanSummary summary;
-    const auto& block0 = execPlan.blocks.at(0).coeffs;
-    const auto& block1 = execPlan.blocks.at(1).coeffs;
 
-    summary.block0Terms = static_cast<size_t>(IsActiveCoeff(block0.x2)) +
-                          static_cast<size_t>(IsActiveCoeff(block0.x3)) +
-                          static_cast<size_t>(IsActiveCoeff(block0.x4));
-    summary.block1Terms = static_cast<size_t>(IsActiveCoeff(block1.x2)) +
-                          static_cast<size_t>(IsActiveCoeff(block1.x3)) +
-                          static_cast<size_t>(IsActiveCoeff(block1.x4));
+    summary.blocks.reserve(execPlan.blocks.size());
+    for (const auto& block : execPlan.blocks) {
+        const size_t termCount = static_cast<size_t>(IsActiveCoeff(block.coeffs.x2)) +
+                                 static_cast<size_t>(IsActiveCoeff(block.coeffs.x3)) +
+                                 static_cast<size_t>(IsActiveCoeff(block.coeffs.x4));
+        summary.blocks.push_back(
+            Degree8BlockSummary{block.name, termCount, OuterMultiplierName(block.outerMultiplier)});
+        if (block.name == "block0") {
+            summary.block0Terms = termCount;
+        }
+        else if (block.name == "block1") {
+            summary.block1Terms = termCount;
+        }
+    }
+
     summary.hasC0 = IsActiveCoeff(execPlan.tail.c0);
     summary.hasC1 = IsActiveCoeff(execPlan.tail.c1);
     summary.hasC5 = IsActiveCoeff(execPlan.tail.c5);
@@ -754,12 +771,22 @@ Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coe
 }
 
 std::string FormatDegree8PlanSummary(const Degree8PlanSummary& summary) {
-    return "b0=" + std::to_string(summary.block0Terms) +
-           " b1=" + std::to_string(summary.block1Terms) +
-           " tail=" + std::to_string(summary.tailTerms) +
+    std::string out;
+    for (size_t i = 0; i < summary.blocks.size(); ++i) {
+        const auto& block = summary.blocks[i];
+        if (i > 0) {
+            out += " ";
+        }
+        out += block.name + ":" + block.outerMultiplier + "=" + std::to_string(block.terms);
+    }
+    if (!out.empty()) {
+        out += " ";
+    }
+    out += "tail=" + std::to_string(summary.tailTerms) +
            " c0=" + std::string(summary.hasC0 ? "yes" : "no") +
            " c1=" + std::string(summary.hasC1 ? "yes" : "no") +
            " c5=" + std::string(summary.hasC5 ? "yes" : "no");
+    return out;
 }
 
 PairedEvalResult EvalRestrictedDegree8(CC cc,

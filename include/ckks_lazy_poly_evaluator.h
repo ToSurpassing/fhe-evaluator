@@ -48,6 +48,12 @@ struct RestrictedDegree8Plan {
     size_t slots = fhe_smoke::kSlots;
 };
 
+struct Degree8BlockSummary {
+    std::string name;
+    size_t terms = 0;
+    std::string outerMultiplier;
+};
+
 struct Degree8PlanSummary {
     size_t block0Terms = 0;
     size_t block1Terms = 0;
@@ -55,6 +61,7 @@ struct Degree8PlanSummary {
     bool hasC0 = false;
     bool hasC1 = false;
     bool hasC5 = false;
+    std::vector<Degree8BlockSummary> blocks;
 };
 
 // First reusable prototype extracted from the validated 10_* experiment.
