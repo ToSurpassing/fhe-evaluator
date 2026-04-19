@@ -17,6 +17,12 @@ struct CaseDef {
     size_t expectedBlock0Terms = 0;
     size_t expectedBlock1Terms = 0;
     size_t expectedTailTerms = 0;
+    size_t expectedEagerTensor = 0;
+    size_t expectedLazyTensor = 0;
+    size_t expectedEagerRelin = 0;
+    size_t expectedLazyRelin = 0;
+    size_t expectedEagerRescale = 0;
+    size_t expectedLazyRescale = 0;
 };
 
 struct CaseResult {
@@ -38,14 +44,14 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
-        CaseDef{"only_c0", {0.25}, 0, 0, 1},
-        CaseDef{"only_c1", {0.0, -0.3}, 0, 0, 1},
-        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, 0, 0, 1},
-        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, 3, 0, 0},
-        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, 0, 3, 0},
-        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, 1, 1, 2},
-        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, 1, 1, 1},
-        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, 3, 3, 3},
+        CaseDef{"only_c0", {0.25}, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c1", {0.0, -0.3}, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, 0, 0, 1, 3, 3, 3, 3, 3, 3},
+        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, 3, 0, 0, 5, 5, 5, 2, 5, 2},
+        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, 0, 3, 0, 7, 7, 7, 4, 7, 4},
+        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, 1, 1, 2, 6, 6, 6, 6, 6, 6},
+        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, 1, 1, 1, 6, 6, 6, 5, 6, 5},
+        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, 3, 3, 3, 12, 12, 12, 6, 12, 6},
     };
 }
 
@@ -89,6 +95,15 @@ bool PlanSummaryMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseD
            summary.tailTerms == testCase.expectedTailTerms;
 }
 
+bool StatsMatchExpected(const fhe_eval::PairedEvalResult& result, const CaseDef& testCase) {
+    return result.expandedEager.stats.tensorProducts == testCase.expectedEagerTensor &&
+           result.groupedLazy.stats.tensorProducts == testCase.expectedLazyTensor &&
+           result.expandedEager.stats.relinCount == testCase.expectedEagerRelin &&
+           result.groupedLazy.stats.relinCount == testCase.expectedLazyRelin &&
+           result.expandedEager.stats.rescaleCount == testCase.expectedEagerRescale &&
+           result.groupedLazy.stats.rescaleCount == testCase.expectedLazyRescale;
+}
+
 CaseResult RunCase(const CaseDef& testCase,
                    const std::string& modeName,
                    ScalingTechnique scalTech) {
@@ -114,7 +129,8 @@ CaseResult RunCase(const CaseDef& testCase,
     const bool pass = eagerErr < kMaxErrThreshold &&
                       lazyErr < kMaxErrThreshold &&
                       LazyNoWorseOnSwitches(result) &&
-                      PlanSummaryMatches(planSummary, testCase);
+                      PlanSummaryMatches(planSummary, testCase) &&
+                      StatsMatchExpected(result, testCase);
 
     return CaseResult{
         modeName,

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <optional>
 #include <stdexcept>
 
 namespace fhe_eval {
@@ -44,6 +45,18 @@ double CoeffAt(const std::vector<double>& coeffs, size_t i) {
 
 bool IsActiveCoeff(double coeff) {
     return std::abs(coeff) > kZeroTol;
+}
+
+bool IsActiveBlock(const BlockCoeffs& coeffs) {
+    return IsActiveCoeff(coeffs.x2) || IsActiveCoeff(coeffs.x3) || IsActiveCoeff(coeffs.x4);
+}
+
+bool NeedsZ(const Degree8ExecutionPlan& execPlan) {
+    return IsActiveBlock(execPlan.block1) || IsActiveCoeff(execPlan.tail.c5);
+}
+
+std::vector<double> ZeroRef(size_t size) {
+    return std::vector<double>(size, 0.0);
 }
 
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
@@ -256,9 +269,15 @@ Basis BuildBasis(CC cc,
                  const std::string& strategy,
                  const Ciphertext<DCRTPoly>& inputCt,
                  const std::vector<double>& inputPlain,
+                 const Degree8ExecutionPlan& execPlan,
                  const RestrictedDegree8Plan& plan,
                  EvalResult& result) {
     AddTrace(result.trace, strategy, "x input", cc, sk, inputCt, inputPlain, plan.slots, 0.0);
+
+    const bool needX2 = IsActiveBlock(execPlan.block0) || IsActiveBlock(execPlan.block1) || NeedsZ(execPlan);
+    if (!needX2) {
+        return Basis{inputCt->Clone(), inputCt->Clone(), nullptr, nullptr};
+    }
 
     auto x2 = MaterializedProduct(cc, sk, strategy, "precompute x^2", inputCt, inputCt,
                                   RefPower(inputPlain, 2), plan, result);
@@ -268,6 +287,10 @@ Basis BuildBasis(CC cc,
     ReduceToLevel(cc, xAligned, x2->GetLevel(), result.stats);
     AddTrace(result.trace, strategy, "x aligned with x^2", cc, sk, xAligned,
              inputPlain, plan.slots, 0.0);
+
+    if (!NeedsZ(execPlan)) {
+        return Basis{inputCt->Clone(), xAligned, x2, nullptr};
+    }
 
     auto z = MaterializedProduct(cc, sk, strategy, "precompute z=x^4", x2, x2,
                                  RefPower(inputPlain, 4), plan, result);
@@ -311,33 +334,39 @@ Ciphertext<DCRTPoly> EvalBlockExpandedEager(CC cc,
     std::vector<Ciphertext<DCRTPoly>> terms;
     terms.reserve(4);
 
-    auto x2Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x",
-                                      basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
-    x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
-    AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^2", cc, sk, x2Term,
-             ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
-    terms.push_back(x2Term);
+    if (IsActiveCoeff(coeffs.x2)) {
+        auto x2Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x",
+                                          basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
+        x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
+        AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^2", cc, sk, x2Term,
+                 ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
+        terms.push_back(x2Term);
+    }
 
-    auto x3Left = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x^2",
-                                      basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
-    x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
-    AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x*x^2", cc, sk, x3Left,
-             ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-    terms.push_back(x3Left);
+    if (IsActiveCoeff(coeffs.x3)) {
+        auto x3Left = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x^2",
+                                          basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
+        x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
+        AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x*x^2", cc, sk, x3Left,
+                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
+        terms.push_back(x3Left);
 
-    auto x3Right = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x",
-                                       basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
-    x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
-    AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x^2*x", cc, sk, x3Right,
-             ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-    terms.push_back(x3Right);
+        auto x3Right = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x",
+                                           basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
+        x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
+        AddTrace(result.trace, "expanded-eager", blockName + " coeff/2*x^2*x", cc, sk, x3Right,
+                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
+        terms.push_back(x3Right);
+    }
 
-    auto x4Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x^2",
-                                      basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
-    x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
-    AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^4", cc, sk, x4Term,
-             ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
-    terms.push_back(x4Term);
+    if (IsActiveCoeff(coeffs.x4)) {
+        auto x4Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x^2*x^2",
+                                          basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
+        x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
+        AddTrace(result.trace, "expanded-eager", blockName + " coeff*x^4", cc, sk, x4Term,
+                 ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
+        terms.push_back(x4Term);
+    }
 
     return AddPreparedTerms(cc, sk, "expanded-eager", blockName + " materialized coeff block",
                             terms, RefBlock(inputPlain, coeffs), plan, result);
@@ -354,33 +383,39 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
     std::vector<Ciphertext<DCRTPoly>> terms;
     terms.reserve(4);
 
-    auto x2Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x",
-                             basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
-    x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
-    AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^2", cc, sk, x2Term,
-             ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
-    terms.push_back(x2Term);
+    if (IsActiveCoeff(coeffs.x2)) {
+        auto x2Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x",
+                                 basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
+        x2Term = Scale(cc, x2Term, coeffs.x2, result.stats);
+        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^2", cc, sk, x2Term,
+                 ScaleRef(RefPower(inputPlain, 2), coeffs.x2), plan.slots, 0.0);
+        terms.push_back(x2Term);
+    }
 
-    auto x3Left = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x^2",
-                             basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
-    x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
-    AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x*x^2", cc, sk, x3Left,
-             ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-    terms.push_back(x3Left);
+    if (IsActiveCoeff(coeffs.x3)) {
+        auto x3Left = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x^2",
+                                 basis.x, basis.x2, RefPower(inputPlain, 3), plan, result);
+        x3Left = Scale(cc, x3Left, coeffs.x3 * 0.5, result.stats);
+        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x*x^2", cc, sk, x3Left,
+                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
+        terms.push_back(x3Left);
 
-    auto x3Right = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x",
-                              basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
-    x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
-    AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x^2*x", cc, sk, x3Right,
-             ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
-    terms.push_back(x3Right);
+        auto x3Right = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x",
+                                  basis.x2, basis.x, RefPower(inputPlain, 3), plan, result);
+        x3Right = Scale(cc, x3Right, coeffs.x3 * 0.5, result.stats);
+        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff/2*x^2*x", cc, sk, x3Right,
+                 ScaleRef(RefPower(inputPlain, 3), coeffs.x3 * 0.5), plan.slots, 0.0);
+        terms.push_back(x3Right);
+    }
 
-    auto x4Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x^2",
-                             basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
-    x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
-    AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^4", cc, sk, x4Term,
-             ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
-    terms.push_back(x4Term);
+    if (IsActiveCoeff(coeffs.x4)) {
+        auto x4Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x^2*x^2",
+                                 basis.x2, basis.x2, RefPower(inputPlain, 4), plan, result);
+        x4Term = Scale(cc, x4Term, coeffs.x4, result.stats);
+        AddTrace(result.trace, "grouped-lazy", blockName + " raw coeff*x^4", cc, sk, x4Term,
+                 ScaleRef(RefPower(inputPlain, 4), coeffs.x4), plan.slots, 0.0);
+        terms.push_back(x4Term);
+    }
 
     auto rawBlock = AddPreparedTerms(cc, sk, "grouped-lazy", blockName + " raw coeff block folded",
                                      terms, RefBlock(inputPlain, coeffs), plan, result);
@@ -397,8 +432,8 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
 Ciphertext<DCRTPoly> AssembleOuter(CC cc,
                                    const PrivateKey<DCRTPoly>& sk,
                                    const std::string& strategy,
-                                   const Ciphertext<DCRTPoly>& block0,
-                                   const Ciphertext<DCRTPoly>& block1,
+                                   const std::optional<Ciphertext<DCRTPoly>>& block0,
+                                   const std::optional<Ciphertext<DCRTPoly>>& block1,
                                    const Basis& basis,
                                    const Degree8ExecutionPlan& execPlan,
                                    const std::vector<double>& inputPlain,
@@ -410,25 +445,44 @@ Ciphertext<DCRTPoly> AssembleOuter(CC cc,
     const double c1 = execPlan.tail.c1;
     const double c5 = execPlan.tail.c5;
 
-    auto outer = MaterializedProduct(cc, sk, strategy, "outer block1*z",
-                                     block1, basis.z, RefOuterProduct(inputPlain, block1Coeffs),
-                                     plan, result);
+    std::optional<Ciphertext<DCRTPoly>> acc;
+    auto runningRef = ZeroRef(inputPlain.size());
 
-    auto b0 = block0->Clone();
-    AlignForAdd(cc, b0, outer, result.stats);
-    AddTrace(result.trace, strategy, "block0 aligned for outer sum", cc, sk, b0,
-             RefBlock(inputPlain, block0Coeffs), plan.slots, 0.0);
+    if (block0.has_value()) {
+        acc = (*block0)->Clone();
+        runningRef = RefBlock(inputPlain, block0Coeffs);
+        AddTrace(result.trace, strategy, "block0 starts outer assembly", cc, sk, *acc,
+                 runningRef, plan.slots, 0.0);
+    }
 
-    auto t0 = Clock::now();
-    auto acc = cc->EvalAdd(b0, outer);
-    auto t1 = Clock::now();
-    ++result.stats.addCount;
-    const double dt = std::chrono::duration<double>(t1 - t0).count();
-    result.stats.totalOpSec += dt;
-    auto runningRef = RefOuterBase(inputPlain, block0Coeffs, block1Coeffs);
-    AddTrace(result.trace, strategy, "block0 + block1*z", cc, sk, acc, runningRef, plan.slots, dt);
+    if (block1.has_value()) {
+        auto outer = MaterializedProduct(cc, sk, strategy, "outer block1*z",
+                                         *block1, basis.z, RefOuterProduct(inputPlain, block1Coeffs),
+                                         plan, result);
+        if (acc.has_value()) {
+            AlignForAdd(cc, *acc, outer, result.stats);
+            AddTrace(result.trace, strategy, "block0 aligned for outer sum", cc, sk, *acc,
+                     RefBlock(inputPlain, block0Coeffs), plan.slots, 0.0);
 
-    if (std::abs(c5) > kZeroTol) {
+            auto t0 = Clock::now();
+            *acc = cc->EvalAdd(*acc, outer);
+            auto t1 = Clock::now();
+            ++result.stats.addCount;
+            const double dt = std::chrono::duration<double>(t1 - t0).count();
+            result.stats.totalOpSec += dt;
+            runningRef = RefOuterBase(inputPlain, block0Coeffs, block1Coeffs);
+            AddTrace(result.trace, strategy, "block0 + block1*z", cc, sk, *acc,
+                     runningRef, plan.slots, dt);
+        }
+        else {
+            acc = outer;
+            runningRef = RefOuterProduct(inputPlain, block1Coeffs);
+            AddTrace(result.trace, strategy, "outer block1*z starts assembly", cc, sk, *acc,
+                     runningRef, plan.slots, 0.0);
+        }
+    }
+
+    if (IsActiveCoeff(c5)) {
         auto xForX5 = basis.x->Clone();
         auto zForX5 = basis.z->Clone();
         AlignForAdd(cc, xForX5, zForX5, result.stats);
@@ -437,49 +491,71 @@ Ciphertext<DCRTPoly> AssembleOuter(CC cc,
         x5Term = Scale(cc, x5Term, c5, result.stats);
         AddTrace(result.trace, strategy, "tail coeff*x^5", cc, sk, x5Term,
                  ScaleRef(RefPower(inputPlain, 5), c5), plan.slots, 0.0);
-        AlignForAdd(cc, acc, x5Term, result.stats);
-        auto t2 = Clock::now();
-        acc = cc->EvalAdd(acc, x5Term);
-        auto t3 = Clock::now();
-        ++result.stats.addCount;
-        result.stats.totalOpSec += std::chrono::duration<double>(t3 - t2).count();
-        runningRef = AddScaledPowerRef(runningRef, inputPlain, 5, c5);
-        AddTrace(result.trace, strategy, "add tail c5*x^5", cc, sk, acc,
-                 runningRef, plan.slots, std::chrono::duration<double>(t3 - t2).count());
+        if (acc.has_value()) {
+            AlignForAdd(cc, *acc, x5Term, result.stats);
+            auto t2 = Clock::now();
+            *acc = cc->EvalAdd(*acc, x5Term);
+            auto t3 = Clock::now();
+            ++result.stats.addCount;
+            result.stats.totalOpSec += std::chrono::duration<double>(t3 - t2).count();
+            runningRef = AddScaledPowerRef(runningRef, inputPlain, 5, c5);
+            AddTrace(result.trace, strategy, "add tail c5*x^5", cc, sk, *acc,
+                     runningRef, plan.slots, std::chrono::duration<double>(t3 - t2).count());
+        }
+        else {
+            acc = x5Term;
+            runningRef = ScaleRef(RefPower(inputPlain, 5), c5);
+            AddTrace(result.trace, strategy, "tail c5*x^5 starts assembly", cc, sk, *acc,
+                     runningRef, plan.slots, 0.0);
+        }
     }
 
-    if (std::abs(c1) > kZeroTol) {
+    if (IsActiveCoeff(c1)) {
         auto xTerm = basis.input->Clone();
         xTerm = Scale(cc, xTerm, c1, result.stats);
         AddTrace(result.trace, strategy, "tail coeff*x", cc, sk, xTerm,
                  ScaleRef(inputPlain, c1), plan.slots, 0.0);
-        AlignForAdd(cc, acc, xTerm, result.stats);
-        auto t4 = Clock::now();
-        acc = cc->EvalAdd(acc, xTerm);
-        auto t5 = Clock::now();
-        ++result.stats.addCount;
-        result.stats.totalOpSec += std::chrono::duration<double>(t5 - t4).count();
-        runningRef = AddScaledPowerRef(runningRef, inputPlain, 1, c1);
-        AddTrace(result.trace, strategy, "add tail c1*x", cc, sk, acc,
-                 runningRef, plan.slots, std::chrono::duration<double>(t5 - t4).count());
+        if (acc.has_value()) {
+            AlignForAdd(cc, *acc, xTerm, result.stats);
+            auto t4 = Clock::now();
+            *acc = cc->EvalAdd(*acc, xTerm);
+            auto t5 = Clock::now();
+            ++result.stats.addCount;
+            result.stats.totalOpSec += std::chrono::duration<double>(t5 - t4).count();
+            runningRef = AddScaledPowerRef(runningRef, inputPlain, 1, c1);
+            AddTrace(result.trace, strategy, "add tail c1*x", cc, sk, *acc,
+                     runningRef, plan.slots, std::chrono::duration<double>(t5 - t4).count());
+        }
+        else {
+            acc = xTerm;
+            runningRef = ScaleRef(inputPlain, c1);
+            AddTrace(result.trace, strategy, "tail c1*x starts assembly", cc, sk, *acc,
+                     runningRef, plan.slots, 0.0);
+        }
     }
 
-    if (std::abs(c0) > kZeroTol) {
+    if (!acc.has_value()) {
+        acc = Scale(cc, basis.input->Clone(), 0.0, result.stats);
+        AddTrace(result.trace, strategy, "zero accumulator", cc, sk, *acc,
+                 runningRef, plan.slots, 0.0);
+    }
+
+    if (IsActiveCoeff(c0)) {
         auto t6 = Clock::now();
-        acc = cc->EvalAdd(acc, c0);
+        *acc = cc->EvalAdd(*acc, c0);
         auto t7 = Clock::now();
         ++result.stats.addCount;
         result.stats.totalOpSec += std::chrono::duration<double>(t7 - t6).count();
         for (double& v : runningRef) {
             v += c0;
         }
-        AddTrace(result.trace, strategy, "add tail c0", cc, sk, acc,
+        AddTrace(result.trace, strategy, "add tail c0", cc, sk, *acc,
                  runningRef, plan.slots, std::chrono::duration<double>(t7 - t6).count());
     }
 
-    AddTrace(result.trace, strategy, "final degree<=8 result", cc, sk, acc,
+    AddTrace(result.trace, strategy, "final degree<=8 result", cc, sk, *acc,
              EvalRestrictedDegree8Plain(inputPlain, plan.coeffs), plan.slots, 0.0);
-    return acc;
+    return *acc;
 }
 
 void ValidatePlan(const RestrictedDegree8Plan& plan) {
@@ -505,11 +581,18 @@ EvalResult RunExpandedEager(CC cc,
     result.trace.reserve(80);
     const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
 
-    const auto basis = BuildBasis(cc, sk, "expanded-eager", input, plan.plaintextInput, plan, result);
-    auto block0 = EvalBlockExpandedEager(cc, sk, "block0", execPlan.block0, basis,
-                                         plan.plaintextInput, plan, result);
-    auto block1 = EvalBlockExpandedEager(cc, sk, "block1", execPlan.block1, basis,
-                                         plan.plaintextInput, plan, result);
+    const auto basis = BuildBasis(cc, sk, "expanded-eager", input, plan.plaintextInput,
+                                  execPlan, plan, result);
+    std::optional<Ciphertext<DCRTPoly>> block0;
+    if (IsActiveBlock(execPlan.block0)) {
+        block0 = EvalBlockExpandedEager(cc, sk, "block0", execPlan.block0, basis,
+                                        plan.plaintextInput, plan, result);
+    }
+    std::optional<Ciphertext<DCRTPoly>> block1;
+    if (IsActiveBlock(execPlan.block1)) {
+        block1 = EvalBlockExpandedEager(cc, sk, "block1", execPlan.block1, basis,
+                                        plan.plaintextInput, plan, result);
+    }
     result.value = AssembleOuter(cc, sk, "expanded-eager", block0, block1, basis,
                                  execPlan, plan.plaintextInput, plan, result);
     return result;
@@ -523,11 +606,18 @@ EvalResult RunGroupedLazy(CC cc,
     result.trace.reserve(80);
     const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
 
-    const auto basis = BuildBasis(cc, sk, "grouped-lazy", input, plan.plaintextInput, plan, result);
-    auto block0 = EvalBlockGroupedLazy(cc, sk, "block0", execPlan.block0, basis,
-                                       plan.plaintextInput, plan, result);
-    auto block1 = EvalBlockGroupedLazy(cc, sk, "block1", execPlan.block1, basis,
-                                       plan.plaintextInput, plan, result);
+    const auto basis = BuildBasis(cc, sk, "grouped-lazy", input, plan.plaintextInput,
+                                  execPlan, plan, result);
+    std::optional<Ciphertext<DCRTPoly>> block0;
+    if (IsActiveBlock(execPlan.block0)) {
+        block0 = EvalBlockGroupedLazy(cc, sk, "block0", execPlan.block0, basis,
+                                      plan.plaintextInput, plan, result);
+    }
+    std::optional<Ciphertext<DCRTPoly>> block1;
+    if (IsActiveBlock(execPlan.block1)) {
+        block1 = EvalBlockGroupedLazy(cc, sk, "block1", execPlan.block1, basis,
+                                      plan.plaintextInput, plan, result);
+    }
     result.value = AssembleOuter(cc, sk, "grouped-lazy", block0, block1, basis,
                                  execPlan, plan.plaintextInput, plan, result);
     return result;
