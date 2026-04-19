@@ -14,11 +14,15 @@ namespace {
 struct CaseDef {
     std::string name;
     std::vector<double> coeffs;
+    size_t expectedBlock0Terms = 0;
+    size_t expectedBlock1Terms = 0;
+    size_t expectedTailTerms = 0;
 };
 
 struct CaseResult {
     std::string mode;
     std::string name;
+    std::string planSummary;
     double eagerErr = 0.0;
     double lazyErr = 0.0;
     size_t eagerTensor = 0;
@@ -34,14 +38,14 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
-        CaseDef{"only_c0", {0.25}},
-        CaseDef{"only_c1", {0.0, -0.3}},
-        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}},
-        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}},
-        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}},
-        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}},
-        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}},
-        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}},
+        CaseDef{"only_c0", {0.25}, 0, 0, 1},
+        CaseDef{"only_c1", {0.0, -0.3}, 0, 0, 1},
+        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, 0, 0, 1},
+        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, 3, 0, 0},
+        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, 0, 3, 0},
+        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, 1, 1, 2},
+        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, 1, 1, 1},
+        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, 3, 3, 3},
     };
 }
 
@@ -49,6 +53,7 @@ void PrintSummaryHeader() {
     std::cout << std::left
               << std::setw(23) << "case"
               << std::setw(24) << "mode"
+              << std::setw(38) << "plan"
               << std::setw(14) << "eager_err"
               << std::setw(14) << "lazy_err"
               << std::setw(12) << "tensor"
@@ -56,13 +61,14 @@ void PrintSummaryHeader() {
               << std::setw(12) << "rescale"
               << std::setw(8) << "pass"
               << '\n';
-    std::cout << std::string(117, '-') << '\n';
+    std::cout << std::string(155, '-') << '\n';
 }
 
 void PrintSummaryRow(const CaseResult& row) {
     std::cout << std::left
               << std::setw(23) << row.name
               << std::setw(24) << row.mode
+              << std::setw(38) << row.planSummary
               << std::setw(14) << std::scientific << row.eagerErr
               << std::setw(14) << std::scientific << row.lazyErr
               << std::setw(12) << (std::to_string(row.eagerTensor) + "/" + std::to_string(row.lazyTensor))
@@ -75,6 +81,12 @@ void PrintSummaryRow(const CaseResult& row) {
 bool LazyNoWorseOnSwitches(const fhe_eval::PairedEvalResult& result) {
     return result.groupedLazy.stats.relinCount <= result.expandedEager.stats.relinCount &&
            result.groupedLazy.stats.rescaleCount <= result.expandedEager.stats.rescaleCount;
+}
+
+bool PlanSummaryMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseDef& testCase) {
+    return summary.block0Terms == testCase.expectedBlock0Terms &&
+           summary.block1Terms == testCase.expectedBlock1Terms &&
+           summary.tailTerms == testCase.expectedTailTerms;
 }
 
 CaseResult RunCase(const CaseDef& testCase,
@@ -93,6 +105,7 @@ CaseResult RunCase(const CaseDef& testCase,
     plan.plaintextInput = kInput;
     plan.slots = kSlots;
 
+    const auto planSummary = fhe_eval::SummarizeRestrictedDegree8Plan(plan.coeffs);
     const auto result = fhe_eval::EvalRestrictedDegree8(cc, kp.secretKey, ct, plan);
     const auto ref = fhe_eval::EvalRestrictedDegree8Plain(kInput, plan.coeffs);
     const double eagerErr = MaxAbsErrReal(DecryptVec(cc, kp.secretKey, result.expandedEager.value, kSlots), ref);
@@ -100,11 +113,13 @@ CaseResult RunCase(const CaseDef& testCase,
 
     const bool pass = eagerErr < kMaxErrThreshold &&
                       lazyErr < kMaxErrThreshold &&
-                      LazyNoWorseOnSwitches(result);
+                      LazyNoWorseOnSwitches(result) &&
+                      PlanSummaryMatches(planSummary, testCase);
 
     return CaseResult{
         modeName,
         testCase.name,
+        fhe_eval::FormatDegree8PlanSummary(planSummary),
         eagerErr,
         lazyErr,
         result.expandedEager.stats.tensorProducts,

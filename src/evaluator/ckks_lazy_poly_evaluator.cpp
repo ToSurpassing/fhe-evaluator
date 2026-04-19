@@ -42,6 +42,10 @@ double CoeffAt(const std::vector<double>& coeffs, size_t i) {
     return i < coeffs.size() ? coeffs[i] : 0.0;
 }
 
+bool IsActiveCoeff(double coeff) {
+    return std::abs(coeff) > kZeroTol;
+}
+
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
     return Degree8ExecutionPlan{
         BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)},
@@ -545,6 +549,34 @@ std::vector<double> EvalRestrictedDegree8Plain(const std::vector<double>& input,
         ref.push_back(y);
     }
     return ref;
+}
+
+Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coeffs) {
+    const auto execPlan = BuildDegree8ExecutionPlan(coeffs);
+    Degree8PlanSummary summary;
+
+    summary.block0Terms = static_cast<size_t>(IsActiveCoeff(execPlan.block0.x2)) +
+                          static_cast<size_t>(IsActiveCoeff(execPlan.block0.x3)) +
+                          static_cast<size_t>(IsActiveCoeff(execPlan.block0.x4));
+    summary.block1Terms = static_cast<size_t>(IsActiveCoeff(execPlan.block1.x2)) +
+                          static_cast<size_t>(IsActiveCoeff(execPlan.block1.x3)) +
+                          static_cast<size_t>(IsActiveCoeff(execPlan.block1.x4));
+    summary.hasC0 = IsActiveCoeff(execPlan.tail.c0);
+    summary.hasC1 = IsActiveCoeff(execPlan.tail.c1);
+    summary.hasC5 = IsActiveCoeff(execPlan.tail.c5);
+    summary.tailTerms = static_cast<size_t>(summary.hasC0) +
+                        static_cast<size_t>(summary.hasC1) +
+                        static_cast<size_t>(summary.hasC5);
+    return summary;
+}
+
+std::string FormatDegree8PlanSummary(const Degree8PlanSummary& summary) {
+    return "b0=" + std::to_string(summary.block0Terms) +
+           " b1=" + std::to_string(summary.block1Terms) +
+           " tail=" + std::to_string(summary.tailTerms) +
+           " c0=" + std::string(summary.hasC0 ? "yes" : "no") +
+           " c1=" + std::string(summary.hasC1 ? "yes" : "no") +
+           " c5=" + std::string(summary.hasC5 ? "yes" : "no");
 }
 
 PairedEvalResult EvalRestrictedDegree8(CC cc,

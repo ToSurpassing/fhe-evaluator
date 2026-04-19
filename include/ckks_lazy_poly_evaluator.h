@@ -48,6 +48,15 @@ struct RestrictedDegree8Plan {
     size_t slots = fhe_smoke::kSlots;
 };
 
+struct Degree8PlanSummary {
+    size_t block0Terms = 0;
+    size_t block1Terms = 0;
+    size_t tailTerms = 0;
+    bool hasC0 = false;
+    bool hasC1 = false;
+    bool hasC5 = false;
+};
+
 // First reusable prototype extracted from the validated 10_* experiment.
 //
 // Supported coefficients:
@@ -63,6 +72,10 @@ PairedEvalResult EvalRestrictedDegree8(
     const PrivateKey<DCRTPoly>& sk,
     const Ciphertext<DCRTPoly>& input,
     const RestrictedDegree8Plan& plan);
+
+Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coeffs);
+
+std::string FormatDegree8PlanSummary(const Degree8PlanSummary& summary);
 
 std::vector<double> EvalRestrictedDegree8Plain(
     const std::vector<double>& input,
