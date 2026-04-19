@@ -73,8 +73,10 @@ struct Degree8PlanSummary {
 // The implementation uses fixed block size 4 with z=x^4:
 //   P(x) = b0(x) + b1(x)*z,
 //   b0 uses c2,c3,c4 and b1 uses c6,c7,c8.
-// Terms c0, c1*x, and c5*x^5 are handled as materialized tail terms in this
-// restricted prototype.
+// Term c1*x may use a separate linear block in compact low-degree cases.
+// Terms c0 and c5*x^5 are handled as materialized tail terms in this
+// restricted prototype; c1*x remains a tail term when mixed with nonlinear
+// blocks until linear/nonlinear block alignment is validated separately.
 PairedEvalResult EvalRestrictedDegree8(
     CC cc,
     const PrivateKey<DCRTPoly>& sk,

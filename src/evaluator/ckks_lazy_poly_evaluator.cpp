@@ -90,9 +90,14 @@ bool IsActiveBlock(const BlockPlan& block) {
     return IsActiveBlock(block.terms);
 }
 
-bool AnyActiveBlock(const Degree8ExecutionPlan& execPlan) {
-    return std::any_of(execPlan.blocks.begin(), execPlan.blocks.end(),
-                       [](const BlockPlan& block) { return IsActiveBlock(block); });
+bool BlockNeedsX2(const BlockPlan& block) {
+    return std::any_of(block.terms.begin(), block.terms.end(), [](const BlockTerm& term) {
+        return IsActiveTerm(term) && term.power >= 2;
+    });
+}
+
+bool AnyBlockNeedsX2(const Degree8ExecutionPlan& execPlan) {
+    return std::any_of(execPlan.blocks.begin(), execPlan.blocks.end(), BlockNeedsX2);
 }
 
 bool NeedsZ(const Degree8ExecutionPlan& execPlan) {
@@ -100,6 +105,24 @@ bool NeedsZ(const Degree8ExecutionPlan& execPlan) {
                return IsActiveBlock(block) && block.outerMultiplier == OuterMultiplier::Z;
            }) ||
            IsActiveCoeff(execPlan.tail.c5);
+}
+
+bool BlockUsesTensorProducts(const std::vector<BlockTerm>& terms) {
+    return std::any_of(terms.begin(), terms.end(), [](const BlockTerm& term) {
+        return IsActiveTerm(term) && term.power >= 2;
+    });
+}
+
+void RejectMixedLinearBlock(const std::vector<BlockTerm>& terms, const std::string& blockName) {
+    const bool hasLinear = std::any_of(terms.begin(), terms.end(), [](const BlockTerm& term) {
+        return IsActiveTerm(term) && term.power == 1;
+    });
+    const bool hasNonlinear = std::any_of(terms.begin(), terms.end(), [](const BlockTerm& term) {
+        return IsActiveTerm(term) && term.power >= 2;
+    });
+    if (hasLinear && hasNonlinear) {
+        throw std::runtime_error(blockName + ": mixed linear/nonlinear block terms are not supported yet");
+    }
 }
 
 std::vector<double> ZeroRef(size_t size) {
@@ -154,9 +177,18 @@ std::vector<BlockTerm> MakeBlockTerms(double c2, double c3, double c4) {
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
     const auto block0 = MakeBlockTerms(CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4));
     const auto block1 = MakeBlockTerms(CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8));
+    const double c1 = CoeffAt(coeffs, 1);
+    const double c5 = CoeffAt(coeffs, 5);
     const auto layout = SelectDegree8Layout(block0, block1);
+    const bool useLinearBlock = IsActiveCoeff(c1) &&
+                                !IsActiveBlock(block0) &&
+                                !IsActiveBlock(block1) &&
+                                !IsActiveCoeff(c5);
 
     std::vector<BlockPlan> blocks;
+    if (useLinearBlock) {
+        blocks.push_back(BlockPlan{"linear", std::vector<BlockTerm>{BlockTerm{1, c1}}, OuterMultiplier::One});
+    }
     if (layout == Degree8Layout::TwoBlockZ4 || IsActiveBlock(block0)) {
         blocks.push_back(BlockPlan{"block0", block0, OuterMultiplier::One});
     }
@@ -167,7 +199,7 @@ Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs
     return Degree8ExecutionPlan{
         layout,
         blocks,
-        TailCoeffs{CoeffAt(coeffs, 0), CoeffAt(coeffs, 1), CoeffAt(coeffs, 5)}
+        TailCoeffs{CoeffAt(coeffs, 0), useLinearBlock ? 0.0 : c1, c5}
     };
 }
 
@@ -387,7 +419,7 @@ Basis BuildBasis(CC cc,
                  EvalResult& result) {
     AddTrace(result.trace, strategy, "x input", cc, sk, inputCt, inputPlain, plan.slots, 0.0);
 
-    const bool needX2 = AnyActiveBlock(execPlan) || NeedsZ(execPlan);
+    const bool needX2 = AnyBlockNeedsX2(execPlan) || NeedsZ(execPlan);
     if (!needX2) {
         return Basis{inputCt->Clone(), inputCt->Clone(), nullptr, nullptr};
     }
@@ -444,6 +476,8 @@ Ciphertext<DCRTPoly> EvalBlockExpandedEager(CC cc,
                                             const std::vector<double>& inputPlain,
                                             const RestrictedDegree8Plan& plan,
                                             EvalResult& result) {
+    RejectMixedLinearBlock(blockTerms, "EvalBlockExpandedEager");
+
     std::vector<Ciphertext<DCRTPoly>> preparedTerms;
     preparedTerms.reserve(blockTerms.size() + 1);
 
@@ -452,7 +486,13 @@ Ciphertext<DCRTPoly> EvalBlockExpandedEager(CC cc,
             continue;
         }
 
-        if (term.power == 2) {
+        if (term.power == 1) {
+            auto xTerm = Scale(cc, basis.input->Clone(), term.coeff, result.stats);
+            AddTrace(result.trace, "expanded-eager", blockName + " coeff*x", cc, sk, xTerm,
+                     ScaleRef(inputPlain, term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(xTerm);
+        }
+        else if (term.power == 2) {
             auto x2Term = MaterializedProduct(cc, sk, "expanded-eager", blockName + " x*x",
                                               basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
             x2Term = Scale(cc, x2Term, term.coeff, result.stats);
@@ -500,6 +540,8 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
                                           const std::vector<double>& inputPlain,
                                           const RestrictedDegree8Plan& plan,
                                           EvalResult& result) {
+    RejectMixedLinearBlock(blockTerms, "EvalBlockGroupedLazy");
+
     std::vector<Ciphertext<DCRTPoly>> preparedTerms;
     preparedTerms.reserve(blockTerms.size() + 1);
 
@@ -508,7 +550,13 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
             continue;
         }
 
-        if (term.power == 2) {
+        if (term.power == 1) {
+            auto xTerm = Scale(cc, basis.input->Clone(), term.coeff, result.stats);
+            AddTrace(result.trace, "grouped-lazy", blockName + " coeff*x", cc, sk, xTerm,
+                     ScaleRef(inputPlain, term.coeff), plan.slots, 0.0);
+            preparedTerms.push_back(xTerm);
+        }
+        else if (term.power == 2) {
             auto x2Term = RawProduct(cc, sk, "grouped-lazy", blockName + " x*x",
                                      basis.x, basis.x, RefPower(inputPlain, 2), plan, result);
             x2Term = Scale(cc, x2Term, term.coeff, result.stats);
@@ -546,6 +594,10 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
 
     auto rawBlock = AddPreparedTerms(cc, sk, "grouped-lazy", blockName + " raw coeff block folded",
                                      preparedTerms, RefBlock(inputPlain, blockTerms), plan, result);
+
+    if (!BlockUsesTensorProducts(blockTerms)) {
+        return rawBlock;
+    }
 
     auto t0 = Clock::now();
     auto out = Materialize(cc, rawBlock, result.stats);

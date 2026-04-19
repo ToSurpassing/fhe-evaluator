@@ -16,9 +16,11 @@ struct CaseDef {
     std::vector<double> coeffs;
     std::string expectedLayout;
     size_t expectedBlockCount = 0;
+    size_t expectedLinearTerms = 0;
     size_t expectedBlock0Terms = 0;
     size_t expectedBlock1Terms = 0;
     size_t expectedTailTerms = 0;
+    std::string expectedLinearOuter;
     std::string expectedBlock0Outer;
     std::string expectedBlock1Outer;
     size_t expectedEagerTensor = 0;
@@ -48,14 +50,14 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
-        CaseDef{"only_c0", {0.25}, "compact-active", 0, 0, 0, 1, "", "", 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c1", {0.0, -0.3}, "compact-active", 0, 0, 0, 1, "", "", 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, "compact-active", 0, 0, 0, 1, "", "", 3, 3, 3, 3, 3, 3},
-        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active", 1, 3, 0, 0, "One", "", 5, 5, 5, 2, 5, 2},
-        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active", 1, 0, 3, 0, "", "Z", 7, 7, 7, 4, 7, 4},
-        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4", 2, 1, 1, 2, "One", "Z", 6, 6, 6, 6, 6, 6},
-        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, "two-block-z4", 2, 1, 1, 1, "One", "Z", 6, 6, 6, 5, 6, 5},
-        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, "two-block-z4", 2, 3, 3, 3, "One", "Z", 12, 12, 12, 6, 12, 6},
+        CaseDef{"only_c0", {0.25}, "compact-active", 0, 0, 0, 0, 1, "", "", "", 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c1", {0.0, -0.3}, "compact-active", 1, 1, 0, 0, 0, "One", "", "", 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, "compact-active", 0, 0, 0, 0, 1, "", "", "", 3, 3, 3, 3, 3, 3},
+        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active", 1, 0, 3, 0, 0, "", "One", "", 5, 5, 5, 2, 5, 2},
+        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active", 1, 0, 0, 3, 0, "", "", "Z", 7, 7, 7, 4, 7, 4},
+        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4", 2, 0, 1, 1, 2, "", "One", "Z", 6, 6, 6, 6, 6, 6},
+        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, "two-block-z4", 2, 0, 1, 1, 1, "", "One", "Z", 6, 6, 6, 5, 6, 5},
+        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, "two-block-z4", 2, 0, 3, 3, 3, "", "One", "Z", 12, 12, 12, 6, 12, 6},
     };
 }
 
@@ -122,6 +124,7 @@ bool PlanSummaryMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseD
            summary.block1Terms == testCase.expectedBlock1Terms &&
            summary.tailTerms == testCase.expectedTailTerms &&
            summary.blocks.size() == testCase.expectedBlockCount &&
+           NamedBlockMatches(summary, "linear", testCase.expectedLinearTerms, testCase.expectedLinearOuter) &&
            NamedBlockMatches(summary, "block0", testCase.expectedBlock0Terms, testCase.expectedBlock0Outer) &&
            NamedBlockMatches(summary, "block1", testCase.expectedBlock1Terms, testCase.expectedBlock1Outer);
 }
