@@ -17,6 +17,18 @@ struct BlockCoeffs {
     double x4 = 0.0;
 };
 
+struct TailCoeffs {
+    double c0 = 0.0;
+    double c1 = 0.0;
+    double c5 = 0.0;
+};
+
+struct Degree8ExecutionPlan {
+    BlockCoeffs block0;
+    BlockCoeffs block1;
+    TailCoeffs tail;
+};
+
 struct Basis {
     Ciphertext<DCRTPoly> input;
     Ciphertext<DCRTPoly> x;
@@ -28,6 +40,14 @@ constexpr double kZeroTol = 1e-14;
 
 double CoeffAt(const std::vector<double>& coeffs, size_t i) {
     return i < coeffs.size() ? coeffs[i] : 0.0;
+}
+
+Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
+    return Degree8ExecutionPlan{
+        BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)},
+        BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)},
+        TailCoeffs{CoeffAt(coeffs, 0), CoeffAt(coeffs, 1), CoeffAt(coeffs, 5)}
+    };
 }
 
 std::vector<double> RefPower(const std::vector<double>& input, size_t power) {
@@ -376,14 +396,15 @@ Ciphertext<DCRTPoly> AssembleOuter(CC cc,
                                    const Ciphertext<DCRTPoly>& block0,
                                    const Ciphertext<DCRTPoly>& block1,
                                    const Basis& basis,
-                                   const BlockCoeffs& block0Coeffs,
-                                   const BlockCoeffs& block1Coeffs,
+                                   const Degree8ExecutionPlan& execPlan,
                                    const std::vector<double>& inputPlain,
                                    const RestrictedDegree8Plan& plan,
                                    EvalResult& result) {
-    const double c0 = CoeffAt(plan.coeffs, 0);
-    const double c1 = CoeffAt(plan.coeffs, 1);
-    const double c5 = CoeffAt(plan.coeffs, 5);
+    const auto& block0Coeffs = execPlan.block0;
+    const auto& block1Coeffs = execPlan.block1;
+    const double c0 = execPlan.tail.c0;
+    const double c1 = execPlan.tail.c1;
+    const double c5 = execPlan.tail.c5;
 
     auto outer = MaterializedProduct(cc, sk, strategy, "outer block1*z",
                                      block1, basis.z, RefOuterProduct(inputPlain, block1Coeffs),
@@ -472,30 +493,21 @@ void ValidatePlan(const RestrictedDegree8Plan& plan) {
     }
 }
 
-BlockCoeffs Block0Coeffs(const std::vector<double>& coeffs) {
-    return BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)};
-}
-
-BlockCoeffs Block1Coeffs(const std::vector<double>& coeffs) {
-    return BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)};
-}
-
 EvalResult RunExpandedEager(CC cc,
                             const PrivateKey<DCRTPoly>& sk,
                             const Ciphertext<DCRTPoly>& input,
                             const RestrictedDegree8Plan& plan) {
     EvalResult result;
     result.trace.reserve(80);
-    const auto block0Coeffs = Block0Coeffs(plan.coeffs);
-    const auto block1Coeffs = Block1Coeffs(plan.coeffs);
+    const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
 
     const auto basis = BuildBasis(cc, sk, "expanded-eager", input, plan.plaintextInput, plan, result);
-    auto block0 = EvalBlockExpandedEager(cc, sk, "block0", block0Coeffs, basis,
+    auto block0 = EvalBlockExpandedEager(cc, sk, "block0", execPlan.block0, basis,
                                          plan.plaintextInput, plan, result);
-    auto block1 = EvalBlockExpandedEager(cc, sk, "block1", block1Coeffs, basis,
+    auto block1 = EvalBlockExpandedEager(cc, sk, "block1", execPlan.block1, basis,
                                          plan.plaintextInput, plan, result);
     result.value = AssembleOuter(cc, sk, "expanded-eager", block0, block1, basis,
-                                 block0Coeffs, block1Coeffs, plan.plaintextInput, plan, result);
+                                 execPlan, plan.plaintextInput, plan, result);
     return result;
 }
 
@@ -505,16 +517,15 @@ EvalResult RunGroupedLazy(CC cc,
                           const RestrictedDegree8Plan& plan) {
     EvalResult result;
     result.trace.reserve(80);
-    const auto block0Coeffs = Block0Coeffs(plan.coeffs);
-    const auto block1Coeffs = Block1Coeffs(plan.coeffs);
+    const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
 
     const auto basis = BuildBasis(cc, sk, "grouped-lazy", input, plan.plaintextInput, plan, result);
-    auto block0 = EvalBlockGroupedLazy(cc, sk, "block0", block0Coeffs, basis,
+    auto block0 = EvalBlockGroupedLazy(cc, sk, "block0", execPlan.block0, basis,
                                        plan.plaintextInput, plan, result);
-    auto block1 = EvalBlockGroupedLazy(cc, sk, "block1", block1Coeffs, basis,
+    auto block1 = EvalBlockGroupedLazy(cc, sk, "block1", execPlan.block1, basis,
                                        plan.plaintextInput, plan, result);
     result.value = AssembleOuter(cc, sk, "grouped-lazy", block0, block1, basis,
-                                 block0Coeffs, block1Coeffs, plan.plaintextInput, plan, result);
+                                 execPlan, plan.plaintextInput, plan, result);
     return result;
 }
 
