@@ -55,6 +55,7 @@ struct Degree8BlockSummary {
 };
 
 struct Degree8PlanSummary {
+    std::string layout;
     size_t block0Terms = 0;
     size_t block1Terms = 0;
     size_t tailTerms = 0;

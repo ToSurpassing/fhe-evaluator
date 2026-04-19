@@ -29,6 +29,11 @@ enum class OuterMultiplier {
     Z,
 };
 
+enum class Degree8Layout {
+    TwoBlockZ4,
+    CompactActive,
+};
+
 struct BlockPlan {
     std::string name;
     BlockCoeffs coeffs;
@@ -36,6 +41,7 @@ struct BlockPlan {
 };
 
 struct Degree8ExecutionPlan {
+    Degree8Layout layout = Degree8Layout::TwoBlockZ4;
     std::vector<BlockPlan> blocks;
     TailCoeffs tail;
 };
@@ -113,16 +119,38 @@ std::string OuterMultiplierName(OuterMultiplier multiplier) {
     throw std::runtime_error("OuterMultiplierName: unknown outer multiplier");
 }
 
+std::string LayoutName(Degree8Layout layout) {
+    switch (layout) {
+        case Degree8Layout::TwoBlockZ4:
+            return "two-block-z4";
+        case Degree8Layout::CompactActive:
+            return "compact-active";
+    }
+    throw std::runtime_error("LayoutName: unknown degree8 layout");
+}
+
+Degree8Layout SelectDegree8Layout(const BlockCoeffs& block0, const BlockCoeffs& block1) {
+    return IsActiveBlock(block0) && IsActiveBlock(block1) ?
+           Degree8Layout::TwoBlockZ4 :
+           Degree8Layout::CompactActive;
+}
+
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
+    const auto block0 = BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)};
+    const auto block1 = BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)};
+    const auto layout = SelectDegree8Layout(block0, block1);
+
+    std::vector<BlockPlan> blocks;
+    if (layout == Degree8Layout::TwoBlockZ4 || IsActiveBlock(block0)) {
+        blocks.push_back(BlockPlan{"block0", block0, OuterMultiplier::One});
+    }
+    if (layout == Degree8Layout::TwoBlockZ4 || IsActiveBlock(block1)) {
+        blocks.push_back(BlockPlan{"block1", block1, OuterMultiplier::Z});
+    }
+
     return Degree8ExecutionPlan{
-        std::vector<BlockPlan>{
-            BlockPlan{"block0",
-                      BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)},
-                      OuterMultiplier::One},
-            BlockPlan{"block1",
-                      BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)},
-                      OuterMultiplier::Z},
-        },
+        layout,
+        blocks,
         TailCoeffs{CoeffAt(coeffs, 0), CoeffAt(coeffs, 1), CoeffAt(coeffs, 5)}
     };
 }
@@ -745,6 +773,7 @@ std::vector<double> EvalRestrictedDegree8Plain(const std::vector<double>& input,
 Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coeffs) {
     const auto execPlan = BuildDegree8ExecutionPlan(coeffs);
     Degree8PlanSummary summary;
+    summary.layout = LayoutName(execPlan.layout);
 
     summary.blocks.reserve(execPlan.blocks.size());
     for (const auto& block : execPlan.blocks) {
@@ -771,7 +800,7 @@ Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coe
 }
 
 std::string FormatDegree8PlanSummary(const Degree8PlanSummary& summary) {
-    std::string out;
+    std::string out = summary.layout + " ";
     for (size_t i = 0; i < summary.blocks.size(); ++i) {
         const auto& block = summary.blocks[i];
         if (i > 0) {
@@ -779,7 +808,7 @@ std::string FormatDegree8PlanSummary(const Degree8PlanSummary& summary) {
         }
         out += block.name + ":" + block.outerMultiplier + "=" + std::to_string(block.terms);
     }
-    if (!out.empty()) {
+    if (!summary.blocks.empty()) {
         out += " ";
     }
     out += "tail=" + std::to_string(summary.tailTerms) +
