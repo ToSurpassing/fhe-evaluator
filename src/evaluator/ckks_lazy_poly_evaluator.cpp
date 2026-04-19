@@ -24,9 +24,19 @@ struct TailCoeffs {
     double c5 = 0.0;
 };
 
+enum class OuterMultiplier {
+    One,
+    Z,
+};
+
+struct BlockPlan {
+    std::string name;
+    BlockCoeffs coeffs;
+    OuterMultiplier outerMultiplier = OuterMultiplier::One;
+};
+
 struct Degree8ExecutionPlan {
-    BlockCoeffs block0;
-    BlockCoeffs block1;
+    std::vector<BlockPlan> blocks;
     TailCoeffs tail;
 };
 
@@ -40,6 +50,13 @@ struct Basis {
     Ciphertext<DCRTPoly> x;
     Ciphertext<DCRTPoly> x2;
     Ciphertext<DCRTPoly> z;
+};
+
+struct EvaluatedBlock {
+    std::string name;
+    BlockCoeffs coeffs;
+    OuterMultiplier outerMultiplier = OuterMultiplier::One;
+    Ciphertext<DCRTPoly> value;
 };
 
 constexpr double kZeroTol = 1e-14;
@@ -56,8 +73,20 @@ bool IsActiveBlock(const BlockCoeffs& coeffs) {
     return IsActiveCoeff(coeffs.x2) || IsActiveCoeff(coeffs.x3) || IsActiveCoeff(coeffs.x4);
 }
 
+bool IsActiveBlock(const BlockPlan& block) {
+    return IsActiveBlock(block.coeffs);
+}
+
+bool AnyActiveBlock(const Degree8ExecutionPlan& execPlan) {
+    return std::any_of(execPlan.blocks.begin(), execPlan.blocks.end(),
+                       [](const BlockPlan& block) { return IsActiveBlock(block); });
+}
+
 bool NeedsZ(const Degree8ExecutionPlan& execPlan) {
-    return IsActiveBlock(execPlan.block1) || IsActiveCoeff(execPlan.tail.c5);
+    return std::any_of(execPlan.blocks.begin(), execPlan.blocks.end(), [](const BlockPlan& block) {
+               return IsActiveBlock(block) && block.outerMultiplier == OuterMultiplier::Z;
+           }) ||
+           IsActiveCoeff(execPlan.tail.c5);
 }
 
 std::vector<double> ZeroRef(size_t size) {
@@ -76,8 +105,14 @@ std::string StrategyName(EvaluationStrategy strategy) {
 
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
     return Degree8ExecutionPlan{
-        BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)},
-        BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)},
+        std::vector<BlockPlan>{
+            BlockPlan{"block0",
+                      BlockCoeffs{CoeffAt(coeffs, 2), CoeffAt(coeffs, 3), CoeffAt(coeffs, 4)},
+                      OuterMultiplier::One},
+            BlockPlan{"block1",
+                      BlockCoeffs{CoeffAt(coeffs, 6), CoeffAt(coeffs, 7), CoeffAt(coeffs, 8)},
+                      OuterMultiplier::Z},
+        },
         TailCoeffs{CoeffAt(coeffs, 0), CoeffAt(coeffs, 1), CoeffAt(coeffs, 5)}
     };
 }
@@ -127,15 +162,14 @@ std::vector<double> RefOuterProduct(const std::vector<double>& input, const Bloc
     return ref;
 }
 
-std::vector<double> RefOuterBase(const std::vector<double>& input,
-                                 const BlockCoeffs& block0,
-                                 const BlockCoeffs& block1) {
-    std::vector<double> ref;
-    ref.reserve(input.size());
-    for (double x : input) {
-        ref.push_back(PlainBlock(x, block0) + PlainBlock(x, block1) * x * x * x * x);
+std::vector<double> AddRefs(std::vector<double> lhs, const std::vector<double>& rhs) {
+    if (lhs.size() != rhs.size()) {
+        throw std::runtime_error("AddRefs: reference vectors must have the same size");
     }
-    return ref;
+    for (size_t i = 0; i < lhs.size(); ++i) {
+        lhs[i] += rhs[i];
+    }
+    return lhs;
 }
 
 std::vector<double> AddScaledPowerRef(std::vector<double> ref,
@@ -289,7 +323,7 @@ Basis BuildBasis(CC cc,
                  EvalResult& result) {
     AddTrace(result.trace, strategy, "x input", cc, sk, inputCt, inputPlain, plan.slots, 0.0);
 
-    const bool needX2 = IsActiveBlock(execPlan.block0) || IsActiveBlock(execPlan.block1) || NeedsZ(execPlan);
+    const bool needX2 = AnyActiveBlock(execPlan) || NeedsZ(execPlan);
     if (!needX2) {
         return Basis{inputCt->Clone(), inputCt->Clone(), nullptr, nullptr};
     }
@@ -447,15 +481,12 @@ Ciphertext<DCRTPoly> EvalBlockGroupedLazy(CC cc,
 Ciphertext<DCRTPoly> AssembleOuter(CC cc,
                                    const PrivateKey<DCRTPoly>& sk,
                                    const std::string& strategy,
-                                   const std::optional<Ciphertext<DCRTPoly>>& block0,
-                                   const std::optional<Ciphertext<DCRTPoly>>& block1,
+                                   const std::vector<EvaluatedBlock>& blocks,
                                    const Basis& basis,
                                    const Degree8ExecutionPlan& execPlan,
                                    const std::vector<double>& inputPlain,
                                    const RestrictedDegree8Plan& plan,
                                    EvalResult& result) {
-    const auto& block0Coeffs = execPlan.block0;
-    const auto& block1Coeffs = execPlan.block1;
     const double c0 = execPlan.tail.c0;
     const double c1 = execPlan.tail.c1;
     const double c5 = execPlan.tail.c5;
@@ -463,36 +494,55 @@ Ciphertext<DCRTPoly> AssembleOuter(CC cc,
     std::optional<Ciphertext<DCRTPoly>> acc;
     auto runningRef = ZeroRef(inputPlain.size());
 
-    if (block0.has_value()) {
-        acc = (*block0)->Clone();
-        runningRef = RefBlock(inputPlain, block0Coeffs);
-        AddTrace(result.trace, strategy, "block0 starts outer assembly", cc, sk, *acc,
-                 runningRef, plan.slots, 0.0);
-    }
+    for (const auto& block : blocks) {
+        std::vector<double> blockRef;
+        Ciphertext<DCRTPoly> term;
 
-    if (block1.has_value()) {
-        auto outer = MaterializedProduct(cc, sk, strategy, "outer block1*z",
-                                         *block1, basis.z, RefOuterProduct(inputPlain, block1Coeffs),
-                                         plan, result);
+        if (block.outerMultiplier == OuterMultiplier::One) {
+            term = block.value->Clone();
+            blockRef = RefBlock(inputPlain, block.coeffs);
+        }
+        else if (block.outerMultiplier == OuterMultiplier::Z) {
+            blockRef = RefOuterProduct(inputPlain, block.coeffs);
+            term = MaterializedProduct(cc, sk, strategy, "outer " + block.name + "*z",
+                                       block.value, basis.z, blockRef, plan, result);
+        }
+        else {
+            throw std::runtime_error("AssembleOuter: unknown block outer multiplier");
+        }
+
         if (acc.has_value()) {
-            AlignForAdd(cc, *acc, outer, result.stats);
-            AddTrace(result.trace, strategy, "block0 aligned for outer sum", cc, sk, *acc,
-                     RefBlock(inputPlain, block0Coeffs), plan.slots, 0.0);
+            AlignForAdd(cc, *acc, term, result.stats);
+            const std::string alignStep = block.name == "block1" ?
+                                          "block0 aligned for outer sum" :
+                                          "acc aligned for " + block.name;
+            AddTrace(result.trace, strategy, alignStep, cc, sk, *acc,
+                     runningRef, plan.slots, 0.0);
 
             auto t0 = Clock::now();
-            *acc = cc->EvalAdd(*acc, outer);
+            *acc = cc->EvalAdd(*acc, term);
             auto t1 = Clock::now();
             ++result.stats.addCount;
             const double dt = std::chrono::duration<double>(t1 - t0).count();
             result.stats.totalOpSec += dt;
-            runningRef = RefOuterBase(inputPlain, block0Coeffs, block1Coeffs);
-            AddTrace(result.trace, strategy, "block0 + block1*z", cc, sk, *acc,
+            runningRef = AddRefs(runningRef, blockRef);
+            const std::string addStep = block.name == "block1" ?
+                                        "block0 + block1*z" :
+                                        "add " + block.name;
+            AddTrace(result.trace, strategy, addStep, cc, sk, *acc,
                      runningRef, plan.slots, dt);
         }
         else {
-            acc = outer;
-            runningRef = RefOuterProduct(inputPlain, block1Coeffs);
-            AddTrace(result.trace, strategy, "outer block1*z starts assembly", cc, sk, *acc,
+            acc = term;
+            runningRef = blockRef;
+            std::string startStep;
+            if (block.outerMultiplier == OuterMultiplier::One) {
+                startStep = block.name + " starts outer assembly";
+            }
+            else {
+                startStep = "outer " + block.name + "*z starts assembly";
+            }
+            AddTrace(result.trace, strategy, startStep, cc, sk, *acc,
                      runningRef, plan.slots, 0.0);
         }
     }
@@ -591,37 +641,36 @@ void ValidatePlan(const RestrictedDegree8Plan& plan) {
 Ciphertext<DCRTPoly> EvalBlockForStrategy(CC cc,
                                           const PrivateKey<DCRTPoly>& sk,
                                           EvaluationStrategy strategy,
-                                          const std::string& blockName,
-                                          const BlockCoeffs& coeffs,
+                                          const BlockPlan& block,
                                           const Basis& basis,
                                           const std::vector<double>& inputPlain,
                                           const RestrictedDegree8Plan& plan,
                                           EvalResult& result) {
     switch (strategy) {
         case EvaluationStrategy::ExpandedEager:
-            return EvalBlockExpandedEager(cc, sk, blockName, coeffs, basis,
+            return EvalBlockExpandedEager(cc, sk, block.name, block.coeffs, basis,
                                           inputPlain, plan, result);
         case EvaluationStrategy::GroupedLazy:
-            return EvalBlockGroupedLazy(cc, sk, blockName, coeffs, basis,
+            return EvalBlockGroupedLazy(cc, sk, block.name, block.coeffs, basis,
                                         inputPlain, plan, result);
     }
     throw std::runtime_error("EvalBlockForStrategy: unknown evaluation strategy");
 }
 
-std::optional<Ciphertext<DCRTPoly>> EvalBlockIfActive(CC cc,
-                                                      const PrivateKey<DCRTPoly>& sk,
-                                                      EvaluationStrategy strategy,
-                                                      const std::string& blockName,
-                                                      const BlockCoeffs& coeffs,
-                                                      const Basis& basis,
-                                                      const std::vector<double>& inputPlain,
-                                                      const RestrictedDegree8Plan& plan,
-                                                      EvalResult& result) {
-    if (!IsActiveBlock(coeffs)) {
+std::optional<EvaluatedBlock> EvalBlockIfActive(CC cc,
+                                                const PrivateKey<DCRTPoly>& sk,
+                                                EvaluationStrategy strategy,
+                                                const BlockPlan& block,
+                                                const Basis& basis,
+                                                const std::vector<double>& inputPlain,
+                                                const RestrictedDegree8Plan& plan,
+                                                EvalResult& result) {
+    if (!IsActiveBlock(block)) {
         return std::nullopt;
     }
-    return EvalBlockForStrategy(cc, sk, strategy, blockName, coeffs, basis,
-                                inputPlain, plan, result);
+    auto value = EvalBlockForStrategy(cc, sk, strategy, block, basis,
+                                      inputPlain, plan, result);
+    return EvaluatedBlock{block.name, block.coeffs, block.outerMultiplier, value};
 }
 
 EvalResult ExecuteDegree8Plan(CC cc,
@@ -636,12 +685,17 @@ EvalResult ExecuteDegree8Plan(CC cc,
 
     const auto basis = BuildBasis(cc, sk, strategyName, input, plan.plaintextInput,
                                   execPlan, plan, result);
-    const auto block0 = EvalBlockIfActive(cc, sk, strategy, "block0", execPlan.block0,
-                                          basis, plan.plaintextInput, plan, result);
-    const auto block1 = EvalBlockIfActive(cc, sk, strategy, "block1", execPlan.block1,
-                                          basis, plan.plaintextInput, plan, result);
+    std::vector<EvaluatedBlock> blocks;
+    blocks.reserve(execPlan.blocks.size());
+    for (const auto& blockPlan : execPlan.blocks) {
+        auto block = EvalBlockIfActive(cc, sk, strategy, blockPlan,
+                                       basis, plan.plaintextInput, plan, result);
+        if (block.has_value()) {
+            blocks.push_back(*block);
+        }
+    }
 
-    result.value = AssembleOuter(cc, sk, strategyName, block0, block1, basis,
+    result.value = AssembleOuter(cc, sk, strategyName, blocks, basis,
                                  execPlan, plan.plaintextInput, plan, result);
     return result;
 }
@@ -681,13 +735,15 @@ std::vector<double> EvalRestrictedDegree8Plain(const std::vector<double>& input,
 Degree8PlanSummary SummarizeRestrictedDegree8Plan(const std::vector<double>& coeffs) {
     const auto execPlan = BuildDegree8ExecutionPlan(coeffs);
     Degree8PlanSummary summary;
+    const auto& block0 = execPlan.blocks.at(0).coeffs;
+    const auto& block1 = execPlan.blocks.at(1).coeffs;
 
-    summary.block0Terms = static_cast<size_t>(IsActiveCoeff(execPlan.block0.x2)) +
-                          static_cast<size_t>(IsActiveCoeff(execPlan.block0.x3)) +
-                          static_cast<size_t>(IsActiveCoeff(execPlan.block0.x4));
-    summary.block1Terms = static_cast<size_t>(IsActiveCoeff(execPlan.block1.x2)) +
-                          static_cast<size_t>(IsActiveCoeff(execPlan.block1.x3)) +
-                          static_cast<size_t>(IsActiveCoeff(execPlan.block1.x4));
+    summary.block0Terms = static_cast<size_t>(IsActiveCoeff(block0.x2)) +
+                          static_cast<size_t>(IsActiveCoeff(block0.x3)) +
+                          static_cast<size_t>(IsActiveCoeff(block0.x4));
+    summary.block1Terms = static_cast<size_t>(IsActiveCoeff(block1.x2)) +
+                          static_cast<size_t>(IsActiveCoeff(block1.x3)) +
+                          static_cast<size_t>(IsActiveCoeff(block1.x4));
     summary.hasC0 = IsActiveCoeff(execPlan.tail.c0);
     summary.hasC1 = IsActiveCoeff(execPlan.tail.c1);
     summary.hasC5 = IsActiveCoeff(execPlan.tail.c5);
