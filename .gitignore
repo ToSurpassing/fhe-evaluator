@@ -1,5 +1,7 @@
 build/
 logs/
+.vscode/
+.codex
 *.o
 *.out
 *.a
