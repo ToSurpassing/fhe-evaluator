@@ -47,7 +47,7 @@ void PrintStats(const std::string& label, const fhe_eval::EvalStats& stats) {
 void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
     std::cout << "\n============================================================\n";
     std::cout << "[EVALUATOR] parameterized coefficient block prototype\n";
-    std::cout << "[POLY] P(x)=0.7*x^2 -1.2*x^3 +0.5*x^4 -0.4*x^6 +0.9*x^7 +1.1*x^8\n";
+    std::cout << "[POLY] P(x)=0.25 -0.3*x +0.7*x^2 -1.2*x^3 +0.5*x^4 +0.2*x^5 -0.4*x^6 +0.9*x^7 +1.1*x^8\n";
     std::cout << "[MODE] " << modeName << "\n";
 
     auto cc = BuildContext(scalTech);
@@ -60,8 +60,9 @@ void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
 
     fhe_eval::RestrictedDegree8Plan plan;
     plan.coeffs = {
-        0.0, 0.0, 0.7, -1.2, 0.5, 0.0, -0.4, 0.9, 1.1
+        0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1
     };
+    plan.plaintextInput = kInput;
     plan.slots = kSlots;
 
     const auto result = fhe_eval::EvalRestrictedDegree8(cc, kp.secretKey, ct, plan);

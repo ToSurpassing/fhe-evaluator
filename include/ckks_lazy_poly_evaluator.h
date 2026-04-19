@@ -44,18 +44,20 @@ struct PairedEvalResult {
 
 struct RestrictedDegree8Plan {
     std::vector<double> coeffs;
+    std::vector<double> plaintextInput;
     size_t slots = fhe_smoke::kSlots;
 };
 
 // First reusable prototype extracted from the validated 10_* experiment.
 //
 // Supported coefficients:
-//   c2*x^2 + c3*x^3 + c4*x^4 + c6*x^6 + c7*x^7 + c8*x^8
+//   c0 + c1*x + c2*x^2 + ... + c8*x^8
 //
-// Unsupported coefficients c0, c1, c5 must be zero. The implementation uses
-// fixed block size 4 with z=x^4:
+// The implementation uses fixed block size 4 with z=x^4:
 //   P(x) = b0(x) + b1(x)*z,
 //   b0 uses c2,c3,c4 and b1 uses c6,c7,c8.
+// Terms c0, c1*x, and c5*x^5 are handled as materialized tail terms in this
+// restricted prototype.
 PairedEvalResult EvalRestrictedDegree8(
     CC cc,
     const PrivateKey<DCRTPoly>& sk,
