@@ -30,6 +30,11 @@ struct Degree8ExecutionPlan {
     TailCoeffs tail;
 };
 
+enum class EvaluationStrategy {
+    ExpandedEager,
+    GroupedLazy,
+};
+
 struct Basis {
     Ciphertext<DCRTPoly> input;
     Ciphertext<DCRTPoly> x;
@@ -57,6 +62,16 @@ bool NeedsZ(const Degree8ExecutionPlan& execPlan) {
 
 std::vector<double> ZeroRef(size_t size) {
     return std::vector<double>(size, 0.0);
+}
+
+std::string StrategyName(EvaluationStrategy strategy) {
+    switch (strategy) {
+        case EvaluationStrategy::ExpandedEager:
+            return "expanded-eager";
+        case EvaluationStrategy::GroupedLazy:
+            return "grouped-lazy";
+    }
+    throw std::runtime_error("StrategyName: unknown evaluation strategy");
 }
 
 Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs) {
@@ -573,54 +588,76 @@ void ValidatePlan(const RestrictedDegree8Plan& plan) {
     }
 }
 
+Ciphertext<DCRTPoly> EvalBlockForStrategy(CC cc,
+                                          const PrivateKey<DCRTPoly>& sk,
+                                          EvaluationStrategy strategy,
+                                          const std::string& blockName,
+                                          const BlockCoeffs& coeffs,
+                                          const Basis& basis,
+                                          const std::vector<double>& inputPlain,
+                                          const RestrictedDegree8Plan& plan,
+                                          EvalResult& result) {
+    switch (strategy) {
+        case EvaluationStrategy::ExpandedEager:
+            return EvalBlockExpandedEager(cc, sk, blockName, coeffs, basis,
+                                          inputPlain, plan, result);
+        case EvaluationStrategy::GroupedLazy:
+            return EvalBlockGroupedLazy(cc, sk, blockName, coeffs, basis,
+                                        inputPlain, plan, result);
+    }
+    throw std::runtime_error("EvalBlockForStrategy: unknown evaluation strategy");
+}
+
+std::optional<Ciphertext<DCRTPoly>> EvalBlockIfActive(CC cc,
+                                                      const PrivateKey<DCRTPoly>& sk,
+                                                      EvaluationStrategy strategy,
+                                                      const std::string& blockName,
+                                                      const BlockCoeffs& coeffs,
+                                                      const Basis& basis,
+                                                      const std::vector<double>& inputPlain,
+                                                      const RestrictedDegree8Plan& plan,
+                                                      EvalResult& result) {
+    if (!IsActiveBlock(coeffs)) {
+        return std::nullopt;
+    }
+    return EvalBlockForStrategy(cc, sk, strategy, blockName, coeffs, basis,
+                                inputPlain, plan, result);
+}
+
+EvalResult ExecuteDegree8Plan(CC cc,
+                              const PrivateKey<DCRTPoly>& sk,
+                              const Ciphertext<DCRTPoly>& input,
+                              const RestrictedDegree8Plan& plan,
+                              EvaluationStrategy strategy) {
+    EvalResult result;
+    result.trace.reserve(80);
+    const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
+    const auto strategyName = StrategyName(strategy);
+
+    const auto basis = BuildBasis(cc, sk, strategyName, input, plan.plaintextInput,
+                                  execPlan, plan, result);
+    const auto block0 = EvalBlockIfActive(cc, sk, strategy, "block0", execPlan.block0,
+                                          basis, plan.plaintextInput, plan, result);
+    const auto block1 = EvalBlockIfActive(cc, sk, strategy, "block1", execPlan.block1,
+                                          basis, plan.plaintextInput, plan, result);
+
+    result.value = AssembleOuter(cc, sk, strategyName, block0, block1, basis,
+                                 execPlan, plan.plaintextInput, plan, result);
+    return result;
+}
+
 EvalResult RunExpandedEager(CC cc,
                             const PrivateKey<DCRTPoly>& sk,
                             const Ciphertext<DCRTPoly>& input,
                             const RestrictedDegree8Plan& plan) {
-    EvalResult result;
-    result.trace.reserve(80);
-    const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
-
-    const auto basis = BuildBasis(cc, sk, "expanded-eager", input, plan.plaintextInput,
-                                  execPlan, plan, result);
-    std::optional<Ciphertext<DCRTPoly>> block0;
-    if (IsActiveBlock(execPlan.block0)) {
-        block0 = EvalBlockExpandedEager(cc, sk, "block0", execPlan.block0, basis,
-                                        plan.plaintextInput, plan, result);
-    }
-    std::optional<Ciphertext<DCRTPoly>> block1;
-    if (IsActiveBlock(execPlan.block1)) {
-        block1 = EvalBlockExpandedEager(cc, sk, "block1", execPlan.block1, basis,
-                                        plan.plaintextInput, plan, result);
-    }
-    result.value = AssembleOuter(cc, sk, "expanded-eager", block0, block1, basis,
-                                 execPlan, plan.plaintextInput, plan, result);
-    return result;
+    return ExecuteDegree8Plan(cc, sk, input, plan, EvaluationStrategy::ExpandedEager);
 }
 
 EvalResult RunGroupedLazy(CC cc,
                           const PrivateKey<DCRTPoly>& sk,
                           const Ciphertext<DCRTPoly>& input,
                           const RestrictedDegree8Plan& plan) {
-    EvalResult result;
-    result.trace.reserve(80);
-    const auto execPlan = BuildDegree8ExecutionPlan(plan.coeffs);
-
-    const auto basis = BuildBasis(cc, sk, "grouped-lazy", input, plan.plaintextInput,
-                                  execPlan, plan, result);
-    std::optional<Ciphertext<DCRTPoly>> block0;
-    if (IsActiveBlock(execPlan.block0)) {
-        block0 = EvalBlockGroupedLazy(cc, sk, "block0", execPlan.block0, basis,
-                                      plan.plaintextInput, plan, result);
-    }
-    std::optional<Ciphertext<DCRTPoly>> block1;
-    if (IsActiveBlock(execPlan.block1)) {
-        block1 = EvalBlockGroupedLazy(cc, sk, "block1", execPlan.block1, basis,
-                                      plan.plaintextInput, plan, result);
-    }
-    result.value = AssembleOuter(cc, sk, "grouped-lazy", block0, block1, basis,
-                                 execPlan, plan.plaintextInput, plan, result);
-    return result;
+    return ExecuteDegree8Plan(cc, sk, input, plan, EvaluationStrategy::GroupedLazy);
 }
 
 }  // namespace
