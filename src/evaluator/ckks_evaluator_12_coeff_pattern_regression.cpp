@@ -61,6 +61,8 @@ std::vector<CaseDef> BuildCases() {
                 {}, 2, 3, 3, 3, 3, 3, 3},
         CaseDef{"linear_plus_c2", {0.0, -0.3, 0.7}, "compact-active",
                 {ExpectedBlock{"block0", 1, "One"}}, 1, 2, 2, 2, 2, 2, 2},
+        CaseDef{"constant_linear_plus_c4", {0.25, -0.3, 0.0, 0.0, 0.5}, "compact-active",
+                {ExpectedBlock{"block0", 1, "One"}}, 2, 2, 2, 2, 2, 2, 2},
         CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active",
                 {ExpectedBlock{"block0", 3, "One"}}, 0, 5, 5, 5, 2, 5, 2},
         CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active",
