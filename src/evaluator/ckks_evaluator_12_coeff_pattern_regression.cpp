@@ -81,6 +81,9 @@ std::vector<CaseDef> BuildCases() {
                 {ExpectedBlock{"block1", 3, "Z"}}, 0, 7, 7, 7, 4, 7, 4},
 
         // Two-block and dense references.
+        CaseDef{"linear_block0_block1", {0.0, -0.3, 0.7, 0.0, 0.0, 0.0, -0.4}, "two-block-z4",
+                {ExpectedBlock{"linear", 1, "One"}, ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
+                0, 5, 5, 5, 5, 5, 5},
         CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4",
                 {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
                 2, 6, 6, 6, 6, 6, 6},
