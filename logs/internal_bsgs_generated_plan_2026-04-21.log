@@ -1,0 +1,535 @@
+[KNOWN_COEFF_PATTERNS] 2
+
+[COEFF_PATTERN] coeff_pattern_internal_t2_b4_a
+
+[INTERNAL_PLAN] generated_coeff_pattern_internal_t2_b4_a
+[PLAINTEXT] direct-vs-internal max_abs_err = 2.168404e-19
+
+============================================================
+[EVALUATOR] generated fixed tiny internal-BSGS prototype
+[PROJECT DECISION] generate t=2, B=4 internal plans from whitelisted coefficient patterns
+[PLAN] generated_coeff_pattern_internal_t2_b4_a
+[SETS] bar(S1)={x,x^2,x^3}, hat(S1)={x^4,x^8,x^12}, S2={x^16}
+[POLY] P(x)=inner0(x)+inner1(x)*x^16
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                                level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------------------
+internal-eager   bar(S1) component x                                 0         1               2           0.000000e+00    3.120226e-12
+internal-eager   build x^2 raw product                               0         2               3           5.828158e-03    1.045025e-12
+internal-eager   build x^2 materialized                              1         1               2           8.630841e-02    1.537437e-11
+internal-eager   build x^3 raw product                               1         2               3           3.069046e-03    6.586329e-12
+internal-eager   build x^3 materialized                              2         1               2           8.781184e-02    5.830961e-12
+internal-eager   build hat x^4 raw product                           1         2               3           8.194711e-03    4.996375e-12
+internal-eager   build hat x^4 materialized                          2         1               2           3.133417e-01    4.679021e-12
+internal-eager   build hat x^8 raw product                           2         2               3           3.917846e-03    1.919529e-13
+internal-eager   build hat x^8 materialized                          3         1               2           1.001491e-01    3.748395e-13
+internal-eager   build hat x^12 raw product                          3         2               3           3.550648e-03    3.010323e-14
+internal-eager   build hat x^12 materialized                         4         1               2           6.250176e-02    7.499454e-14
+internal-eager   build S2 x^16 raw product                           3         2               3           2.682523e-03    5.261367e-14
+internal-eager   build S2 x^16 materialized                          4         1               2           8.412351e-02    6.078545e-14
+internal-eager   outer0 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    3.062134e-13
+internal-eager   outer0 low coeff*x^2 for high x^4                   1         2               2           0.000000e+00    7.918475e-13
+internal-eager   outer0 low linear group for high x^4                1         2               2           2.346942e-03    6.619705e-13
+internal-eager   outer0 innerBSGS low(x)*x^4 raw product             2         4               3           2.047752e-03    1.746288e-13
+internal-eager   outer0 innerBSGS low(x)*x^4 materialized            3         3               2           9.817095e-02    3.198498e-13
+internal-eager   outer0 low coeff*x^2 for high x^8                   1         2               2           0.000000e+00    2.941071e-12
+internal-eager   outer0 low coeff*x^3 for high x^8                   2         2               2           0.000000e+00    2.102212e-13
+internal-eager   outer0 low linear group for high x^8                2         2               2           2.103558e-03    2.944575e-12
+internal-eager   outer0 innerBSGS low(x)*x^8 raw product             3         4               3           6.874533e-03    6.330904e-14
+internal-eager   outer0 innerBSGS low(x)*x^8 materialized            4         3               2           5.669467e-02    5.074324e-14
+internal-eager   outer0 low coeff*x^3 for high x^12                  2         2               2           0.000000e+00    4.899397e-13
+internal-eager   outer0 low linear group for high x^12               2         2               2           1.830000e-07    4.739221e-13
+internal-eager   outer0 innerBSGS low(x)*x^12 raw product            4         4               3           1.526051e-03    4.190528e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 materialized           5         3               2           8.453020e-02    4.924859e-14
+internal-eager   outer0 internal BSGS block sum                      5         3               2           1.238256e-03    2.947464e-13
+internal-eager   outer1 low coeff*x^2 for high x^4                   1         2               2           0.000000e+00    1.079617e-12
+internal-eager   outer1 low coeff*x^3 for high x^4                   2         2               2           0.000000e+00    1.880687e-13
+internal-eager   outer1 low linear group for high x^4                2         2               2           8.563190e-04    1.222179e-12
+internal-eager   outer1 innerBSGS low(x)*x^4 raw product             2         4               3           2.230673e-03    1.043155e-13
+internal-eager   outer1 innerBSGS low(x)*x^4 materialized            3         3               2           7.402484e-02    1.205396e-13
+internal-eager   outer1 low coeff*x^1 for high x^8                   0         2               2           0.000000e+00    2.838285e-13
+internal-eager   outer1 low linear group for high x^8                0         2               2           1.460000e-07    1.363215e-13
+internal-eager   outer1 innerBSGS low(x)*x^8 raw product             3         4               3           2.635623e-03    5.279658e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 materialized            4         3               2           9.076608e-02    5.904850e-14
+internal-eager   outer1 low coeff*x^3 for high x^12                  2         2               2           0.000000e+00    2.063792e-13
+internal-eager   outer1 low linear group for high x^12               2         2               2           4.870000e-07    2.438562e-13
+internal-eager   outer1 innerBSGS low(x)*x^12 raw product            4         4               3           1.253850e-03    4.971319e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 materialized           5         3               2           5.859244e-02    4.474864e-14
+internal-eager   outer1 internal BSGS block sum                      5         3               2           1.444136e-03    1.465469e-13
+internal-eager   outer block1*x^16 raw product                       5         6               3           1.183200e-03    5.666926e-14
+internal-eager   outer block1*x^16 materialized                      6         5               2           4.643382e-02    4.768021e-14
+internal-eager   outer0 + outer1*x^16                                6         5               2           3.658520e-04    2.945571e-13
+inner-lazy       bar(S1) component x                                 0         1               2           0.000000e+00    1.117939e-12
+inner-lazy       build x^2 raw product                               0         2               3           4.794477e-03    7.572068e-13
+inner-lazy       build x^2 materialized                              1         1               2           1.306400e-01    1.554426e-11
+inner-lazy       build x^3 raw product                               1         2               3           4.453786e-03    6.356360e-12
+inner-lazy       build x^3 materialized                              2         1               2           4.232751e-02    5.466502e-12
+inner-lazy       build hat x^4 raw product                           1         2               3           3.585024e-03    5.069407e-12
+inner-lazy       build hat x^4 materialized                          2         1               2           4.445808e-02    4.512338e-12
+inner-lazy       build hat x^8 raw product                           2         2               3           3.067570e-03    1.911033e-13
+inner-lazy       build hat x^8 materialized                          3         1               2           9.845143e-02    2.986556e-13
+inner-lazy       build hat x^12 raw product                          3         2               3           3.840757e-03    6.973038e-14
+inner-lazy       build hat x^12 materialized                         4         1               2           1.221746e-01    7.277075e-14
+inner-lazy       build S2 x^16 raw product                           3         2               3           1.801248e-03    3.982672e-14
+inner-lazy       build S2 x^16 materialized                          4         1               2           5.405990e-02    3.909034e-14
+inner-lazy       aligned basis x^1                                   4         1               2           0.000000e+00    1.427303e-12
+inner-lazy       aligned basis x^2                                   4         1               2           0.000000e+00    1.588446e-11
+inner-lazy       aligned basis x^3                                   4         1               2           0.000000e+00    5.489664e-12
+inner-lazy       aligned basis x^4                                   4         1               2           0.000000e+00    4.685533e-12
+inner-lazy       aligned basis x^8                                   4         1               2           0.000000e+00    3.660578e-13
+inner-lazy       aligned basis x^12                                  4         1               2           0.000000e+00    5.411087e-14
+inner-lazy       aligned basis x^16                                  4         1               2           0.000000e+00    8.291568e-14
+inner-lazy       outer0 low coeff*x^1 for high x^4                   4         2               2           0.000000e+00    2.229328e-13
+inner-lazy       outer0 low coeff*x^2 for high x^4                   4         2               2           0.000000e+00    7.854759e-13
+inner-lazy       outer0 low linear group for high x^4                4         2               2           8.665600e-04    8.517631e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^4 raw product         4         4               3           1.546982e-03    1.502346e-13
+inner-lazy       outer0 low coeff*x^2 for high x^8                   4         2               2           0.000000e+00    2.850990e-12
+inner-lazy       outer0 low coeff*x^3 for high x^8                   4         2               2           0.000000e+00    2.279132e-13
+inner-lazy       outer0 low linear group for high x^8                4         2               2           7.682440e-04    3.014484e-12
+inner-lazy       outer0 raw innerBSGS low(x)*x^8 raw product         4         4               3           1.403122e-03    6.173703e-14
+inner-lazy       outer0 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    4.885762e-13
+inner-lazy       outer0 low linear group for high x^12               4         2               2           3.570000e-07    5.113097e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^12 raw product        4         4               3           1.482814e-03    2.866971e-14
+inner-lazy       outer0 raw inner groups folded                      4         4               3           3.287845e-03    1.641903e-13
+inner-lazy       outer0 folded inner block materialized              5         3               2           1.341838e-02    3.683468e-13
+inner-lazy       outer1 low coeff*x^2 for high x^4                   4         2               2           0.000000e+00    1.119740e-12
+inner-lazy       outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    1.516519e-13
+inner-lazy       outer1 low linear group for high x^4                4         2               2           1.089585e-03    1.270312e-12
+inner-lazy       outer1 raw innerBSGS low(x)*x^4 raw product         4         4               3           2.778228e-03    5.405680e-14
+inner-lazy       outer1 low coeff*x^1 for high x^8                   4         2               2           0.000000e+00    2.423617e-13
+inner-lazy       outer1 low linear group for high x^8                4         2               2           1.340000e-07    2.304129e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^8 raw product         4         4               3           1.066261e-03    3.798534e-14
+inner-lazy       outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    2.608382e-13
+inner-lazy       outer1 low linear group for high x^12               4         2               2           3.300000e-07    2.845358e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^12 raw product        4         4               3           2.779802e-03    4.359284e-14
+inner-lazy       outer1 raw inner groups folded                      4         4               3           3.365510e-03    1.038121e-13
+inner-lazy       outer1 folded inner block materialized              5         3               2           2.882332e-02    1.832275e-13
+inner-lazy       outer block1*x^16 raw product                       5         6               3           2.436396e-03    6.252866e-14
+inner-lazy       outer block1*x^16 materialized                      6         5               2           3.869379e-02    4.144682e-14
+inner-lazy       outer0 + outer1*x^16                                6         5               2           2.142370e-04    3.617306e-13
+
+summary:
+  internal-eager tensor products    = 13
+  internal-eager relin count        = 13
+  internal-eager rescale count      = 13
+  internal-eager scalar mult count  = 19
+  internal-eager level-align count  = 16
+  internal-eager add count          = 8
+  internal-eager total operator sec = 1.318363e+00
+  inner-lazy     tensor products    = 13
+  inner-lazy     relin count        = 9
+  inner-lazy     rescale count      = 9
+  inner-lazy     scalar mult count  = 19
+  inner-lazy     level-align count  = 9
+  inner-lazy     add count          = 8
+  inner-lazy     total operator sec = 6.281052e-01
+  internal-eager final max_abs_err = 3.510376e-13
+  inner-lazy     final max_abs_err = 3.830690e-13
+
+comparison:
+  tensor products           = 13 vs 13
+  relin count               = 13 vs 9
+  rescale count             = 13 vs 9
+  note                      = lazy only folds inner BSGS groups; outer assembly stays eager
+
+============================================================
+[EVALUATOR] generated fixed tiny internal-BSGS prototype
+[PROJECT DECISION] generate t=2, B=4 internal plans from whitelisted coefficient patterns
+[PLAN] generated_coeff_pattern_internal_t2_b4_a
+[SETS] bar(S1)={x,x^2,x^3}, hat(S1)={x^4,x^8,x^12}, S2={x^16}
+[POLY] P(x)=inner0(x)+inner1(x)*x^16
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                                level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------------------
+internal-eager   bar(S1) component x                                 0         1               2           0.000000e+00    7.989720e-13
+internal-eager   build x^2 raw product                               0         2               3           1.730069e-02    4.271999e-13
+internal-eager   build x^2 materialized                              0         2               2           8.445451e-02    3.777950e-13
+internal-eager   build x^3 raw product                               2         2               3           5.243463e-02    2.752572e-13
+internal-eager   build x^3 materialized                              2         2               2           1.461457e-01    1.545955e-13
+internal-eager   build hat x^4 raw product                           2         2               3           7.779237e-02    7.826031e-14
+internal-eager   build hat x^4 materialized                          2         2               2           1.119160e-01    1.527962e-13
+internal-eager   build hat x^8 raw product                           4         2               3           2.805704e-02    5.054908e-14
+internal-eager   build hat x^8 materialized                          4         2               2           8.958924e-02    7.193378e-14
+internal-eager   build hat x^12 raw product                          6         2               3           2.312220e-02    5.726902e-14
+internal-eager   build hat x^12 materialized                         6         2               2           9.959870e-02    6.890203e-14
+internal-eager   build S2 x^16 raw product                           6         2               3           7.725222e-02    3.078943e-14
+internal-eager   build S2 x^16 materialized                          6         2               2           1.469924e-01    4.992961e-14
+internal-eager   outer0 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    1.144293e-13
+internal-eager   outer0 low coeff*x^2 for high x^4                   2         2               2           0.000000e+00    7.413428e-14
+internal-eager   outer0 low linear group for high x^4                2         2               2           6.673567e-02    8.369694e-14
+internal-eager   outer0 innerBSGS low(x)*x^4 raw product             4         2               3           9.994325e-03    5.013546e-14
+internal-eager   outer0 innerBSGS low(x)*x^4 materialized            4         2               2           6.976356e-02    3.939549e-14
+internal-eager   outer0 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    1.049785e-13
+internal-eager   outer0 low coeff*x^3 for high x^8                   4         2               2           0.000000e+00    3.731038e-14
+internal-eager   outer0 low linear group for high x^8                4         2               2           4.650920e-03    8.202293e-14
+internal-eager   outer0 innerBSGS low(x)*x^8 raw product             6         2               3           5.956880e-02    3.507628e-14
+internal-eager   outer0 innerBSGS low(x)*x^8 materialized            6         2               2           1.000940e-01    6.107612e-14
+internal-eager   outer0 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    5.848880e-14
+internal-eager   outer0 low linear group for high x^12               4         2               2           3.930000e-07    9.010848e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 raw product            8         2               3           7.465806e-02    3.107168e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 materialized           8         2               2           4.339513e-02    3.584007e-14
+internal-eager   outer0 internal BSGS block sum                      8         2               2           3.192759e-02    5.386750e-14
+internal-eager   outer1 low coeff*x^2 for high x^4                   2         2               2           0.000000e+00    3.669461e-14
+internal-eager   outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    5.647646e-14
+internal-eager   outer1 low linear group for high x^4                4         2               2           7.084261e-02    5.733486e-14
+internal-eager   outer1 innerBSGS low(x)*x^4 raw product             6         2               3           1.123906e-02    5.700185e-14
+internal-eager   outer1 innerBSGS low(x)*x^4 materialized            6         2               2           4.626907e-02    4.425780e-14
+internal-eager   outer1 low coeff*x^1 for high x^8                   0         2               2           0.000000e+00    8.792272e-14
+internal-eager   outer1 low linear group for high x^8                0         2               2           1.400000e-07    9.129503e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 raw product             6         2               3           1.059495e-01    3.615787e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 materialized            6         2               2           1.338218e-01    4.564412e-14
+internal-eager   outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    4.288602e-14
+internal-eager   outer1 low linear group for high x^12               4         2               2           2.560000e-07    7.382202e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 raw product            8         2               3           8.400854e-02    3.497939e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 materialized           8         2               2           7.820164e-02    3.164658e-14
+internal-eager   outer1 internal BSGS block sum                      8         2               2           8.470241e-02    6.732604e-14
+internal-eager   outer block1*x^16 raw product                       10        2               3           2.049970e-01    2.679314e-14
+internal-eager   outer block1*x^16 materialized                      10        2               2           9.608435e-02    6.713036e-14
+internal-eager   outer0 + outer1*x^16                                10        2               2           1.623759e-02    6.345461e-14
+inner-lazy       bar(S1) component x                                 0         1               2           0.000000e+00    5.937473e-13
+inner-lazy       build x^2 raw product                               0         2               3           1.653613e-02    4.300726e-13
+inner-lazy       build x^2 materialized                              0         2               2           5.540587e-02    3.598129e-13
+inner-lazy       build x^3 raw product                               2         2               3           6.986016e-02    4.020534e-13
+inner-lazy       build x^3 materialized                              2         2               2           1.573762e-01    2.490126e-13
+inner-lazy       build hat x^4 raw product                           2         2               3           3.707224e-02    1.106060e-13
+inner-lazy       build hat x^4 materialized                          2         2               2           1.184616e-01    8.514717e-14
+inner-lazy       build hat x^8 raw product                           4         2               3           7.342087e-02    4.166784e-14
+inner-lazy       build hat x^8 materialized                          4         2               2           1.295179e-01    5.319812e-14
+inner-lazy       build hat x^12 raw product                          6         2               3           1.522961e-02    4.181693e-14
+inner-lazy       build hat x^12 materialized                         6         2               2           1.375952e-01    6.205462e-14
+inner-lazy       build S2 x^16 raw product                           6         2               3           2.576511e-02    4.292772e-14
+inner-lazy       build S2 x^16 materialized                          6         2               2           1.329965e-01    9.195220e-14
+inner-lazy       aligned basis x^1                                   0         2               2           0.000000e+00    7.538692e-13
+inner-lazy       aligned basis x^2                                   0         2               2           0.000000e+00    2.118999e-13
+inner-lazy       aligned basis x^3                                   2         2               2           0.000000e+00    2.024353e-13
+inner-lazy       aligned basis x^4                                   2         2               2           0.000000e+00    8.970949e-14
+inner-lazy       aligned basis x^8                                   4         2               2           0.000000e+00    3.162455e-14
+inner-lazy       aligned basis x^12                                  6         2               2           0.000000e+00    5.001399e-14
+inner-lazy       aligned basis x^16                                  6         2               2           0.000000e+00    7.166118e-14
+inner-lazy       outer0 low coeff*x^1 for high x^4                   2         2               2           0.000000e+00    1.044668e-13
+inner-lazy       outer0 low coeff*x^2 for high x^4                   2         2               2           0.000000e+00    3.053634e-14
+inner-lazy       outer0 low linear group for high x^4                2         2               2           5.517168e-03    1.085104e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^4 raw product         4         2               3           3.282056e-02    2.859990e-14
+inner-lazy       outer0 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    9.949073e-14
+inner-lazy       outer0 low coeff*x^3 for high x^8                   4         2               2           0.000000e+00    5.131617e-14
+inner-lazy       outer0 low linear group for high x^8                4         2               2           5.157879e-02    6.842964e-14
+inner-lazy       outer0 raw innerBSGS low(x)*x^8 raw product         6         2               3           5.406710e-02    5.214653e-14
+inner-lazy       outer0 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    5.407653e-14
+inner-lazy       outer0 low linear group for high x^12               4         2               2           1.760000e-07    6.667149e-14
+inner-lazy       outer0 raw innerBSGS low(x)*x^12 raw product        8         2               3           1.569935e-01    3.164954e-14
+inner-lazy       outer0 raw inner groups folded                      8         2               3           5.680781e-02    4.666167e-14
+inner-lazy       outer0 folded inner block materialized              8         2               2           1.387388e-01    3.442830e-14
+inner-lazy       outer1 low coeff*x^2 for high x^4                   2         2               2           0.000000e+00    4.475240e-14
+inner-lazy       outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    4.352738e-14
+inner-lazy       outer1 low linear group for high x^4                4         2               2           2.549599e-02    5.022805e-14
+inner-lazy       outer1 raw innerBSGS low(x)*x^4 raw product         6         2               3           8.289758e-02    3.503794e-14
+inner-lazy       outer1 low coeff*x^1 for high x^8                   2         2               2           0.000000e+00    9.080237e-14
+inner-lazy       outer1 low linear group for high x^8                2         2               2           1.460000e-07    1.061581e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^8 raw product         6         2               3           1.080575e-01    3.596474e-14
+inner-lazy       outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    4.521042e-14
+inner-lazy       outer1 low linear group for high x^12               4         2               2           1.380000e-07    5.702372e-14
+inner-lazy       outer1 raw innerBSGS low(x)*x^12 raw product        8         2               3           1.373119e-02    5.167291e-14
+inner-lazy       outer1 raw inner groups folded                      8         2               3           1.339311e-02    3.586900e-14
+inner-lazy       outer1 folded inner block materialized              8         2               2           8.102469e-02    2.808409e-14
+inner-lazy       outer block1*x^16 raw product                       10        2               3           5.700511e-02    4.685803e-14
+inner-lazy       outer block1*x^16 materialized                      10        2               2           8.498176e-02    8.467122e-14
+inner-lazy       outer0 + outer1*x^16                                10        2               2           2.703375e-02    2.270688e-14
+
+summary:
+  internal-eager tensor products    = 13
+  internal-eager relin count        = 13
+  internal-eager rescale count      = 13
+  internal-eager scalar mult count  = 10
+  internal-eager level-align count  = 13
+  internal-eager add count          = 8
+  internal-eager total operator sec = 2.552256e+00
+  inner-lazy     tensor products    = 13
+  inner-lazy     relin count        = 9
+  inner-lazy     rescale count      = 9
+  inner-lazy     scalar mult count  = 11
+  inner-lazy     level-align count  = 17
+  inner-lazy     add count          = 8
+  inner-lazy     total operator sec = 2.247951e+00
+  internal-eager final max_abs_err = 5.042757e-14
+  inner-lazy     final max_abs_err = 4.085794e-14
+
+comparison:
+  tensor products           = 13 vs 13
+  relin count               = 13 vs 9
+  rescale count             = 13 vs 9
+  note                      = lazy only folds inner BSGS groups; outer assembly stays eager
+
+[COEFF_PATTERN] coeff_pattern_internal_t2_b4_b
+
+[INTERNAL_PLAN] generated_coeff_pattern_internal_t2_b4_b
+[PLAINTEXT] direct-vs-internal max_abs_err = 1.084202e-19
+
+============================================================
+[EVALUATOR] generated fixed tiny internal-BSGS prototype
+[PROJECT DECISION] generate t=2, B=4 internal plans from whitelisted coefficient patterns
+[PLAN] generated_coeff_pattern_internal_t2_b4_b
+[SETS] bar(S1)={x,x^2,x^3}, hat(S1)={x^4,x^8,x^12}, S2={x^16}
+[POLY] P(x)=inner0(x)+inner1(x)*x^16
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                                level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------------------
+internal-eager   bar(S1) component x                                 0         1               2           0.000000e+00    1.653649e-12
+internal-eager   build x^2 raw product                               0         2               3           2.623278e-03    1.026193e-12
+internal-eager   build x^2 materialized                              1         1               2           8.785406e-02    1.412218e-11
+internal-eager   build x^3 raw product                               1         2               3           2.397342e-03    5.850501e-12
+internal-eager   build x^3 materialized                              2         1               2           1.304838e-02    4.723957e-12
+internal-eager   build hat x^4 raw product                           1         2               3           2.021129e-03    4.663738e-12
+internal-eager   build hat x^4 materialized                          2         1               2           8.232947e-02    4.340445e-12
+internal-eager   build hat x^8 raw product                           2         2               3           2.164082e-03    2.236504e-13
+internal-eager   build hat x^8 materialized                          3         1               2           6.995787e-02    3.529593e-13
+internal-eager   build hat x^12 raw product                          3         2               3           1.848353e-03    4.454787e-14
+internal-eager   build hat x^12 materialized                         4         1               2           6.567082e-02    1.096598e-13
+internal-eager   build S2 x^16 raw product                           3         2               3           2.403523e-03    4.748731e-14
+internal-eager   build S2 x^16 materialized                          4         1               2           7.056651e-02    6.733661e-14
+internal-eager   outer0 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    1.160530e-13
+internal-eager   outer0 low coeff*x^3 for high x^4                   2         2               2           0.000000e+00    3.076614e-13
+internal-eager   outer0 low linear group for high x^4                2         2               2           1.068881e-03    3.323418e-13
+internal-eager   outer0 innerBSGS low(x)*x^4 raw product             2         4               3           1.754493e-03    1.353815e-13
+internal-eager   outer0 innerBSGS low(x)*x^4 materialized            3         3               2           4.225132e-02    1.773330e-13
+internal-eager   outer0 low coeff*x^1 for high x^8                   0         2               2           0.000000e+00    2.488981e-13
+internal-eager   outer0 low coeff*x^2 for high x^8                   1         2               2           0.000000e+00    4.322940e-13
+internal-eager   outer0 low linear group for high x^8                1         2               2           1.158671e-03    4.004366e-13
+internal-eager   outer0 innerBSGS low(x)*x^8 raw product             3         4               3           1.394894e-03    5.423763e-14
+internal-eager   outer0 innerBSGS low(x)*x^8 materialized            4         3               2           5.230764e-02    3.223090e-14
+internal-eager   outer0 low coeff*x^2 for high x^12                  1         2               2           0.000000e+00    1.010976e-12
+internal-eager   outer0 low linear group for high x^12               1         2               2           2.310000e-07    9.835396e-13
+internal-eager   outer0 innerBSGS low(x)*x^12 raw product            4         4               3           1.361002e-03    3.348189e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 materialized           5         3               2           3.976299e-02    2.482075e-14
+internal-eager   outer0 internal BSGS block sum                      5         3               2           1.719332e-03    1.889265e-13
+internal-eager   outer1 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    7.729060e-14
+internal-eager   outer1 low coeff*x^3 for high x^4                   2         2               2           0.000000e+00    1.765623e-13
+internal-eager   outer1 low linear group for high x^4                2         2               2           1.082094e-03    2.005167e-13
+internal-eager   outer1 innerBSGS low(x)*x^4 raw product             2         4               3           3.043422e-03    8.427807e-14
+internal-eager   outer1 innerBSGS low(x)*x^4 materialized            3         3               2           2.820572e-02    1.141638e-13
+internal-eager   outer1 low coeff*x^2 for high x^8                   1         2               2           0.000000e+00    1.350579e-12
+internal-eager   outer1 low linear group for high x^8                1         2               2           1.390000e-07    1.294204e-12
+internal-eager   outer1 innerBSGS low(x)*x^8 raw product             3         4               3           3.006646e-03    3.027920e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 materialized            4         3               2           6.615451e-02    4.257730e-14
+internal-eager   outer1 low coeff*x^1 for high x^12                  0         2               2           0.000000e+00    8.048770e-14
+internal-eager   outer1 low coeff*x^3 for high x^12                  2         2               2           0.000000e+00    1.614429e-13
+internal-eager   outer1 low linear group for high x^12               2         2               2           9.180470e-04    1.602746e-13
+internal-eager   outer1 innerBSGS low(x)*x^12 raw product            4         4               3           1.350438e-03    5.972614e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 materialized           5         3               2           2.404164e-02    5.264776e-14
+internal-eager   outer1 internal BSGS block sum                      5         3               2           9.757400e-04    1.854368e-13
+internal-eager   outer block1*x^16 raw product                       5         6               3           1.393609e-03    3.468827e-14
+internal-eager   outer block1*x^16 materialized                      6         5               2           3.217525e-02    6.423946e-14
+internal-eager   outer0 + outer1*x^16                                6         5               2           2.644240e-04    2.095959e-13
+inner-lazy       bar(S1) component x                                 0         1               2           0.000000e+00    1.202288e-12
+inner-lazy       build x^2 raw product                               0         2               3           2.246975e-03    1.177808e-12
+inner-lazy       build x^2 materialized                              1         1               2           7.391563e-02    1.430470e-11
+inner-lazy       build x^3 raw product                               1         2               3           4.838041e-03    5.659959e-12
+inner-lazy       build x^3 materialized                              2         1               2           6.167379e-02    5.382361e-12
+inner-lazy       build hat x^4 raw product                           1         2               3           2.693959e-03    4.705170e-12
+inner-lazy       build hat x^4 materialized                          2         1               2           7.794909e-02    4.276877e-12
+inner-lazy       build hat x^8 raw product                           2         2               3           2.945915e-03    2.360242e-13
+inner-lazy       build hat x^8 materialized                          3         1               2           7.157337e-02    4.078767e-13
+inner-lazy       build hat x^12 raw product                          3         2               3           1.956063e-03    2.274322e-14
+inner-lazy       build hat x^12 materialized                         4         1               2           5.167631e-02    1.543343e-13
+inner-lazy       build S2 x^16 raw product                           3         2               3           1.898287e-03    6.146020e-14
+inner-lazy       build S2 x^16 materialized                          4         1               2           4.920271e-02    8.835602e-14
+inner-lazy       aligned basis x^1                                   4         1               2           0.000000e+00    8.955892e-13
+inner-lazy       aligned basis x^2                                   4         1               2           0.000000e+00    1.512407e-11
+inner-lazy       aligned basis x^3                                   4         1               2           0.000000e+00    4.667655e-12
+inner-lazy       aligned basis x^4                                   4         1               2           0.000000e+00    4.324246e-12
+inner-lazy       aligned basis x^8                                   4         1               2           0.000000e+00    3.667777e-13
+inner-lazy       aligned basis x^12                                  4         1               2           0.000000e+00    7.598944e-14
+inner-lazy       aligned basis x^16                                  4         1               2           0.000000e+00    1.209391e-13
+inner-lazy       outer0 low coeff*x^1 for high x^4                   4         2               2           0.000000e+00    1.393920e-13
+inner-lazy       outer0 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    2.821662e-13
+inner-lazy       outer0 low linear group for high x^4                4         2               2           8.338230e-04    3.504246e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^4 raw product         4         4               3           1.473304e-03    1.187129e-13
+inner-lazy       outer0 low coeff*x^1 for high x^8                   4         2               2           0.000000e+00    1.916522e-13
+inner-lazy       outer0 low coeff*x^2 for high x^8                   4         2               2           0.000000e+00    4.145495e-13
+inner-lazy       outer0 low linear group for high x^8                4         2               2           1.333488e-03    4.389059e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^8 raw product         4         4               3           3.405600e-03    5.929698e-14
+inner-lazy       outer0 low coeff*x^2 for high x^12                  4         2               2           0.000000e+00    1.000736e-12
+inner-lazy       outer0 low linear group for high x^12               4         2               2           1.850000e-07    1.056667e-12
+inner-lazy       outer0 raw innerBSGS low(x)*x^12 raw product        4         4               3           1.473216e-03    4.639655e-14
+inner-lazy       outer0 raw inner groups folded                      4         4               3           1.318783e-03    1.024823e-13
+inner-lazy       outer0 folded inner block materialized              5         3               2           1.107093e-01    2.881254e-13
+inner-lazy       outer1 low coeff*x^1 for high x^4                   4         2               2           0.000000e+00    1.210924e-13
+inner-lazy       outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    1.656353e-13
+inner-lazy       outer1 low linear group for high x^4                4         2               2           6.773000e-04    3.147482e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^4 raw product         4         4               3           1.435936e-03    1.182331e-13
+inner-lazy       outer1 low coeff*x^2 for high x^8                   4         2               2           0.000000e+00    1.354488e-12
+inner-lazy       outer1 low linear group for high x^8                4         2               2           2.190000e-07    1.304349e-12
+inner-lazy       outer1 raw innerBSGS low(x)*x^8 raw product         4         4               3           1.499351e-03    7.113878e-14
+inner-lazy       outer1 low coeff*x^1 for high x^12                  4         2               2           0.000000e+00    8.833038e-14
+inner-lazy       outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    1.475348e-13
+inner-lazy       outer1 low linear group for high x^12               4         2               2           9.685250e-04    1.441017e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^12 raw product        4         4               3           1.099729e-03    7.261372e-14
+inner-lazy       outer1 raw inner groups folded                      4         4               3           1.621751e-03    8.947243e-14
+inner-lazy       outer1 folded inner block materialized              5         3               2           1.702206e-01    1.711982e-13
+inner-lazy       outer block1*x^16 raw product                       5         6               3           8.301497e-03    5.206447e-14
+inner-lazy       outer block1*x^16 materialized                      6         5               2           4.353627e-02    6.291949e-14
+inner-lazy       outer0 + outer1*x^16                                6         5               2           4.903840e-04    2.748584e-13
+
+summary:
+  internal-eager tensor products    = 13
+  internal-eager relin count        = 13
+  internal-eager rescale count      = 13
+  internal-eager scalar mult count  = 20
+  internal-eager level-align count  = 16
+  internal-eager add count          = 9
+  internal-eager total operator sec = 7.396643e-01
+  inner-lazy     tensor products    = 13
+  inner-lazy     relin count        = 9
+  inner-lazy     rescale count      = 9
+  inner-lazy     scalar mult count  = 20
+  inner-lazy     level-align count  = 9
+  inner-lazy     add count          = 9
+  inner-lazy     total operator sec = 7.967749e-01
+  internal-eager final max_abs_err = 2.166109e-13
+  inner-lazy     final max_abs_err = 2.447759e-13
+
+comparison:
+  tensor products           = 13 vs 13
+  relin count               = 13 vs 9
+  rescale count             = 13 vs 9
+  note                      = lazy only folds inner BSGS groups; outer assembly stays eager
+
+============================================================
+[EVALUATOR] generated fixed tiny internal-BSGS prototype
+[PROJECT DECISION] generate t=2, B=4 internal plans from whitelisted coefficient patterns
+[PLAN] generated_coeff_pattern_internal_t2_b4_b
+[SETS] bar(S1)={x,x^2,x^3}, hat(S1)={x^4,x^8,x^12}, S2={x^16}
+[POLY] P(x)=inner0(x)+inner1(x)*x^16
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                                level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------------------
+internal-eager   bar(S1) component x                                 0         1               2           0.000000e+00    1.737277e-12
+internal-eager   build x^2 raw product                               0         2               3           9.084005e-03    6.188244e-13
+internal-eager   build x^2 materialized                              0         2               2           1.674870e-01    8.883588e-13
+internal-eager   build x^3 raw product                               2         2               3           4.777156e-02    6.762021e-13
+internal-eager   build x^3 materialized                              2         2               2           1.297802e-01    5.207501e-13
+internal-eager   build hat x^4 raw product                           2         2               3           6.040342e-02    2.819182e-13
+internal-eager   build hat x^4 materialized                          2         2               2           6.526447e-02    1.742987e-13
+internal-eager   build hat x^8 raw product                           4         2               3           1.498279e-02    4.830801e-14
+internal-eager   build hat x^8 materialized                          4         2               2           7.162211e-02    3.734610e-14
+internal-eager   build hat x^12 raw product                          6         2               3           3.837617e-02    2.419673e-14
+internal-eager   build hat x^12 materialized                         6         2               2           9.524043e-02    7.742313e-14
+internal-eager   build S2 x^16 raw product                           6         2               3           3.045699e-02    6.403403e-14
+internal-eager   build S2 x^16 materialized                          6         2               2           6.335567e-02    3.933380e-14
+internal-eager   outer0 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    9.340445e-14
+internal-eager   outer0 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    5.264907e-14
+internal-eager   outer0 low linear group for high x^4                4         2               2           5.760588e-02    1.843942e-13
+internal-eager   outer0 innerBSGS low(x)*x^4 raw product             6         2               3           8.421064e-02    2.943174e-14
+internal-eager   outer0 innerBSGS low(x)*x^4 materialized            6         2               2           1.318348e-01    3.410038e-14
+internal-eager   outer0 low coeff*x^1 for high x^8                   0         2               2           0.000000e+00    2.449881e-13
+internal-eager   outer0 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    4.855437e-14
+internal-eager   outer0 low linear group for high x^8                2         2               2           6.598668e-02    3.308812e-13
+internal-eager   outer0 innerBSGS low(x)*x^8 raw product             6         2               3           8.949045e-02    2.315129e-14
+internal-eager   outer0 innerBSGS low(x)*x^8 materialized            6         2               2           1.110312e-01    3.813113e-14
+internal-eager   outer0 low coeff*x^2 for high x^12                  2         2               2           0.000000e+00    8.566455e-14
+internal-eager   outer0 low linear group for high x^12               2         2               2           2.690000e-07    3.653675e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 raw product            8         2               3           6.278733e-02    5.503681e-14
+internal-eager   outer0 innerBSGS low(x)*x^12 materialized           8         2               2           7.281854e-02    4.231674e-14
+internal-eager   outer0 internal BSGS block sum                      8         2               2           3.823561e-02    3.628846e-14
+internal-eager   outer1 low coeff*x^1 for high x^4                   0         2               2           0.000000e+00    6.257495e-14
+internal-eager   outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    8.456430e-14
+internal-eager   outer1 low linear group for high x^4                4         2               2           2.666245e-02    8.710394e-14
+internal-eager   outer1 innerBSGS low(x)*x^4 raw product             6         2               3           6.456460e-02    5.231336e-14
+internal-eager   outer1 innerBSGS low(x)*x^4 materialized            6         2               2           1.171690e-01    3.505021e-14
+internal-eager   outer1 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    9.557394e-14
+internal-eager   outer1 low linear group for high x^8                2         2               2           1.550000e-07    9.444528e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 raw product             6         2               3           5.802426e-02    2.860090e-14
+internal-eager   outer1 innerBSGS low(x)*x^8 materialized            6         2               2           1.233147e-01    5.630854e-14
+internal-eager   outer1 low coeff*x^1 for high x^12                  0         2               2           0.000000e+00    7.936533e-14
+internal-eager   outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    5.678010e-14
+internal-eager   outer1 low linear group for high x^12               4         2               2           5.426868e-02    5.093061e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 raw product            8         2               3           9.202657e-02    5.740856e-14
+internal-eager   outer1 innerBSGS low(x)*x^12 materialized           8         2               2           6.444855e-02    4.717500e-14
+internal-eager   outer1 internal BSGS block sum                      8         2               2           6.348406e-02    7.905361e-14
+internal-eager   outer block1*x^16 raw product                       10        2               3           1.066942e-01    6.241638e-14
+internal-eager   outer block1*x^16 materialized                      10        2               2           1.150408e-02    2.697286e-14
+internal-eager   outer0 + outer1*x^16                                10        2               2           4.215476e-03    5.746131e-14
+inner-lazy       bar(S1) component x                                 0         1               2           0.000000e+00    2.173206e-12
+inner-lazy       build x^2 raw product                               0         2               3           4.664465e-03    8.591600e-13
+inner-lazy       build x^2 materialized                              0         2               2           1.785099e-02    1.146805e-12
+inner-lazy       build x^3 raw product                               2         2               3           9.104379e-03    5.680387e-13
+inner-lazy       build x^3 materialized                              2         2               2           3.605489e-02    3.244561e-13
+inner-lazy       build hat x^4 raw product                           2         2               3           1.192421e-02    2.339760e-13
+inner-lazy       build hat x^4 materialized                          2         2               2           1.127228e-01    2.440092e-13
+inner-lazy       build hat x^8 raw product                           4         2               3           5.693507e-02    3.828567e-14
+inner-lazy       build hat x^8 materialized                          4         2               2           1.070836e-01    3.209727e-14
+inner-lazy       build hat x^12 raw product                          6         2               3           4.031755e-02    3.559331e-14
+inner-lazy       build hat x^12 materialized                         6         2               2           9.182880e-02    4.984686e-14
+inner-lazy       build S2 x^16 raw product                           6         2               3           4.071438e-02    6.278091e-14
+inner-lazy       build S2 x^16 materialized                          6         2               2           1.359698e-01    4.862923e-14
+inner-lazy       aligned basis x^1                                   0         2               2           0.000000e+00    1.170619e-12
+inner-lazy       aligned basis x^2                                   0         2               2           0.000000e+00    1.278949e-12
+inner-lazy       aligned basis x^3                                   2         2               2           0.000000e+00    5.017618e-13
+inner-lazy       aligned basis x^4                                   2         2               2           0.000000e+00    1.674229e-13
+inner-lazy       aligned basis x^8                                   4         2               2           0.000000e+00    3.832123e-14
+inner-lazy       aligned basis x^12                                  6         2               2           0.000000e+00    3.986111e-14
+inner-lazy       aligned basis x^16                                  6         2               2           0.000000e+00    3.809079e-14
+inner-lazy       outer0 low coeff*x^1 for high x^4                   2         2               2           0.000000e+00    1.081132e-13
+inner-lazy       outer0 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    4.087486e-14
+inner-lazy       outer0 low linear group for high x^4                4         2               2           1.476832e-02    5.533247e-14
+inner-lazy       outer0 raw innerBSGS low(x)*x^4 raw product         6         2               3           7.562049e-02    5.717115e-14
+inner-lazy       outer0 low coeff*x^1 for high x^8                   2         2               2           0.000000e+00    1.756165e-13
+inner-lazy       outer0 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    5.512924e-14
+inner-lazy       outer0 low linear group for high x^8                2         2               2           2.212423e-03    2.818856e-13
+inner-lazy       outer0 raw innerBSGS low(x)*x^8 raw product         6         2               3           6.191303e-02    3.433084e-14
+inner-lazy       outer0 low coeff*x^2 for high x^12                  2         2               2           0.000000e+00    7.361361e-14
+inner-lazy       outer0 low linear group for high x^12               2         2               2           1.400000e-07    2.550523e-14
+inner-lazy       outer0 raw innerBSGS low(x)*x^12 raw product        8         2               3           9.377609e-02    3.209258e-14
+inner-lazy       outer0 raw inner groups folded                      8         2               3           3.361733e-02    5.603894e-14
+inner-lazy       outer0 folded inner block materialized              8         2               2           9.466006e-02    6.882852e-14
+inner-lazy       outer1 low coeff*x^1 for high x^4                   2         2               2           0.000000e+00    9.439498e-14
+inner-lazy       outer1 low coeff*x^3 for high x^4                   4         2               2           0.000000e+00    2.947208e-14
+inner-lazy       outer1 low linear group for high x^4                4         2               2           3.564055e-02    5.289692e-14
+inner-lazy       outer1 raw innerBSGS low(x)*x^4 raw product         6         2               3           1.411017e-01    3.798990e-14
+inner-lazy       outer1 low coeff*x^2 for high x^8                   2         2               2           0.000000e+00    9.320062e-14
+inner-lazy       outer1 low linear group for high x^8                2         2               2           1.500000e-07    1.121828e-13
+inner-lazy       outer1 raw innerBSGS low(x)*x^8 raw product         6         2               3           4.695757e-02    4.328155e-14
+inner-lazy       outer1 low coeff*x^1 for high x^12                  2         2               2           0.000000e+00    4.062028e-14
+inner-lazy       outer1 low coeff*x^3 for high x^12                  4         2               2           0.000000e+00    7.045800e-14
+inner-lazy       outer1 low linear group for high x^12               4         2               2           5.631117e-03    5.678097e-14
+inner-lazy       outer1 raw innerBSGS low(x)*x^12 raw product        8         2               3           7.314843e-02    6.420060e-14
+inner-lazy       outer1 raw inner groups folded                      8         2               3           4.283368e-02    3.726716e-14
+inner-lazy       outer1 folded inner block materialized              8         2               2           1.253679e-01    7.676645e-14
+inner-lazy       outer block1*x^16 raw product                       10        2               3           1.554331e-02    4.277943e-14
+inner-lazy       outer block1*x^16 materialized                      10        2               2           7.547019e-02    6.385046e-14
+inner-lazy       outer0 + outer1*x^16                                10        2               2           3.322442e-03    5.766458e-14
+
+summary:
+  internal-eager tensor products    = 13
+  internal-eager relin count        = 13
+  internal-eager rescale count      = 13
+  internal-eager scalar mult count  = 11
+  internal-eager level-align count  = 15
+  internal-eager add count          = 9
+  internal-eager total operator sec = 2.688895e+00
+  inner-lazy     tensor products    = 13
+  inner-lazy     relin count        = 9
+  inner-lazy     rescale count      = 9
+  inner-lazy     scalar mult count  = 12
+  inner-lazy     level-align count  = 19
+  inner-lazy     add count          = 9
+  inner-lazy     total operator sec = 1.899172e+00
+  internal-eager final max_abs_err = 3.470928e-14
+  inner-lazy     final max_abs_err = 3.620760e-14
+
+comparison:
+  tensor products           = 13 vs 13
+  relin count               = 13 vs 9
+  rescale count             = 13 vs 9
+  note                      = lazy only folds inner BSGS groups; outer assembly stays eager
