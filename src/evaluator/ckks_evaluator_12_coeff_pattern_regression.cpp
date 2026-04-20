@@ -50,25 +50,34 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
+        // Low-degree and linear-block guards.
         CaseDef{"only_c0", {0.25}, "compact-active", {}, 1, 0, 0, 0, 0, 0, 0},
         CaseDef{"only_c1", {0.0, -0.3}, "compact-active",
                 {ExpectedBlock{"linear", 1, "One"}}, 0, 0, 0, 0, 0, 0, 0},
         CaseDef{"constant_linear", {0.25, -0.3}, "compact-active",
                 {ExpectedBlock{"linear", 1, "One"}}, 1, 0, 0, 0, 0, 0, 0},
+
+        // Tail guards: c5 currently keeps c1 outside the linear block.
         CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, "compact-active",
                 {}, 1, 3, 3, 3, 3, 3, 3},
         CaseDef{"linear_plus_c5", {0.0, -0.3, 0.0, 0.0, 0.0, 0.2}, "compact-active",
                 {}, 2, 3, 3, 3, 3, 3, 3},
+
+        // Block0 guards: c1 remains a tail when nonlinear block0 terms exist.
         CaseDef{"linear_plus_c2", {0.0, -0.3, 0.7}, "compact-active",
                 {ExpectedBlock{"block0", 1, "One"}}, 1, 2, 2, 2, 2, 2, 2},
         CaseDef{"constant_linear_plus_c4", {0.25, -0.3, 0.0, 0.0, 0.5}, "compact-active",
                 {ExpectedBlock{"block0", 1, "One"}}, 2, 2, 2, 2, 2, 2, 2},
         CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active",
                 {ExpectedBlock{"block0", 3, "One"}}, 0, 5, 5, 5, 2, 5, 2},
+
+        // Block1 guards: c1 remains a tail when outer block1 terms exist.
         CaseDef{"linear_plus_c6", {0.0, -0.3, 0.0, 0.0, 0.0, 0.0, -0.4}, "compact-active",
                 {ExpectedBlock{"block1", 1, "Z"}}, 1, 4, 4, 4, 4, 4, 4},
         CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active",
                 {ExpectedBlock{"block1", 3, "Z"}}, 0, 7, 7, 7, 4, 7, 4},
+
+        // Two-block and dense references.
         CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4",
                 {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
                 2, 6, 6, 6, 6, 6, 6},
