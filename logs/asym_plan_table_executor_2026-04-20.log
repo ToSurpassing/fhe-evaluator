@@ -1,0 +1,484 @@
+
+============================================================
+[EVALUATOR] asymmetric plan-table t=3 executor
+[PROJECT DECISION] execute a small table of validated fixed plans, not a general planner
+[PLAN] outer_assembly_24_shape
+[POLY] P(x)=block0(x)+block1(x)*z, z=x^8
+[block0] powers x^7,x^8,x^9,x^11
+[block1*z] powers x^15,x^16,x^17
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                            level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1 component x                                  0         1               2           0.000000e+00    1.268000e-12
+expanded-eager   build x^2 raw product                           0         2               3           2.101759e-03    7.855661e-13
+expanded-eager   build x^2 materialized                          1         1               2           6.024965e-02    1.475997e-11
+expanded-eager   build x^4 raw product                           1         2               3           1.296158e-03    4.654332e-12
+expanded-eager   build x^4 materialized                          2         1               2           9.727685e-02    4.393954e-12
+expanded-eager   build z=x^8 raw product                         2         2               3           2.031030e-03    2.568424e-13
+expanded-eager   build z=x^8 materialized                        3         1               2           8.109993e-02    3.493240e-13
+expanded-eager   block0 prefix x^1*x^2 raw product               1         2               3           2.620870e-03    5.842132e-12
+expanded-eager   block0 prefix x^1*x^2 materialized              2         1               2           5.865582e-02    5.004372e-12
+expanded-eager   block0 prefix*x^4 raw product                   2         2               3           1.912250e-03    4.136246e-13
+expanded-eager   block0 prefix*x^4 materialized                  3         1               2           4.679203e-02    6.549900e-13
+expanded-eager   block0 scaled c*x^7                             3         2               2           0.000000e+00    1.044177e-13
+expanded-eager   block0 prefix x^2*x^2 raw product               1         2               3           1.240705e-03    4.631611e-12
+expanded-eager   block0 prefix x^2*x^2 materialized              2         1               2           6.505554e-02    4.349066e-12
+expanded-eager   block0 prefix*x^4 raw product                   2         2               3           1.683153e-03    2.188553e-13
+expanded-eager   block0 prefix*x^4 materialized                  3         1               2           1.351407e-02    3.021512e-13
+expanded-eager   block0 scaled c*x^8                             3         2               2           0.000000e+00    4.420650e-14
+expanded-eager   block0 prefix x^1*x^4 raw product               2         2               3           1.549658e-03    1.635667e-12
+expanded-eager   block0 prefix x^1*x^4 materialized              3         1               2           5.884977e-02    3.121361e-12
+expanded-eager   block0 prefix*x^4 raw product                   3         2               3           1.543270e-03    7.097090e-14
+expanded-eager   block0 prefix*x^4 materialized                  4         1               2           6.610972e-03    7.574923e-14
+expanded-eager   block0 scaled c*x^9                             4         2               2           0.000000e+00    8.578606e-14
+expanded-eager   block0 prefix x^1*x^2 raw product               1         2               3           2.531526e-03    5.689157e-12
+expanded-eager   block0 prefix x^1*x^2 materialized              2         1               2           9.416861e-02    5.003525e-12
+expanded-eager   block0 prefix*x^8 raw product                   3         2               3           2.130813e-03    3.141083e-14
+expanded-eager   block0 prefix*x^8 materialized                  4         1               2           1.808498e-02    6.425707e-14
+expanded-eager   block0 scaled c*x^11                            4         2               2           0.000000e+00    5.539062e-14
+expanded-eager   block0 materialized block sum                   4         2               2           1.183703e-03    2.095483e-13
+expanded-eager   block1 prefix x^1*x^2 raw product               1         2               3           1.595080e-03    6.056738e-12
+expanded-eager   block1 prefix x^1*x^2 materialized              2         1               2           8.108354e-02    4.656497e-12
+expanded-eager   block1 prefix*x^4 raw product                   2         2               3           2.794471e-03    4.587585e-13
+expanded-eager   block1 prefix*x^4 materialized                  3         1               2           3.641426e-02    6.489670e-13
+expanded-eager   block1 scaled c*x^7                             3         2               2           0.000000e+00    1.212720e-13
+expanded-eager   block1 prefix x^2*x^2 raw product               1         2               3           4.030808e-03    4.721494e-12
+expanded-eager   block1 prefix x^2*x^2 materialized              2         1               2           1.675678e-01    4.359190e-12
+expanded-eager   block1 prefix*x^4 raw product                   2         2               3           2.111344e-03    1.978523e-13
+expanded-eager   block1 prefix*x^4 materialized                  3         1               2           7.329079e-02    3.396859e-13
+expanded-eager   block1 scaled c*x^8                             3         2               2           0.000000e+00    7.473057e-14
+expanded-eager   block1 prefix x^1*x^4 raw product               2         2               3           1.666362e-03    1.704850e-12
+expanded-eager   block1 prefix x^1*x^4 materialized              3         1               2           2.784423e-02    3.069435e-12
+expanded-eager   block1 prefix*x^4 raw product                   3         2               3           1.443615e-03    1.222178e-13
+expanded-eager   block1 prefix*x^4 materialized                  4         1               2           1.012219e-02    1.201980e-13
+expanded-eager   block1 scaled c*x^9                             4         2               2           0.000000e+00    5.535833e-14
+expanded-eager   block1 materialized block sum                   4         2               2           8.665030e-04    2.363012e-13
+expanded-eager   outer block1*z raw product                      4         4               3           1.222941e-03    5.403663e-14
+expanded-eager   outer block1*z materialized                     5         3               2           7.542976e-03    4.988229e-14
+expanded-eager   block0 + block1*z                               5         3               2           2.151970e-04    2.694453e-13
+grouped-lazy     S1 component x                                  0         1               2           0.000000e+00    7.297773e-13
+grouped-lazy     build x^2 raw product                           0         2               3           2.087785e-03    7.871759e-13
+grouped-lazy     build x^2 materialized                          1         1               2           3.832606e-02    1.485156e-11
+grouped-lazy     build x^4 raw product                           1         2               3           2.134916e-03    4.779423e-12
+grouped-lazy     build x^4 materialized                          2         1               2           6.394481e-02    4.082384e-12
+grouped-lazy     build z=x^8 raw product                         2         2               3           1.724358e-03    2.023095e-13
+grouped-lazy     build z=x^8 materialized                        3         1               2           7.851776e-02    3.731929e-13
+grouped-lazy     aligned component x^1                           3         1               2           0.000000e+00    1.318737e-12
+grouped-lazy     aligned component x^2                           3         1               2           0.000000e+00    1.512956e-11
+grouped-lazy     aligned component x^4                           3         1               2           0.000000e+00    4.250548e-12
+grouped-lazy     aligned component x^8                           3         1               2           0.000000e+00    3.613618e-13
+grouped-lazy     block0 prefix x^1*x^2 raw product               3         2               3           1.531981e-03    5.638809e-12
+grouped-lazy     block0 raw prefix*x^4 raw product               3         3               4           2.261024e-03    4.010761e-13
+grouped-lazy     block0 raw scaled c*x^7                         3         4               4           0.000000e+00    7.231273e-14
+grouped-lazy     block0 prefix x^2*x^2 raw product               3         2               3           1.534942e-03    4.875596e-12
+grouped-lazy     block0 raw prefix*x^4 raw product               3         3               4           2.062153e-03    2.240451e-13
+grouped-lazy     block0 raw scaled c*x^8                         3         4               4           0.000000e+00    6.883765e-14
+grouped-lazy     block0 prefix x^1*x^4 raw product               3         2               3           1.545888e-03    1.704090e-12
+grouped-lazy     block0 raw prefix*x^4 raw product               3         3               4           2.314037e-03    8.724315e-14
+grouped-lazy     block0 raw scaled c*x^9                         3         4               4           0.000000e+00    5.098615e-14
+grouped-lazy     block0 prefix x^1*x^2 raw product               3         2               3           1.739969e-03    5.725587e-12
+grouped-lazy     block0 raw prefix*x^8 raw product               3         3               4           2.386364e-03    4.556757e-14
+grouped-lazy     block0 raw scaled c*x^11                        3         4               4           0.000000e+00    9.779114e-14
+grouped-lazy     block0 raw t=3 terms folded                     3         4               4           2.384917e-03    1.281788e-13
+grouped-lazy     block0 folded block materialized                4         3               2           9.777355e-02    6.510379e-14
+grouped-lazy     block1 prefix x^1*x^2 raw product               3         2               3           1.461414e-03    5.824591e-12
+grouped-lazy     block1 raw prefix*x^4 raw product               3         3               4           2.089559e-03    4.102393e-13
+grouped-lazy     block1 raw scaled c*x^7                         3         4               4           0.000000e+00    8.486593e-14
+grouped-lazy     block1 prefix x^2*x^2 raw product               3         2               3           1.176819e-03    4.657146e-12
+grouped-lazy     block1 raw prefix*x^4 raw product               3         3               4           2.102969e-03    2.503337e-13
+grouped-lazy     block1 raw scaled c*x^8                         3         4               4           0.000000e+00    4.726842e-14
+grouped-lazy     block1 prefix x^1*x^4 raw product               3         2               3           1.453363e-03    1.707304e-12
+grouped-lazy     block1 raw prefix*x^4 raw product               3         3               4           1.703156e-03    8.343136e-14
+grouped-lazy     block1 raw scaled c*x^9                         3         4               4           0.000000e+00    3.806986e-14
+grouped-lazy     block1 raw t=3 terms folded                     3         4               4           1.706184e-03    1.454582e-13
+grouped-lazy     block1 folded block materialized                4         3               2           6.514212e-02    5.567703e-14
+grouped-lazy     outer block1*z raw product                      4         6               3           2.138932e-03    6.946567e-14
+grouped-lazy     outer block1*z materialized                     5         5               2           5.487497e-02    2.918840e-14
+grouped-lazy     block0 + block1*z                               5         5               2           2.954030e-04    7.978687e-14
+
+summary:
+  expanded-eager tensor products    = 18
+  expanded-eager relin count        = 18
+  expanded-eager rescale count      = 18
+  expanded-eager scalar mult count  = 9
+  expanded-eager level-align count  = 10
+  expanded-eager add count          = 6
+  expanded-eager total operator sec = 1.045746e+00
+  grouped-lazy   tensor products    = 18
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 11
+  grouped-lazy   level-align count  = 5
+  grouped-lazy   add count          = 6
+  grouped-lazy   total operator sec = 4.447227e-01
+  expanded-eager final max_abs_err = 2.596702e-13
+  grouped-lazy   final max_abs_err = 9.935141e-14
+
+comparison:
+  tensor products           = 18 vs 18
+  relin count               = 18 vs 6
+  rescale count             = 18 vs 6
+  note                      = two fixed t=3 grouped blocks plus one outer product
+
+============================================================
+[EVALUATOR] asymmetric plan-table t=3 executor
+[PROJECT DECISION] execute a small table of validated fixed plans, not a general planner
+[PLAN] outer_assembly_24_shape
+[POLY] P(x)=block0(x)+block1(x)*z, z=x^8
+[block0] powers x^7,x^8,x^9,x^11
+[block1*z] powers x^15,x^16,x^17
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                            level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1 component x                                  0         1               2           0.000000e+00    1.458889e-12
+expanded-eager   build x^2 raw product                           0         2               3           9.520730e-03    9.933859e-13
+expanded-eager   build x^2 materialized                          0         2               2           9.404078e-02    1.029191e-12
+expanded-eager   build x^4 raw product                           2         2               3           6.443666e-02    2.036496e-13
+expanded-eager   build x^4 materialized                          2         2               2           1.229634e-01    1.621689e-13
+expanded-eager   build z=x^8 raw product                         4         2               3           6.055823e-02    7.692761e-14
+expanded-eager   build z=x^8 materialized                        4         2               2           1.297764e-01    5.227511e-14
+expanded-eager   block0 prefix x^1*x^2 raw product               2         2               3           4.309460e-02    3.932132e-13
+expanded-eager   block0 prefix x^1*x^2 materialized              2         2               2           1.284095e-01    1.822865e-13
+expanded-eager   block0 prefix*x^4 raw product                   4         2               3           7.570911e-02    5.144515e-14
+expanded-eager   block0 prefix*x^4 materialized                  4         2               2           9.658419e-02    6.768587e-14
+expanded-eager   block0 scaled c*x^7                             6         2               2           0.000000e+00    5.360656e-14
+expanded-eager   block0 prefix x^2*x^2 raw product               2         2               3           6.531132e-02    1.426045e-13
+expanded-eager   block0 prefix x^2*x^2 materialized              2         2               2           1.375101e-01    2.923531e-13
+expanded-eager   block0 prefix*x^4 raw product                   4         2               3           8.063284e-02    5.251607e-14
+expanded-eager   block0 prefix*x^4 materialized                  4         2               2           1.398639e-01    4.753942e-14
+expanded-eager   block0 scaled c*x^8                             6         2               2           0.000000e+00    9.415605e-14
+expanded-eager   block0 prefix x^1*x^4 raw product               4         2               3           5.364033e-02    6.999956e-14
+expanded-eager   block0 prefix x^1*x^4 materialized              4         2               2           1.081592e-01    1.217646e-13
+expanded-eager   block0 prefix*x^4 raw product                   6         2               3           8.945887e-02    5.275863e-14
+expanded-eager   block0 prefix*x^4 materialized                  6         2               2           6.533594e-02    4.698939e-14
+expanded-eager   block0 scaled c*x^9                             8         2               2           0.000000e+00    6.172071e-14
+expanded-eager   block0 prefix x^1*x^2 raw product               2         2               3           6.509419e-02    2.893658e-13
+expanded-eager   block0 prefix x^1*x^2 materialized              2         2               2           1.112405e-01    4.393014e-13
+expanded-eager   block0 prefix*x^8 raw product                   6         2               3           5.139662e-02    5.545930e-14
+expanded-eager   block0 prefix*x^8 materialized                  6         2               2           6.851446e-02    2.775928e-14
+expanded-eager   block0 scaled c*x^11                            8         2               2           0.000000e+00    5.421298e-14
+expanded-eager   block0 materialized block sum                   8         2               2           8.769333e-03    7.611513e-14
+expanded-eager   block1 prefix x^1*x^2 raw product               2         2               3           9.555158e-03    4.245562e-13
+expanded-eager   block1 prefix x^1*x^2 materialized              2         2               2           1.140270e-01    3.717374e-13
+expanded-eager   block1 prefix*x^4 raw product                   4         2               3           5.825599e-02    4.608922e-14
+expanded-eager   block1 prefix*x^4 materialized                  4         2               2           8.252922e-02    2.473087e-14
+expanded-eager   block1 scaled c*x^7                             6         2               2           0.000000e+00    7.487519e-14
+expanded-eager   block1 prefix x^2*x^2 raw product               2         2               3           7.263731e-02    1.998540e-13
+expanded-eager   block1 prefix x^2*x^2 materialized              2         2               2           1.103071e-01    2.247681e-13
+expanded-eager   block1 prefix*x^4 raw product                   4         2               3           9.303293e-03    6.887062e-14
+expanded-eager   block1 prefix*x^4 materialized                  4         2               2           7.841345e-02    6.352026e-14
+expanded-eager   block1 scaled c*x^8                             6         2               2           0.000000e+00    6.083709e-14
+expanded-eager   block1 prefix x^1*x^4 raw product               4         2               3           1.718302e-02    7.502679e-14
+expanded-eager   block1 prefix x^1*x^4 materialized              4         2               2           1.083126e-01    6.478498e-14
+expanded-eager   block1 prefix*x^4 raw product                   6         2               3           1.137397e-02    4.091655e-14
+expanded-eager   block1 prefix*x^4 materialized                  6         2               2           3.669470e-02    5.973167e-14
+expanded-eager   block1 scaled c*x^9                             8         2               2           0.000000e+00    3.950881e-14
+expanded-eager   block1 materialized block sum                   8         2               2           4.179179e-03    8.818736e-14
+expanded-eager   outer block1*z raw product                      10        2               3           1.350718e-02    6.537270e-14
+expanded-eager   outer block1*z materialized                     10        2               2           7.285793e-02    4.782044e-14
+expanded-eager   block0 + block1*z                               10        2               2           3.302585e-03    1.022275e-13
+grouped-lazy     S1 component x                                  0         1               2           0.000000e+00    1.738998e-12
+grouped-lazy     build x^2 raw product                           0         2               3           4.982302e-03    8.336847e-13
+grouped-lazy     build x^2 materialized                          0         2               2           8.978727e-02    1.073169e-12
+grouped-lazy     build x^4 raw product                           2         2               3           1.095618e-02    1.829474e-13
+grouped-lazy     build x^4 materialized                          2         2               2           1.068614e-01    1.917737e-13
+grouped-lazy     build z=x^8 raw product                         4         2               3           7.677319e-03    4.027700e-14
+grouped-lazy     build z=x^8 materialized                        4         2               2           1.018106e-01    6.674230e-14
+grouped-lazy     aligned component x^1                           0         2               2           0.000000e+00    1.729727e-12
+grouped-lazy     aligned component x^2                           0         2               2           0.000000e+00    7.351966e-13
+grouped-lazy     aligned component x^4                           2         2               2           0.000000e+00    2.595649e-13
+grouped-lazy     aligned component x^8                           4         2               2           0.000000e+00    4.197365e-14
+grouped-lazy     block0 prefix x^1*x^2 raw product               2         2               3           8.970371e-03    4.256196e-13
+grouped-lazy     block0 raw prefix*x^4 raw product               4         2               4           1.300185e-02    8.926388e-14
+grouped-lazy     block0 raw scaled c*x^7                         6         2               4           0.000000e+00    1.409044e-10
+grouped-lazy     block0 prefix x^2*x^2 raw product               2         2               3           1.391810e-02    2.032385e-13
+grouped-lazy     block0 raw prefix*x^4 raw product               4         2               4           1.287311e-02    6.496190e-14
+grouped-lazy     block0 raw scaled c*x^8                         6         2               4           0.000000e+00    2.307228e-10
+grouped-lazy     block0 prefix x^1*x^4 raw product               4         2               3           1.439447e-02    1.406696e-13
+grouped-lazy     block0 raw prefix*x^4 raw product               6         2               4           1.905932e-02    3.562602e-14
+grouped-lazy     block0 raw scaled c*x^9                         8         2               4           0.000000e+00    2.443729e-10
+grouped-lazy     block0 prefix x^1*x^2 raw product               2         2               3           9.272421e-03    3.237272e-13
+grouped-lazy     block0 raw prefix*x^8 raw product               6         2               4           2.075395e-02    7.370664e-14
+grouped-lazy     block0 raw scaled c*x^11                        8         2               4           0.000000e+00    9.388342e-11
+grouped-lazy     block0 raw t=3 terms folded                     8         2               4           1.175531e-02    4.388784e-10
+grouped-lazy     block0 folded block materialized                8         2               2           1.263589e-01    3.887862e-10
+grouped-lazy     block1 prefix x^1*x^2 raw product               2         2               3           9.840130e-03    3.665401e-13
+grouped-lazy     block1 raw prefix*x^4 raw product               4         2               4           1.345175e-02    1.321729e-13
+grouped-lazy     block1 raw scaled c*x^7                         6         2               4           0.000000e+00    2.408676e-10
+grouped-lazy     block1 prefix x^2*x^2 raw product               2         2               3           9.916173e-03    1.693576e-13
+grouped-lazy     block1 raw prefix*x^4 raw product               4         2               4           1.402914e-02    7.424024e-14
+grouped-lazy     block1 raw scaled c*x^8                         6         2               4           0.000000e+00    1.355851e-10
+grouped-lazy     block1 prefix x^1*x^4 raw product               4         2               3           1.203369e-02    8.654709e-14
+grouped-lazy     block1 raw prefix*x^4 raw product               6         2               4           2.458711e-02    5.011679e-14
+grouped-lazy     block1 raw scaled c*x^9                         8         2               4           0.000000e+00    6.568065e-11
+grouped-lazy     block1 raw t=3 terms folded                     8         2               4           7.248887e-02    2.784596e-10
+grouped-lazy     block1 folded block materialized                8         2               2           2.023230e-01    2.768453e-10
+grouped-lazy     outer block1*z raw product                      10        2               3           3.313254e-02    1.048871e-13
+grouped-lazy     outer block1*z materialized                     10        2               2           8.431251e-02    9.040542e-14
+grouped-lazy     block0 + block1*z                               10        2               2           5.580135e-03    2.620851e-10
+
+summary:
+  expanded-eager tensor products    = 18
+  expanded-eager relin count        = 18
+  expanded-eager rescale count      = 18
+  expanded-eager scalar mult count  = 12
+  expanded-eager level-align count  = 7
+  expanded-eager add count          = 6
+  expanded-eager total operator sec = 2.919250e+00
+  grouped-lazy   tensor products    = 18
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 8
+  grouped-lazy   level-align count  = 5
+  grouped-lazy   add count          = 6
+  grouped-lazy   total operator sec = 1.145772e+00
+  expanded-eager final max_abs_err = 7.834101e-14
+  grouped-lazy   final max_abs_err = 3.852140e-10
+
+comparison:
+  tensor products           = 18 vs 18
+  relin count               = 18 vs 6
+  rescale count             = 18 vs 6
+  note                      = two fixed t=3 grouped blocks plus one outer product
+
+============================================================
+[EVALUATOR] asymmetric plan-table t=3 executor
+[PROJECT DECISION] execute a small table of validated fixed plans, not a general planner
+[PLAN] outer_pattern_25_shape
+[POLY] P(x)=block0(x)+block1(x)*z, z=x^8
+[block0] powers x^10,x^14,x^16
+[block1*z] powers x^19,x^22,x^28
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                            level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1 component x                                  0         1               2           0.000000e+00    1.020115e-12
+expanded-eager   build x^2 raw product                           0         2               3           3.315789e-03    2.182421e-13
+expanded-eager   build x^2 materialized                          1         1               2           1.393403e-02    1.496872e-11
+expanded-eager   build x^4 raw product                           1         2               3           1.482378e-03    4.899161e-12
+expanded-eager   build x^4 materialized                          2         1               2           9.721063e-02    4.600095e-12
+expanded-eager   build z=x^8 raw product                         2         2               3           1.683541e-03    2.464998e-13
+expanded-eager   build z=x^8 materialized                        3         1               2           8.134610e-02    3.068141e-13
+expanded-eager   block0 prefix x^1*x^1 raw product               0         2               3           2.055570e-03    2.109007e-13
+expanded-eager   block0 prefix x^1*x^1 materialized              1         1               2           9.870600e-02    1.541942e-11
+expanded-eager   block0 prefix*x^8 raw product                   3         2               3           1.577363e-03    5.957859e-14
+expanded-eager   block0 prefix*x^8 materialized                  4         1               2           5.407315e-02    9.160046e-14
+expanded-eager   block0 scaled c*x^10                            4         2               2           0.000000e+00    7.473470e-14
+expanded-eager   block0 prefix x^2*x^4 raw product               2         2               3           1.501077e-03    1.122547e-12
+expanded-eager   block0 prefix x^2*x^4 materialized              3         1               2           4.493685e-02    1.628865e-12
+expanded-eager   block0 prefix*x^8 raw product                   3         2               3           1.187517e-03    7.907460e-14
+expanded-eager   block0 prefix*x^8 materialized                  4         1               2           5.284121e-02    8.185088e-14
+expanded-eager   block0 scaled c*x^14                            4         2               2           0.000000e+00    3.607893e-14
+expanded-eager   block0 prefix x^4*x^4 raw product               2         2               3           1.261369e-03    2.373782e-13
+expanded-eager   block0 prefix x^4*x^4 materialized              3         1               2           6.103728e-02    3.177273e-13
+expanded-eager   block0 prefix*x^8 raw product                   3         2               3           1.181587e-03    5.383006e-14
+expanded-eager   block0 prefix*x^8 materialized                  4         1               2           5.455263e-02    1.525024e-13
+expanded-eager   block0 scaled c*x^16                            4         2               2           0.000000e+00    7.459849e-14
+expanded-eager   block0 materialized block sum                   4         2               2           7.071150e-04    6.888124e-14
+expanded-eager   block1 prefix x^1*x^2 raw product               1         2               3           1.508959e-03    6.077264e-12
+expanded-eager   block1 prefix x^1*x^2 materialized              2         1               2           9.635687e-02    5.193360e-12
+expanded-eager   block1 prefix*x^8 raw product                   3         2               3           1.146075e-03    5.702188e-14
+expanded-eager   block1 prefix*x^8 materialized                  4         1               2           5.392252e-02    6.550350e-14
+expanded-eager   block1 scaled c*x^11                            4         2               2           0.000000e+00    5.597646e-14
+expanded-eager   block1 prefix x^2*x^4 raw product               2         2               3           1.675350e-03    1.161521e-12
+expanded-eager   block1 prefix x^2*x^4 materialized              3         1               2           9.817734e-02    1.624174e-12
+expanded-eager   block1 prefix*x^8 raw product                   3         2               3           2.281415e-03    6.349750e-14
+expanded-eager   block1 prefix*x^8 materialized                  4         1               2           1.989616e-02    8.300398e-14
+expanded-eager   block1 scaled c*x^14                            4         2               2           0.000000e+00    4.679803e-14
+expanded-eager   block1 prefix x^4*x^8 raw product               3         2               3           1.238092e-03    5.829674e-14
+expanded-eager   block1 prefix x^4*x^8 materialized              4         1               2           8.647405e-03    8.059876e-14
+expanded-eager   block1 prefix*x^8 raw product                   4         2               3           1.047671e-03    5.649245e-14
+expanded-eager   block1 prefix*x^8 materialized                  5         1               2           4.863524e-02    9.052974e-14
+expanded-eager   block1 scaled c*x^20                            5         2               2           0.000000e+00    3.757872e-14
+expanded-eager   block1 materialized block sum                   5         2               2           6.465570e-04    7.429528e-14
+expanded-eager   outer block1*z raw product                      5         4               3           1.034141e-03    6.126199e-14
+expanded-eager   outer block1*z materialized                     6         3               2           6.319603e-03    4.763891e-14
+expanded-eager   block0 + block1*z                               6         3               2           1.822630e-04    8.545549e-14
+grouped-lazy     S1 component x                                  0         1               2           0.000000e+00    1.122241e-12
+grouped-lazy     build x^2 raw product                           0         2               3           1.731734e-03    2.847167e-13
+grouped-lazy     build x^2 materialized                          1         1               2           9.713898e-02    1.519584e-11
+grouped-lazy     build x^4 raw product                           1         2               3           1.984915e-03    4.831451e-12
+grouped-lazy     build x^4 materialized                          2         1               2           9.669758e-02    4.565671e-12
+grouped-lazy     build z=x^8 raw product                         2         2               3           1.323254e-03    2.473974e-13
+grouped-lazy     build z=x^8 materialized                        3         1               2           6.517371e-02    2.310652e-13
+grouped-lazy     aligned component x^1                           3         1               2           0.000000e+00    8.700402e-13
+grouped-lazy     aligned component x^2                           3         1               2           0.000000e+00    1.518091e-11
+grouped-lazy     aligned component x^4                           3         1               2           0.000000e+00    4.585284e-12
+grouped-lazy     aligned component x^8                           3         1               2           0.000000e+00    1.961070e-13
+grouped-lazy     block0 prefix x^1*x^1 raw product               3         2               3           2.843825e-03    3.308048e-13
+grouped-lazy     block0 raw prefix*x^8 raw product               3         3               4           3.684523e-03    3.789732e-14
+grouped-lazy     block0 raw scaled c*x^10                        3         4               4           0.000000e+00    6.181225e-14
+grouped-lazy     block0 prefix x^2*x^4 raw product               3         2               3           1.606666e-03    1.143826e-12
+grouped-lazy     block0 raw prefix*x^8 raw product               3         3               4           2.024936e-03    4.210778e-14
+grouped-lazy     block0 raw scaled c*x^14                        3         4               4           0.000000e+00    5.652021e-14
+grouped-lazy     block0 prefix x^4*x^4 raw product               3         2               3           1.996508e-03    2.078916e-13
+grouped-lazy     block0 raw prefix*x^8 raw product               3         3               4           3.727669e-03    5.313790e-14
+grouped-lazy     block0 raw scaled c*x^16                        3         4               4           0.000000e+00    7.715561e-14
+grouped-lazy     block0 raw t=3 terms folded                     3         4               4           1.638643e-03    4.445670e-14
+grouped-lazy     block0 folded block materialized                4         3               2           1.102996e-01    7.438327e-14
+grouped-lazy     block1 prefix x^1*x^2 raw product               3         2               3           1.310551e-03    6.119064e-12
+grouped-lazy     block1 raw prefix*x^8 raw product               3         3               4           2.028192e-03    4.940225e-14
+grouped-lazy     block1 raw scaled c*x^11                        3         4               4           0.000000e+00    6.115438e-14
+grouped-lazy     block1 prefix x^2*x^4 raw product               3         2               3           1.636731e-03    1.141544e-12
+grouped-lazy     block1 raw prefix*x^8 raw product               3         3               4           2.229462e-03    5.824315e-14
+grouped-lazy     block1 raw scaled c*x^14                        3         4               4           0.000000e+00    4.524575e-14
+grouped-lazy     block1 prefix x^4*x^8 raw product               3         2               3           2.720663e-03    4.264035e-14
+grouped-lazy     block1 raw prefix*x^8 raw product               3         3               4           3.712545e-03    4.188544e-14
+grouped-lazy     block1 raw scaled c*x^20                        3         4               4           0.000000e+00    4.404556e-14
+grouped-lazy     block1 raw t=3 terms folded                     3         4               4           1.364414e-03    9.595522e-14
+grouped-lazy     block1 folded block materialized                4         3               2           1.027476e-01    4.290950e-14
+grouped-lazy     outer block1*z raw product                      4         6               3           8.502160e-04    4.395506e-14
+grouped-lazy     outer block1*z materialized                     5         5               2           5.406484e-02    6.209753e-14
+grouped-lazy     block0 + block1*z                               5         5               2           1.842680e-04    4.420396e-14
+
+summary:
+  expanded-eager tensor products    = 16
+  expanded-eager relin count        = 16
+  expanded-eager rescale count      = 16
+  expanded-eager scalar mult count  = 8
+  expanded-eager level-align count  = 9
+  expanded-eager add count          = 5
+  expanded-eager total operator sec = 9.199554e-01
+  grouped-lazy   tensor products    = 16
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 10
+  grouped-lazy   level-align count  = 5
+  grouped-lazy   add count          = 5
+  grouped-lazy   total operator sec = 5.704671e-01
+  expanded-eager final max_abs_err = 6.243492e-14
+  grouped-lazy   final max_abs_err = 5.648553e-14
+
+comparison:
+  tensor products           = 16 vs 16
+  relin count               = 16 vs 6
+  rescale count             = 16 vs 6
+  note                      = two fixed t=3 grouped blocks plus one outer product
+
+============================================================
+[EVALUATOR] asymmetric plan-table t=3 executor
+[PROJECT DECISION] execute a small table of validated fixed plans, not a general planner
+[PLAN] outer_pattern_25_shape
+[POLY] P(x)=block0(x)+block1(x)*z, z=x^8
+[block0] powers x^10,x^14,x^16
+[block1*z] powers x^19,x^22,x^28
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                            level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1 component x                                  0         1               2           0.000000e+00    2.133405e-12
+expanded-eager   build x^2 raw product                           0         2               3           5.787838e-03    8.076040e-13
+expanded-eager   build x^2 materialized                          0         2               2           8.896817e-02    1.442346e-12
+expanded-eager   build x^4 raw product                           2         2               3           1.057619e-02    2.289384e-13
+expanded-eager   build x^4 materialized                          2         2               2           1.280656e-01    1.634211e-13
+expanded-eager   build z=x^8 raw product                         4         2               3           1.078376e-02    7.365614e-14
+expanded-eager   build z=x^8 materialized                        4         2               2           7.707089e-02    6.622063e-14
+expanded-eager   block0 prefix x^1*x^1 raw product               0         2               3           1.143444e-02    7.263218e-13
+expanded-eager   block0 prefix x^1*x^1 materialized              0         2               2           1.256037e-01    1.475986e-12
+expanded-eager   block0 prefix*x^8 raw product                   6         2               3           1.139622e-02    4.964911e-14
+expanded-eager   block0 prefix*x^8 materialized                  6         2               2           9.584553e-02    3.686495e-14
+expanded-eager   block0 scaled c*x^10                            8         2               2           0.000000e+00    4.733574e-14
+expanded-eager   block0 prefix x^2*x^4 raw product               4         2               3           6.888352e-02    4.265945e-14
+expanded-eager   block0 prefix x^2*x^4 materialized              4         2               2           1.308044e-01    4.075212e-14
+expanded-eager   block0 prefix*x^8 raw product                   6         2               3           1.782126e-02    5.983328e-14
+expanded-eager   block0 prefix*x^8 materialized                  6         2               2           7.558431e-02    6.126943e-14
+expanded-eager   block0 scaled c*x^14                            8         2               2           0.000000e+00    5.884544e-14
+expanded-eager   block0 prefix x^4*x^4 raw product               4         2               3           7.292615e-02    4.597291e-14
+expanded-eager   block0 prefix x^4*x^4 materialized              4         2               2           1.276825e-01    4.897033e-14
+expanded-eager   block0 prefix*x^8 raw product                   6         2               3           7.270263e-02    5.621465e-14
+expanded-eager   block0 prefix*x^8 materialized                  6         2               2           1.322473e-01    5.268879e-14
+expanded-eager   block0 scaled c*x^16                            8         2               2           0.000000e+00    6.464217e-14
+expanded-eager   block0 materialized block sum                   8         2               2           3.726725e-02    5.668858e-14
+expanded-eager   block1 prefix x^1*x^2 raw product               2         2               3           6.633671e-02    4.665365e-13
+expanded-eager   block1 prefix x^1*x^2 materialized              2         2               2           1.312500e-01    2.990739e-13
+expanded-eager   block1 prefix*x^8 raw product                   6         2               3           2.514263e-02    5.300625e-14
+expanded-eager   block1 prefix*x^8 materialized                  6         2               2           9.118592e-02    3.131757e-14
+expanded-eager   block1 scaled c*x^11                            8         2               2           0.000000e+00    3.584281e-14
+expanded-eager   block1 prefix x^2*x^4 raw product               4         2               3           9.766250e-02    4.309400e-14
+expanded-eager   block1 prefix x^2*x^4 materialized              4         2               2           7.036201e-02    5.236951e-14
+expanded-eager   block1 prefix*x^8 raw product                   6         2               3           3.521827e-02    4.499232e-14
+expanded-eager   block1 prefix*x^8 materialized                  6         2               2           4.804887e-02    2.946240e-14
+expanded-eager   block1 scaled c*x^14                            8         2               2           0.000000e+00    3.035383e-14
+expanded-eager   block1 prefix x^4*x^8 raw product               6         2               3           1.118218e-02    3.697364e-14
+expanded-eager   block1 prefix x^4*x^8 materialized              6         2               2           5.465190e-02    3.652038e-14
+expanded-eager   block1 prefix*x^8 raw product                   8         2               3           8.621164e-02    5.191783e-14
+expanded-eager   block1 prefix*x^8 materialized                  8         2               2           5.296214e-02    3.993104e-14
+expanded-eager   block1 scaled c*x^20                            10        2               2           0.000000e+00    4.717195e-14
+expanded-eager   block1 materialized block sum                   10        2               2           8.098656e-02    6.278480e-14
+expanded-eager   outer block1*z raw product                      12        2               3           2.055278e-02    7.475652e-14
+expanded-eager   outer block1*z materialized                     12        2               2           6.789179e-02    2.196599e-14
+expanded-eager   block0 + block1*z                               12        2               2           2.945019e-03    6.631585e-14
+grouped-lazy     S1 component x                                  0         1               2           0.000000e+00    1.961542e-12
+grouped-lazy     build x^2 raw product                           0         2               3           3.953774e-03    7.525924e-13
+grouped-lazy     build x^2 materialized                          0         2               2           8.239768e-02    9.711537e-13
+grouped-lazy     build x^4 raw product                           2         2               3           8.193154e-03    1.157702e-13
+grouped-lazy     build x^4 materialized                          2         2               2           1.140255e-01    2.611697e-13
+grouped-lazy     build z=x^8 raw product                         4         2               3           1.273422e-02    3.959545e-14
+grouped-lazy     build z=x^8 materialized                        4         2               2           1.041201e-01    3.782055e-14
+grouped-lazy     aligned component x^1                           0         2               2           0.000000e+00    1.525863e-12
+grouped-lazy     aligned component x^2                           0         2               2           0.000000e+00    7.433880e-13
+grouped-lazy     aligned component x^4                           2         2               2           0.000000e+00    1.314508e-13
+grouped-lazy     aligned component x^8                           4         2               2           0.000000e+00    5.215647e-14
+grouped-lazy     block0 prefix x^1*x^1 raw product               2         2               3           1.285714e-02    1.192185e-12
+grouped-lazy     block0 raw prefix*x^8 raw product               6         2               4           1.422712e-02    3.630503e-14
+grouped-lazy     block0 raw scaled c*x^10                        8         2               4           0.000000e+00    6.563541e-11
+grouped-lazy     block0 prefix x^2*x^4 raw product               4         2               3           1.790673e-02    3.694216e-14
+grouped-lazy     block0 raw prefix*x^8 raw product               6         2               4           1.450234e-02    5.260231e-14
+grouped-lazy     block0 raw scaled c*x^14                        8         2               4           0.000000e+00    2.255646e-10
+grouped-lazy     block0 prefix x^4*x^4 raw product               4         2               3           8.947162e-03    5.740299e-14
+grouped-lazy     block0 raw prefix*x^8 raw product               6         2               4           1.324894e-02    4.246542e-14
+grouped-lazy     block0 raw scaled c*x^16                        8         2               4           0.000000e+00    9.168629e-11
+grouped-lazy     block0 raw t=3 terms folded                     8         2               4           3.770190e-03    2.846028e-10
+grouped-lazy     block0 folded block materialized                8         2               2           1.457355e-01    1.865053e-10
+grouped-lazy     block1 prefix x^1*x^2 raw product               2         2               3           8.428949e-03    6.369939e-13
+grouped-lazy     block1 raw prefix*x^8 raw product               6         2               4           1.368252e-02    6.379375e-14
+grouped-lazy     block1 raw scaled c*x^11                        8         2               4           0.000000e+00    1.017296e-10
+grouped-lazy     block1 prefix x^2*x^4 raw product               4         2               3           1.090857e-02    3.482891e-14
+grouped-lazy     block1 raw prefix*x^8 raw product               6         2               4           1.339388e-02    4.477360e-14
+grouped-lazy     block1 raw scaled c*x^14                        8         2               4           0.000000e+00    1.430522e-10
+grouped-lazy     block1 prefix x^4*x^8 raw product               6         2               3           1.332926e-02    6.285382e-14
+grouped-lazy     block1 raw prefix*x^8 raw product               8         2               4           1.603837e-02    2.161413e-14
+grouped-lazy     block1 raw scaled c*x^20                        10        2               4           0.000000e+00    6.323234e-11
+grouped-lazy     block1 raw t=3 terms folded                     10        2               4           7.456135e-03    1.258038e-10
+grouped-lazy     block1 folded block materialized                10        2               2           2.206994e-01    1.344534e-10
+grouped-lazy     outer block1*z raw product                      12        2               3           8.794614e-03    4.371123e-14
+grouped-lazy     outer block1*z materialized                     12        2               2           4.126542e-02    4.332091e-14
+grouped-lazy     block0 + block1*z                               12        2               2           2.986682e-03    3.166802e-10
+
+summary:
+  expanded-eager tensor products    = 16
+  expanded-eager relin count        = 16
+  expanded-eager rescale count      = 16
+  expanded-eager scalar mult count  = 7
+  expanded-eager level-align count  = 8
+  expanded-eager add count          = 5
+  expanded-eager total operator sec = 2.394436e+00
+  grouped-lazy   tensor products    = 16
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 7
+  grouped-lazy   level-align count  = 5
+  grouped-lazy   add count          = 5
+  grouped-lazy   total operator sec = 9.531094e-01
+  expanded-eager final max_abs_err = 5.489101e-14
+  grouped-lazy   final max_abs_err = 4.056385e-10
+
+comparison:
+  tensor products           = 16 vs 16
+  relin count               = 16 vs 6
+  rescale count             = 16 vs 6
+  note                      = two fixed t=3 grouped blocks plus one outer product
