@@ -63,11 +63,13 @@ std::vector<CaseDef> BuildCases() {
         CaseDef{"linear_plus_c5", {0.0, -0.3, 0.0, 0.0, 0.0, 0.2}, "compact-active",
                 {}, 2, 3, 3, 3, 3, 3, 3},
 
-        // Block0 guards: c1 remains a tail when nonlinear block0 terms exist.
+        // Block0 guards: c1 uses a separate linear block, not a mixed block0 term.
         CaseDef{"linear_plus_c2", {0.0, -0.3, 0.7}, "compact-active",
-                {ExpectedBlock{"block0", 1, "One"}}, 1, 2, 2, 2, 2, 2, 2},
+                {ExpectedBlock{"linear", 1, "One"}, ExpectedBlock{"block0", 1, "One"}},
+                0, 2, 2, 2, 2, 2, 2},
         CaseDef{"constant_linear_plus_c4", {0.25, -0.3, 0.0, 0.0, 0.5}, "compact-active",
-                {ExpectedBlock{"block0", 1, "One"}}, 2, 2, 2, 2, 2, 2, 2},
+                {ExpectedBlock{"linear", 1, "One"}, ExpectedBlock{"block0", 1, "One"}},
+                1, 2, 2, 2, 2, 2, 2},
         CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active",
                 {ExpectedBlock{"block0", 3, "One"}}, 0, 5, 5, 5, 2, 5, 2},
 
