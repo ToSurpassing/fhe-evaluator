@@ -1,0 +1,49 @@
+[EVALUATOR] fixed t=2,B=4 Internal BSGS capability report
+[BOUNDARY] this target checks planner capability only; it does not run CKKS
+[SUPPORTED_POWERS] x^5, x^6, x^7, x^9, x^10, x^11, x^13, x^14, x^15, x^21, x^22, x^23, x^25, x^26, x^27, x^29, x^30, x^31
+[PASS] supported power table matches fixed t=2,B=4 decomposition
+
+[DECOMPOSITION_TABLE]
+power,outer,low,high
+5,0,1,4
+6,0,2,4
+7,0,3,4
+9,0,1,8
+10,0,2,8
+11,0,3,8
+13,0,1,12
+14,0,2,12
+15,0,3,12
+21,16,1,4
+22,16,2,4
+23,16,3,4
+25,16,1,8
+26,16,2,8
+27,16,3,8
+29,16,1,12
+30,16,2,12
+31,16,3,12
+
+[UNSUPPORTED_NONZERO_REJECTIONS]
+[PASS] rejected nonzero x^0: GenerateInternalPlanFromCoeffs: unsupported power x^0
+[PASS] rejected nonzero x^1: GenerateInternalPlanFromCoeffs: unsupported power x^1
+[PASS] rejected nonzero x^2: GenerateInternalPlanFromCoeffs: unsupported power x^2
+[PASS] rejected nonzero x^3: GenerateInternalPlanFromCoeffs: unsupported power x^3
+[PASS] rejected nonzero x^4: GenerateInternalPlanFromCoeffs: unsupported power x^4
+[PASS] rejected nonzero x^8: GenerateInternalPlanFromCoeffs: unsupported power x^8
+[PASS] rejected nonzero x^12: GenerateInternalPlanFromCoeffs: unsupported power x^12
+[PASS] rejected nonzero x^16: GenerateInternalPlanFromCoeffs: unsupported power x^16
+[PASS] rejected nonzero x^17: GenerateInternalPlanFromCoeffs: unsupported power x^17
+[PASS] rejected nonzero x^20: GenerateInternalPlanFromCoeffs: unsupported power x^20
+[PASS] rejected nonzero x^24: GenerateInternalPlanFromCoeffs: unsupported power x^24
+[PASS] rejected nonzero x^28: GenerateInternalPlanFromCoeffs: unsupported power x^28
+[PASS] rejected nonzero x^32: GenerateInternalPlanFromCoeffs: unsupported power x^32
+
+[ZERO_SKIPPING]
+[PASS] zero coefficients at unsupported powers were ignored
+  active coeff count = 2
+  c[ 5] = 1.250000e-01
+  c[31] = -6.250000e-02
+
+[COEFF_LIST_REJECTION]
+[PASS] coefficient list rejected unsupported nonzero x^20: CoeffPatternFromList: unsupported nonzero coefficient at x^20
