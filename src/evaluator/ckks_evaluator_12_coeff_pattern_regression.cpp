@@ -11,18 +11,18 @@ using namespace fhe_smoke;
 
 namespace {
 
+struct ExpectedBlock {
+    std::string name;
+    size_t terms = 0;
+    std::string outerMultiplier;
+};
+
 struct CaseDef {
     std::string name;
     std::vector<double> coeffs;
     std::string expectedLayout;
-    size_t expectedBlockCount = 0;
-    size_t expectedLinearTerms = 0;
-    size_t expectedBlock0Terms = 0;
-    size_t expectedBlock1Terms = 0;
+    std::vector<ExpectedBlock> expectedBlocks;
     size_t expectedTailTerms = 0;
-    std::string expectedLinearOuter;
-    std::string expectedBlock0Outer;
-    std::string expectedBlock1Outer;
     size_t expectedEagerTensor = 0;
     size_t expectedLazyTensor = 0;
     size_t expectedEagerRelin = 0;
@@ -50,14 +50,24 @@ constexpr double kMaxErrThreshold = 1e-8;
 
 std::vector<CaseDef> BuildCases() {
     return {
-        CaseDef{"only_c0", {0.25}, "compact-active", 0, 0, 0, 0, 1, "", "", "", 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c1", {0.0, -0.3}, "compact-active", 1, 1, 0, 0, 0, "One", "", "", 0, 0, 0, 0, 0, 0},
-        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, "compact-active", 0, 0, 0, 0, 1, "", "", "", 3, 3, 3, 3, 3, 3},
-        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active", 1, 0, 3, 0, 0, "", "One", "", 5, 5, 5, 2, 5, 2},
-        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active", 1, 0, 0, 3, 0, "", "", "Z", 7, 7, 7, 4, 7, 4},
-        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4", 2, 0, 1, 1, 2, "", "One", "Z", 6, 6, 6, 6, 6, 6},
-        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, "two-block-z4", 2, 0, 1, 1, 1, "", "One", "Z", 6, 6, 6, 5, 6, 5},
-        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, "two-block-z4", 2, 0, 3, 3, 3, "", "One", "Z", 12, 12, 12, 6, 12, 6},
+        CaseDef{"only_c0", {0.25}, "compact-active", {}, 1, 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c1", {0.0, -0.3}, "compact-active",
+                {ExpectedBlock{"linear", 1, "One"}}, 0, 0, 0, 0, 0, 0, 0},
+        CaseDef{"only_c5", {0.0, 0.0, 0.0, 0.0, 0.0, 0.2}, "compact-active",
+                {}, 1, 3, 3, 3, 3, 3, 3},
+        CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active",
+                {ExpectedBlock{"block0", 3, "One"}}, 0, 5, 5, 5, 2, 5, 2},
+        CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active",
+                {ExpectedBlock{"block1", 3, "Z"}}, 0, 7, 7, 7, 4, 7, 4},
+        CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4",
+                {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
+                2, 6, 6, 6, 6, 6, 6},
+        CaseDef{"constant_x4_x7", {0.25, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.9}, "two-block-z4",
+                {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
+                1, 6, 6, 6, 5, 6, 5},
+        CaseDef{"dense_degree8", {0.25, -0.3, 0.7, -1.2, 0.5, 0.2, -0.4, 0.9, 1.1}, "two-block-z4",
+                {ExpectedBlock{"block0", 3, "One"}, ExpectedBlock{"block1", 3, "Z"}},
+                3, 12, 12, 12, 6, 12, 6},
     };
 }
 
@@ -95,38 +105,26 @@ bool LazyNoWorseOnSwitches(const fhe_eval::PairedEvalResult& result) {
            result.groupedLazy.stats.rescaleCount <= result.expandedEager.stats.rescaleCount;
 }
 
-const fhe_eval::Degree8BlockSummary* FindBlockSummary(const fhe_eval::Degree8PlanSummary& summary,
-                                                      const std::string& name) {
-    for (const auto& block : summary.blocks) {
-        if (block.name == name) {
-            return &block;
+bool BlockListMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseDef& testCase) {
+    if (summary.blocks.size() != testCase.expectedBlocks.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < testCase.expectedBlocks.size(); ++i) {
+        const auto& actual = summary.blocks[i];
+        const auto& expected = testCase.expectedBlocks[i];
+        if (actual.name != expected.name ||
+            actual.terms != expected.terms ||
+            actual.outerMultiplier != expected.outerMultiplier) {
+            return false;
         }
     }
-    return nullptr;
-}
-
-bool NamedBlockMatches(const fhe_eval::Degree8PlanSummary& summary,
-                       const std::string& name,
-                       size_t expectedTerms,
-                       const std::string& expectedOuter) {
-    const auto* block = FindBlockSummary(summary, name);
-    if (expectedTerms == 0 && expectedOuter.empty()) {
-        return block == nullptr;
-    }
-    return block != nullptr &&
-           block->terms == expectedTerms &&
-           block->outerMultiplier == expectedOuter;
+    return true;
 }
 
 bool PlanSummaryMatches(const fhe_eval::Degree8PlanSummary& summary, const CaseDef& testCase) {
     return summary.layout == testCase.expectedLayout &&
-           summary.block0Terms == testCase.expectedBlock0Terms &&
-           summary.block1Terms == testCase.expectedBlock1Terms &&
            summary.tailTerms == testCase.expectedTailTerms &&
-           summary.blocks.size() == testCase.expectedBlockCount &&
-           NamedBlockMatches(summary, "linear", testCase.expectedLinearTerms, testCase.expectedLinearOuter) &&
-           NamedBlockMatches(summary, "block0", testCase.expectedBlock0Terms, testCase.expectedBlock0Outer) &&
-           NamedBlockMatches(summary, "block1", testCase.expectedBlock1Terms, testCase.expectedBlock1Outer);
+           BlockListMatches(summary, testCase);
 }
 
 bool StatsMatchExpected(const fhe_eval::PairedEvalResult& result, const CaseDef& testCase) {
