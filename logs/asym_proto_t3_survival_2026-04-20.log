@@ -1,0 +1,110 @@
+
+============================================================
+[EVALUATOR] asymmetric prototype t=3 survival
+[PROJECT DECISION] fixed B=2 survival probe, not a full evaluator
+[DECOMP] S1^(0)={x}, S1^(1)={x^2}, S1^(2)={x^4}
+[TERM] x*x^2*x^4 = x^7
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                      level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                        0         1               2           0.000000e+00    1.510757e-12
+expanded-eager   S1^(1) build x^2 raw product              0         2               3           1.056071e-03    8.893233e-13
+expanded-eager   S1^(1) build x^2 materialized             1         1               2           2.051356e-01    1.543080e-11
+expanded-eager   S1^(2) build x^4 raw product              1         2               3           1.925720e-02    5.015589e-12
+expanded-eager   S1^(2) build x^4 materialized             2         1               2           1.468430e-01    4.490845e-12
+expanded-eager   term prefix x*x^2 raw product             1         2               3           7.708123e-03    6.359399e-12
+expanded-eager   term prefix x*x^2 materialized            2         1               2           2.030536e-01    5.559761e-12
+expanded-eager   term x^3*x^4 raw product                  2         2               3           2.348245e-03    4.167259e-13
+expanded-eager   term x^3*x^4 materialized                 3         1               2           1.992226e-01    7.053650e-13
+grouped-lazy     S1^(0) component x                        0         1               2           0.000000e+00    1.342981e-12
+grouped-lazy     S1^(1) build x^2 raw product              0         2               3           8.520973e-03    6.332435e-13
+grouped-lazy     S1^(1) build x^2 materialized             1         1               2           2.539967e-01    1.558398e-11
+grouped-lazy     S1^(2) build x^4 raw product              1         2               3           1.821128e-03    4.985141e-12
+grouped-lazy     S1^(2) build x^4 materialized             2         1               2           2.494631e-01    4.544320e-12
+grouped-lazy     aligned S1^(0) x                          2         1               2           0.000000e+00    1.345368e-12
+grouped-lazy     aligned S1^(1) x^2                        2         1               2           0.000000e+00    1.556105e-11
+grouped-lazy     aligned S1^(2) x^4                        2         1               2           0.000000e+00    4.649395e-12
+grouped-lazy     term prefix x*x^2 raw product             2         2               3           1.297939e-03    6.533676e-12
+grouped-lazy     term raw prefix*x^4 raw product           2         3               4           3.173143e-03    4.508516e-13
+grouped-lazy     final t=3 product materialized            3         2               2           2.768579e-01    6.355142e-13
+
+summary:
+  expanded-eager tensor products    = 4
+  expanded-eager relin count        = 4
+  expanded-eager rescale count      = 4
+  expanded-eager scalar mult count  = 0
+  expanded-eager level-align count  = 1
+  expanded-eager total operator sec = 7.846293e-01
+  grouped-lazy   tensor products    = 4
+  grouped-lazy   relin count        = 3
+  grouped-lazy   rescale count      = 3
+  grouped-lazy   scalar mult count  = 0
+  grouped-lazy   level-align count  = 2
+  grouped-lazy   total operator sec = 7.951464e-01
+  expanded-eager final max_abs_err = 6.088268e-13
+  grouped-lazy   final max_abs_err = 6.525687e-13
+
+comparison:
+  tensor products           = 4 vs 4
+  relin count               = 4 vs 3
+  rescale count             = 4 vs 3
+  note                      = lazy keeps a length-2 raw chain before one materialization
+
+============================================================
+[EVALUATOR] asymmetric prototype t=3 survival
+[PROJECT DECISION] fixed B=2 survival probe, not a full evaluator
+[DECOMP] S1^(0)={x}, S1^(1)={x^2}, S1^(2)={x^4}
+[TERM] x*x^2*x^4 = x^7
+[KEYGEN] SetMaxRelinSkDeg(3) + EvalMultKeysGen
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                      level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+---------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                        0         1               2           0.000000e+00    1.363645e-12
+expanded-eager   S1^(1) build x^2 raw product              0         2               3           1.886296e-02    7.337603e-13
+expanded-eager   S1^(1) build x^2 materialized             0         2               2           2.080014e-01    4.970746e-13
+expanded-eager   S1^(2) build x^4 raw product              2         2               3           9.078313e-02    1.490544e-13
+expanded-eager   S1^(2) build x^4 materialized             2         2               2           2.648819e-01    1.773269e-13
+expanded-eager   term prefix x*x^2 raw product             2         2               3           6.473296e-02    2.654890e-13
+expanded-eager   term prefix x*x^2 materialized            2         2               2           2.571032e-01    3.065881e-13
+expanded-eager   term x^3*x^4 raw product                  4         2               3           1.037450e-01    5.316934e-14
+expanded-eager   term x^3*x^4 materialized                 4         2               2           1.903747e-01    5.496753e-14
+grouped-lazy     S1^(0) component x                        0         1               2           0.000000e+00    1.629391e-12
+grouped-lazy     S1^(1) build x^2 raw product              0         2               3           1.605087e-02    5.258571e-13
+grouped-lazy     S1^(1) build x^2 materialized             0         2               2           2.492578e-01    8.595069e-13
+grouped-lazy     S1^(2) build x^4 raw product              2         2               3           9.536892e-02    7.822215e-14
+grouped-lazy     S1^(2) build x^4 materialized             2         2               2           2.687797e-01    2.419766e-13
+grouped-lazy     aligned S1^(0) x                          0         2               2           0.000000e+00    3.122003e-12
+grouped-lazy     aligned S1^(1) x^2                        0         2               2           0.000000e+00    7.685935e-13
+grouped-lazy     aligned S1^(2) x^4                        2         2               2           0.000000e+00    2.006069e-13
+grouped-lazy     term prefix x*x^2 raw product             2         2               3           8.568758e-02    4.597399e-13
+grouped-lazy     term raw prefix*x^4 raw product           4         2               4           7.724712e-02    4.606103e-14
+grouped-lazy     final t=3 product materialized            4         2               2           3.694613e-01    1.062260e-13
+
+summary:
+  expanded-eager tensor products    = 4
+  expanded-eager relin count        = 4
+  expanded-eager rescale count      = 4
+  expanded-eager scalar mult count  = 1
+  expanded-eager level-align count  = 0
+  expanded-eager total operator sec = 1.213779e+00
+  grouped-lazy   tensor products    = 4
+  grouped-lazy   relin count        = 3
+  grouped-lazy   rescale count      = 3
+  grouped-lazy   scalar mult count  = 1
+  grouped-lazy   level-align count  = 2
+  grouped-lazy   total operator sec = 1.187900e+00
+  expanded-eager final max_abs_err = 3.920803e-14
+  grouped-lazy   final max_abs_err = 7.620131e-14
+
+comparison:
+  tensor products           = 4 vs 4
+  relin count               = 4 vs 3
+  rescale count             = 4 vs 3
+  note                      = lazy keeps a length-2 raw chain before one materialization
