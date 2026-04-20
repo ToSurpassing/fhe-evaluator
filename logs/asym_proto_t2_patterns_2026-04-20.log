@@ -1,0 +1,436 @@
+
+============================================================
+[EVALUATOR] asymmetric prototype t=2 fixed decomposition
+[PROJECT DECISION] t=2 is a conservative teaching prototype, not the paper's optimal t>=3 setting
+[DECOMP] B=4, S1^(0)={x,x^2,x^3}, S1^(1)={x^4,x^8,x^12}
+[POLY] terms use x^(a+4b), a in {1,2,3}, b in {1,2,3}; degree <= 15
+[CASE] dense_3x3, active decomposed products = 9
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                       level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+----------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                         0         1               2           0.000000e+00    2.162603e-12
+expanded-eager   S1^(0) build x^2 raw product               0         2               3           1.218678e-03    5.861978e-13
+expanded-eager   S1^(0) build x^2 materialized              1         1               2           5.795035e-02    1.533579e-11
+expanded-eager   S1^(0) build x^3 raw product               1         2               3           1.143142e-03    6.195697e-12
+expanded-eager   S1^(0) build x^3 materialized              2         1               2           5.392540e-02    5.187364e-12
+expanded-eager   S1^(1) build x^4 raw product               1         2               3           6.818930e-04    4.887181e-12
+expanded-eager   S1^(1) build x^4 materialized              2         1               2           4.961585e-02    4.523607e-12
+expanded-eager   S1^(1) build x^8 raw product               2         2               3           9.104450e-04    2.078174e-13
+expanded-eager   S1^(1) build x^8 materialized              3         1               2           5.322654e-02    3.667256e-13
+expanded-eager   S1^(1) build x^12 raw product              3         2               3           6.375340e-04    6.737284e-14
+expanded-eager   S1^(1) build x^12 materialized             4         1               2           5.357047e-02    1.365177e-13
+expanded-eager   aligned component x^1                      4         1               2           0.000000e+00    1.604661e-12
+expanded-eager   aligned component x^2                      4         1               2           0.000000e+00    1.503919e-11
+expanded-eager   aligned component x^3                      4         1               2           0.000000e+00    5.418596e-12
+expanded-eager   aligned component x^4                      4         1               2           0.000000e+00    4.416707e-12
+expanded-eager   aligned component x^8                      4         1               2           0.000000e+00    3.947358e-13
+expanded-eager   aligned component x^12                     4         1               2           0.000000e+00    1.491503e-13
+expanded-eager   term x^1*x^4 raw product                   4         2               3           3.975200e-04    1.811294e-12
+expanded-eager   term x^1*x^4 materialized                  5         1               2           1.215418e-02    3.791297e-12
+expanded-eager   scaled term c*x^5                          5         2               2           0.000000e+00    5.043854e-13
+expanded-eager   term x^2*x^4 raw product                   4         2               3           3.851740e-04    1.035707e-12
+expanded-eager   term x^2*x^4 materialized                  5         1               2           2.492377e-02    1.856037e-12
+expanded-eager   scaled term c*x^6                          5         2               2           0.000000e+00    4.709796e-13
+expanded-eager   term x^3*x^4 raw product                   4         2               3           4.185620e-04    3.993975e-13
+expanded-eager   term x^3*x^4 materialized                  5         1               2           2.540569e-02    7.731155e-13
+expanded-eager   scaled term c*x^7                          5         2               2           0.000000e+00    2.706317e-13
+expanded-eager   term x^1*x^8 raw product                   4         2               3           4.217820e-04    8.902877e-14
+expanded-eager   term x^1*x^8 materialized                  5         1               2           2.491947e-02    1.783817e-13
+expanded-eager   scaled term c*x^9                          5         2               2           0.000000e+00    6.531270e-14
+expanded-eager   term x^2*x^8 raw product                   4         2               3           4.509360e-04    6.928016e-14
+expanded-eager   term x^2*x^8 materialized                  5         1               2           2.538872e-02    1.647095e-13
+expanded-eager   scaled term c*x^10                         5         2               2           0.000000e+00    8.501641e-14
+expanded-eager   term x^3*x^8 raw product                   4         2               3           5.804800e-04    7.109056e-14
+expanded-eager   term x^3*x^8 materialized                  5         1               2           2.536170e-02    4.309793e-14
+expanded-eager   scaled term c*x^11                         5         2               2           0.000000e+00    4.852951e-14
+expanded-eager   term x^1*x^12 raw product                  4         2               3           7.591080e-04    6.318322e-14
+expanded-eager   term x^1*x^12 materialized                 5         1               2           2.598560e-02    1.010753e-13
+expanded-eager   scaled term c*x^13                         5         2               2           0.000000e+00    5.862484e-14
+expanded-eager   term x^2*x^12 raw product                  4         2               3           4.658100e-04    4.810386e-14
+expanded-eager   term x^2*x^12 materialized                 5         1               2           2.573327e-02    8.855653e-14
+expanded-eager   scaled term c*x^14                         5         2               2           0.000000e+00    6.077848e-14
+expanded-eager   term x^3*x^12 raw product                  4         2               3           4.484200e-04    4.377866e-14
+expanded-eager   term x^3*x^12 materialized                 5         1               2           6.655402e-02    2.071567e-13
+expanded-eager   scaled term c*x^15                         5         2               2           0.000000e+00    7.466136e-14
+expanded-eager   final materialized term sum                5         2               2           5.668570e-04    1.504631e-12
+grouped-lazy     S1^(0) component x                         0         1               2           0.000000e+00    1.188022e-12
+grouped-lazy     S1^(0) build x^2 raw product               0         2               3           2.207762e-03    1.491668e-12
+grouped-lazy     S1^(0) build x^2 materialized              1         1               2           3.064777e-02    1.554185e-11
+grouped-lazy     S1^(0) build x^3 raw product               1         2               3           1.229414e-03    6.074044e-12
+grouped-lazy     S1^(0) build x^3 materialized              2         1               2           3.760954e-02    5.249495e-12
+grouped-lazy     S1^(1) build x^4 raw product               1         2               3           1.395969e-03    4.938040e-12
+grouped-lazy     S1^(1) build x^4 materialized              2         1               2           5.341074e-02    4.485339e-12
+grouped-lazy     S1^(1) build x^8 raw product               2         2               3           6.335020e-04    2.750315e-13
+grouped-lazy     S1^(1) build x^8 materialized              3         1               2           5.756477e-02    3.184171e-13
+grouped-lazy     S1^(1) build x^12 raw product              3         2               3           1.314299e-03    4.793497e-14
+grouped-lazy     S1^(1) build x^12 materialized             4         1               2           3.580949e-02    9.649978e-14
+grouped-lazy     aligned component x^1                      4         1               2           0.000000e+00    1.974199e-12
+grouped-lazy     aligned component x^2                      4         1               2           0.000000e+00    1.543052e-11
+grouped-lazy     aligned component x^3                      4         1               2           0.000000e+00    5.154988e-12
+grouped-lazy     aligned component x^4                      4         1               2           0.000000e+00    4.550086e-12
+grouped-lazy     aligned component x^8                      4         1               2           0.000000e+00    3.915667e-13
+grouped-lazy     aligned component x^12                     4         1               2           0.000000e+00    1.235310e-13
+grouped-lazy     term x^1*x^4 raw product                   4         2               3           3.908150e-04    1.768105e-12
+grouped-lazy     raw scaled term c*x^5                      4         3               3           0.000000e+00    2.681720e-13
+grouped-lazy     term x^2*x^4 raw product                   4         2               3           3.078550e-04    1.089112e-12
+grouped-lazy     raw scaled term c*x^6                      4         3               3           0.000000e+00    2.355241e-13
+grouped-lazy     term x^3*x^4 raw product                   4         2               3           3.362930e-04    4.647563e-13
+grouped-lazy     raw scaled term c*x^7                      4         3               3           0.000000e+00    1.553097e-13
+grouped-lazy     term x^1*x^8 raw product                   4         2               3           4.165950e-04    1.510052e-13
+grouped-lazy     raw scaled term c*x^9                      4         3               3           0.000000e+00    8.837991e-14
+grouped-lazy     term x^2*x^8 raw product                   4         2               3           3.687040e-04    6.470190e-14
+grouped-lazy     raw scaled term c*x^10                     4         3               3           0.000000e+00    5.064179e-14
+grouped-lazy     term x^3*x^8 raw product                   4         2               3           3.979750e-04    6.044485e-14
+grouped-lazy     raw scaled term c*x^11                     4         3               3           0.000000e+00    7.165815e-14
+grouped-lazy     term x^1*x^12 raw product                  4         2               3           4.106250e-04    6.636843e-14
+grouped-lazy     raw scaled term c*x^13                     4         3               3           0.000000e+00    4.888216e-14
+grouped-lazy     term x^2*x^12 raw product                  4         2               3           3.894100e-04    3.525832e-14
+grouped-lazy     raw scaled term c*x^14                     4         3               3           0.000000e+00    4.642525e-14
+grouped-lazy     term x^3*x^12 raw product                  4         2               3           4.239440e-04    5.291300e-14
+grouped-lazy     raw scaled term c*x^15                     4         3               3           0.000000e+00    3.520884e-14
+grouped-lazy     raw decomposed terms folded                4         3               3           1.039241e-03    8.623861e-13
+grouped-lazy     final folded sum materialized              5         2               2           8.879667e-03    1.468481e-12
+
+summary:
+  expanded-eager tensor products    = 14
+  expanded-eager relin count        = 14
+  expanded-eager rescale count      = 14
+  expanded-eager scalar mult count  = 9
+  expanded-eager level-align count  = 7
+  expanded-eager add count          = 8
+  expanded-eager total operator sec = 5.354675e-01
+  grouped-lazy   tensor products    = 14
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 9
+  grouped-lazy   level-align count  = 7
+  grouped-lazy   add count          = 8
+  grouped-lazy   total operator sec = 2.387828e-01
+  expanded-eager final max_abs_err = 1.478229e-12
+  grouped-lazy   final max_abs_err = 1.463103e-12
+
+comparison:
+  tensor products           = 14 vs 14
+  relin count               = 14 vs 6
+  rescale count             = 14 vs 6
+  note                      = fixed set decomposition; lazy folds 9 raw decomposed products
+
+============================================================
+[EVALUATOR] asymmetric prototype t=2 fixed decomposition
+[PROJECT DECISION] t=2 is a conservative teaching prototype, not the paper's optimal t>=3 setting
+[DECOMP] B=4, S1^(0)={x,x^2,x^3}, S1^(1)={x^4,x^8,x^12}
+[POLY] terms use x^(a+4b), a in {1,2,3}, b in {1,2,3}; degree <= 15
+[CASE] sparse_cross, active decomposed products = 5
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                       level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+----------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                         0         1               2           0.000000e+00    1.143280e-12
+expanded-eager   S1^(0) build x^2 raw product               0         2               3           1.773432e-03    8.144180e-13
+expanded-eager   S1^(0) build x^2 materialized              1         1               2           2.461618e-02    1.526412e-11
+expanded-eager   S1^(0) build x^3 raw product               1         2               3           1.535177e-03    5.953807e-12
+expanded-eager   S1^(0) build x^3 materialized              2         1               2           3.691198e-02    5.130174e-12
+expanded-eager   S1^(1) build x^4 raw product               1         2               3           1.907178e-03    4.861906e-12
+expanded-eager   S1^(1) build x^4 materialized              2         1               2           4.238258e-02    4.351030e-12
+expanded-eager   S1^(1) build x^8 raw product               2         2               3           8.380320e-04    2.086902e-13
+expanded-eager   S1^(1) build x^8 materialized              3         1               2           5.408102e-02    2.589101e-13
+expanded-eager   S1^(1) build x^12 raw product              3         2               3           9.386120e-04    5.817741e-14
+expanded-eager   S1^(1) build x^12 materialized             4         1               2           5.421697e-02    4.032050e-14
+expanded-eager   aligned component x^1                      4         1               2           0.000000e+00    1.490308e-12
+expanded-eager   aligned component x^2                      4         1               2           0.000000e+00    1.503114e-11
+expanded-eager   aligned component x^3                      4         1               2           0.000000e+00    5.044451e-12
+expanded-eager   aligned component x^4                      4         1               2           0.000000e+00    4.424995e-12
+expanded-eager   aligned component x^8                      4         1               2           0.000000e+00    3.025229e-13
+expanded-eager   aligned component x^12                     4         1               2           0.000000e+00    6.950914e-14
+expanded-eager   term x^1*x^4 raw product                   4         2               3           3.704730e-04    1.716139e-12
+expanded-eager   term x^1*x^4 materialized                  5         1               2           1.107963e-02    3.754098e-12
+expanded-eager   scaled term c*x^5                          5         2               2           0.000000e+00    1.209416e-12
+expanded-eager   term x^3*x^4 raw product                   4         2               3           7.832890e-04    4.066461e-13
+expanded-eager   term x^3*x^4 materialized                  5         1               2           5.293027e-03    7.057332e-13
+expanded-eager   scaled term c*x^7                          5         2               2           0.000000e+00    1.503362e-13
+expanded-eager   term x^2*x^8 raw product                   4         2               3           7.180530e-04    7.543231e-14
+expanded-eager   term x^2*x^8 materialized                  5         1               2           6.694094e-03    1.068232e-13
+expanded-eager   scaled term c*x^10                         5         2               2           0.000000e+00    5.231181e-14
+expanded-eager   term x^1*x^12 raw product                  4         2               3           3.825180e-04    3.373562e-14
+expanded-eager   term x^1*x^12 materialized                 5         1               2           2.488193e-02    4.099391e-14
+expanded-eager   scaled term c*x^13                         5         2               2           0.000000e+00    8.724055e-14
+expanded-eager   term x^3*x^12 raw product                  4         2               3           4.613000e-04    5.522404e-14
+expanded-eager   term x^3*x^12 materialized                 5         1               2           2.568494e-02    6.089204e-14
+expanded-eager   scaled term c*x^15                         5         2               2           0.000000e+00    5.322506e-14
+expanded-eager   final materialized term sum                5         2               2           3.003370e-04    9.071420e-13
+grouped-lazy     S1^(0) component x                         0         1               2           0.000000e+00    1.257834e-12
+grouped-lazy     S1^(0) build x^2 raw product               0         2               3           8.362160e-04    1.532163e-12
+grouped-lazy     S1^(0) build x^2 materialized              1         1               2           6.371805e-02    1.511521e-11
+grouped-lazy     S1^(0) build x^3 raw product               1         2               3           7.566920e-04    6.171272e-12
+grouped-lazy     S1^(0) build x^3 materialized              2         1               2           5.691755e-02    5.044645e-12
+grouped-lazy     S1^(1) build x^4 raw product               1         2               3           9.785880e-04    4.750457e-12
+grouped-lazy     S1^(1) build x^4 materialized              2         1               2           3.335493e-02    4.392212e-12
+grouped-lazy     S1^(1) build x^8 raw product               2         2               3           6.120000e-04    2.346327e-13
+grouped-lazy     S1^(1) build x^8 materialized              3         1               2           5.316731e-02    2.301838e-13
+grouped-lazy     S1^(1) build x^12 raw product              3         2               3           7.759010e-04    2.810359e-14
+grouped-lazy     S1^(1) build x^12 materialized             4         1               2           3.441367e-02    4.099322e-14
+grouped-lazy     aligned component x^1                      4         1               2           0.000000e+00    1.291744e-12
+grouped-lazy     aligned component x^2                      4         1               2           0.000000e+00    1.529901e-11
+grouped-lazy     aligned component x^3                      4         1               2           0.000000e+00    5.168657e-12
+grouped-lazy     aligned component x^4                      4         1               2           0.000000e+00    4.381735e-12
+grouped-lazy     aligned component x^8                      4         1               2           0.000000e+00    2.732789e-13
+grouped-lazy     aligned component x^12                     4         1               2           0.000000e+00    6.272084e-14
+grouped-lazy     term x^1*x^4 raw product                   4         2               3           4.449040e-04    1.759185e-12
+grouped-lazy     raw scaled term c*x^5                      4         3               3           0.000000e+00    4.864217e-13
+grouped-lazy     term x^3*x^4 raw product                   4         2               3           3.833320e-04    3.921735e-13
+grouped-lazy     raw scaled term c*x^7                      4         3               3           0.000000e+00    7.274899e-14
+grouped-lazy     term x^2*x^8 raw product                   4         2               3           3.941790e-04    6.853727e-14
+grouped-lazy     raw scaled term c*x^10                     4         3               3           0.000000e+00    4.731164e-14
+grouped-lazy     term x^1*x^12 raw product                  4         2               3           6.535010e-04    6.157663e-14
+grouped-lazy     raw scaled term c*x^13                     4         3               3           0.000000e+00    4.067655e-14
+grouped-lazy     term x^3*x^12 raw product                  4         2               3           4.028170e-04    3.552566e-14
+grouped-lazy     raw scaled term c*x^15                     4         3               3           0.000000e+00    4.824545e-14
+grouped-lazy     raw decomposed terms folded                4         3               3           5.981700e-04    4.603882e-13
+grouped-lazy     final folded sum materialized              5         2               2           2.600675e-02    9.645370e-13
+
+summary:
+  expanded-eager tensor products    = 10
+  expanded-eager relin count        = 10
+  expanded-eager rescale count      = 10
+  expanded-eager scalar mult count  = 5
+  expanded-eager level-align count  = 7
+  expanded-eager add count          = 4
+  expanded-eager total operator sec = 2.964914e-01
+  grouped-lazy   tensor products    = 10
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 5
+  grouped-lazy   level-align count  = 7
+  grouped-lazy   add count          = 4
+  grouped-lazy   total operator sec = 2.763760e-01
+  expanded-eager final max_abs_err = 9.567282e-13
+  grouped-lazy   final max_abs_err = 1.039730e-12
+
+comparison:
+  tensor products           = 10 vs 10
+  relin count               = 10 vs 6
+  rescale count             = 10 vs 6
+  note                      = fixed set decomposition; lazy folds 5 raw decomposed products
+
+============================================================
+[EVALUATOR] asymmetric prototype t=2 fixed decomposition
+[PROJECT DECISION] t=2 is a conservative teaching prototype, not the paper's optimal t>=3 setting
+[DECOMP] B=4, S1^(0)={x,x^2,x^3}, S1^(1)={x^4,x^8,x^12}
+[POLY] terms use x^(a+4b), a in {1,2,3}, b in {1,2,3}; degree <= 15
+[CASE] dense_3x3, active decomposed products = 9
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                       level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+----------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                         0         1               2           0.000000e+00    1.280087e-12
+expanded-eager   S1^(0) build x^2 raw product               0         2               3           2.884336e-03    1.046108e-12
+expanded-eager   S1^(0) build x^2 materialized              0         2               2           9.519412e-02    1.008804e-12
+expanded-eager   S1^(0) build x^3 raw product               2         2               3           4.952771e-03    2.942004e-13
+expanded-eager   S1^(0) build x^3 materialized              2         2               2           5.178989e-02    2.428231e-13
+expanded-eager   S1^(1) build x^4 raw product               2         2               3           4.369874e-03    3.066401e-13
+expanded-eager   S1^(1) build x^4 materialized              2         2               2           2.769770e-02    1.846754e-13
+expanded-eager   S1^(1) build x^8 raw product               4         2               3           3.895083e-03    7.302896e-14
+expanded-eager   S1^(1) build x^8 materialized              4         2               2           4.331130e-02    4.943333e-14
+expanded-eager   S1^(1) build x^12 raw product              6         2               3           5.775747e-03    7.751893e-14
+expanded-eager   S1^(1) build x^12 materialized             6         2               2           4.345232e-02    4.034738e-14
+expanded-eager   aligned component x^1                      0         2               2           0.000000e+00    1.344869e-12
+expanded-eager   aligned component x^2                      0         2               2           0.000000e+00    8.883450e-13
+expanded-eager   aligned component x^3                      2         2               2           0.000000e+00    3.500603e-13
+expanded-eager   aligned component x^4                      2         2               2           0.000000e+00    1.561303e-13
+expanded-eager   aligned component x^8                      4         2               2           0.000000e+00    4.033078e-14
+expanded-eager   aligned component x^12                     6         2               2           0.000000e+00    6.185255e-14
+expanded-eager   term x^1*x^4 raw product                   4         2               3           7.010699e-03    1.077107e-13
+expanded-eager   term x^1*x^4 materialized                  4         2               2           1.156131e-01    1.951807e-13
+expanded-eager   scaled term c*x^5                          6         2               2           0.000000e+00    6.098269e-14
+expanded-eager   term x^2*x^4 raw product                   4         2               3           7.082537e-03    4.712203e-14
+expanded-eager   term x^2*x^4 materialized                  4         2               2           5.254374e-02    6.156143e-14
+expanded-eager   scaled term c*x^6                          6         2               2           0.000000e+00    7.662577e-14
+expanded-eager   term x^3*x^4 raw product                   4         2               3           8.364621e-03    5.287852e-14
+expanded-eager   term x^3*x^4 materialized                  4         2               2           4.916672e-02    7.047618e-14
+expanded-eager   scaled term c*x^7                          6         2               2           0.000000e+00    6.679152e-14
+expanded-eager   term x^1*x^8 raw product                   6         2               3           7.071885e-03    6.930586e-14
+expanded-eager   term x^1*x^8 materialized                  6         2               2           4.153597e-02    4.981576e-14
+expanded-eager   scaled term c*x^9                          8         2               2           0.000000e+00    5.795838e-14
+expanded-eager   term x^2*x^8 raw product                   6         2               3           7.877020e-03    4.887083e-14
+expanded-eager   term x^2*x^8 materialized                  6         2               2           5.199517e-02    4.486380e-14
+expanded-eager   scaled term c*x^10                         8         2               2           0.000000e+00    5.099069e-14
+expanded-eager   term x^3*x^8 raw product                   6         2               3           5.316413e-03    5.120393e-14
+expanded-eager   term x^3*x^8 materialized                  6         2               2           5.246999e-02    4.925842e-14
+expanded-eager   scaled term c*x^11                         8         2               2           0.000000e+00    4.307462e-14
+expanded-eager   term x^1*x^12 raw product                  8         2               3           5.471834e-03    3.506905e-14
+expanded-eager   term x^1*x^12 materialized                 8         2               2           5.094020e-03    4.672530e-14
+expanded-eager   scaled term c*x^13                         10        2               2           0.000000e+00    4.070947e-14
+expanded-eager   term x^2*x^12 raw product                  8         2               3           5.844314e-03    5.295343e-14
+expanded-eager   term x^2*x^12 materialized                 8         2               2           6.327579e-03    3.514144e-14
+expanded-eager   scaled term c*x^14                         10        2               2           0.000000e+00    4.865503e-14
+expanded-eager   term x^3*x^12 raw product                  8         2               3           5.690862e-03    4.132945e-14
+expanded-eager   term x^3*x^12 materialized                 8         2               2           5.236764e-02    5.453787e-14
+expanded-eager   scaled term c*x^15                         10        2               2           0.000000e+00    6.828690e-14
+expanded-eager   final materialized term sum                10        2               2           3.644936e-03    9.332205e-14
+grouped-lazy     S1^(0) component x                         0         1               2           0.000000e+00    1.579181e-12
+grouped-lazy     S1^(0) build x^2 raw product               0         2               3           1.695274e-03    5.007661e-13
+grouped-lazy     S1^(0) build x^2 materialized              0         2               2           6.276277e-02    9.247325e-13
+grouped-lazy     S1^(0) build x^3 raw product               2         2               3           5.364670e-03    4.935288e-13
+grouped-lazy     S1^(0) build x^3 materialized              2         2               2           5.719223e-02    2.973663e-13
+grouped-lazy     S1^(1) build x^4 raw product               2         2               3           5.631762e-03    2.275402e-13
+grouped-lazy     S1^(1) build x^4 materialized              2         2               2           1.087498e-02    2.369268e-13
+grouped-lazy     S1^(1) build x^8 raw product               4         2               3           4.937971e-03    9.148572e-14
+grouped-lazy     S1^(1) build x^8 materialized              4         2               2           3.780684e-02    4.130042e-14
+grouped-lazy     S1^(1) build x^12 raw product              6         2               3           6.345236e-03    2.907446e-14
+grouped-lazy     S1^(1) build x^12 materialized             6         2               2           2.421162e-02    5.851619e-14
+grouped-lazy     aligned component x^1                      0         2               2           0.000000e+00    1.325384e-12
+grouped-lazy     aligned component x^2                      0         2               2           0.000000e+00    5.917003e-13
+grouped-lazy     aligned component x^3                      2         2               2           0.000000e+00    5.257461e-13
+grouped-lazy     aligned component x^4                      2         2               2           0.000000e+00    3.624184e-13
+grouped-lazy     aligned component x^8                      4         2               2           0.000000e+00    3.117074e-14
+grouped-lazy     aligned component x^12                     6         2               2           0.000000e+00    5.031786e-14
+grouped-lazy     term x^1*x^4 raw product                   4         2               3           5.840719e-03    1.081401e-13
+grouped-lazy     raw scaled term c*x^5                      6         2               3           0.000000e+00    1.340826e-12
+grouped-lazy     term x^2*x^4 raw product                   4         2               3           5.886593e-03    5.461384e-14
+grouped-lazy     raw scaled term c*x^6                      6         2               3           0.000000e+00    1.473204e-12
+grouped-lazy     term x^3*x^4 raw product                   4         2               3           4.554844e-03    5.788962e-14
+grouped-lazy     raw scaled term c*x^7                      6         2               3           0.000000e+00    4.356087e-12
+grouped-lazy     term x^1*x^8 raw product                   6         2               3           6.508867e-03    2.670113e-14
+grouped-lazy     raw scaled term c*x^9                      8         2               3           0.000000e+00    2.316882e-12
+grouped-lazy     term x^2*x^8 raw product                   6         2               3           7.467636e-03    4.340710e-14
+grouped-lazy     raw scaled term c*x^10                     8         2               3           0.000000e+00    3.003427e-12
+grouped-lazy     term x^3*x^8 raw product                   6         2               3           6.135295e-03    5.981787e-14
+grouped-lazy     raw scaled term c*x^11                     8         2               3           0.000000e+00    5.970791e-12
+grouped-lazy     term x^1*x^12 raw product                  8         2               3           6.530038e-03    3.749539e-14
+grouped-lazy     raw scaled term c*x^13                     10        2               3           0.000000e+00    1.399155e-12
+grouped-lazy     term x^2*x^12 raw product                  8         2               3           7.020233e-03    2.772752e-14
+grouped-lazy     raw scaled term c*x^14                     10        2               3           0.000000e+00    3.750816e-12
+grouped-lazy     term x^3*x^12 raw product                  8         2               3           5.118663e-03    3.589069e-14
+grouped-lazy     raw scaled term c*x^15                     10        2               3           0.000000e+00    3.450860e-12
+grouped-lazy     raw decomposed terms folded                10        2               3           6.153844e-03    5.760614e-12
+grouped-lazy     final folded sum materialized              10        2               2           5.655637e-03    5.754702e-12
+
+summary:
+  expanded-eager tensor products    = 14
+  expanded-eager relin count        = 14
+  expanded-eager rescale count      = 14
+  expanded-eager scalar mult count  = 11
+  expanded-eager level-align count  = 6
+  expanded-eager add count          = 8
+  expanded-eager total operator sec = 8.173122e-01
+  grouped-lazy   tensor products    = 14
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 11
+  grouped-lazy   level-align count  = 6
+  grouped-lazy   add count          = 8
+  grouped-lazy   total operator sec = 3.054976e-01
+  expanded-eager final max_abs_err = 1.244248e-13
+  grouped-lazy   final max_abs_err = 5.934153e-12
+
+comparison:
+  tensor products           = 14 vs 14
+  relin count               = 14 vs 6
+  rescale count             = 14 vs 6
+  note                      = fixed set decomposition; lazy folds 9 raw decomposed products
+
+============================================================
+[EVALUATOR] asymmetric prototype t=2 fixed decomposition
+[PROJECT DECISION] t=2 is a conservative teaching prototype, not the paper's optimal t>=3 setting
+[DECOMP] B=4, S1^(0)={x,x^2,x^3}, S1^(1)={x^4,x^8,x^12}
+[POLY] terms use x^(a+4b), a in {1,2,3}, b in {1,2,3}; degree <= 15
+[CASE] sparse_cross, active decomposed products = 5
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                       level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+----------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   S1^(0) component x                         0         1               2           0.000000e+00    1.148387e-12
+expanded-eager   S1^(0) build x^2 raw product               0         2               3           4.041103e-03    3.314987e-13
+expanded-eager   S1^(0) build x^2 materialized              0         2               2           8.060681e-02    9.578970e-13
+expanded-eager   S1^(0) build x^3 raw product               2         2               3           4.817511e-03    3.779199e-13
+expanded-eager   S1^(0) build x^3 materialized              2         2               2           8.883884e-02    3.241678e-13
+expanded-eager   S1^(1) build x^4 raw product               2         2               3           5.200731e-03    1.859849e-13
+expanded-eager   S1^(1) build x^4 materialized              2         2               2           7.375370e-02    2.247057e-13
+expanded-eager   S1^(1) build x^8 raw product               4         2               3           4.687166e-03    6.264233e-14
+expanded-eager   S1^(1) build x^8 materialized              4         2               2           6.700865e-03    4.003883e-14
+expanded-eager   S1^(1) build x^12 raw product              6         2               3           6.549809e-03    5.016983e-14
+expanded-eager   S1^(1) build x^12 materialized             6         2               2           4.781791e-02    5.246688e-14
+expanded-eager   aligned component x^1                      0         2               2           0.000000e+00    1.567399e-12
+expanded-eager   aligned component x^2                      0         2               2           0.000000e+00    8.644652e-13
+expanded-eager   aligned component x^3                      2         2               2           0.000000e+00    6.593268e-13
+expanded-eager   aligned component x^4                      2         2               2           0.000000e+00    1.678555e-13
+expanded-eager   aligned component x^8                      4         2               2           0.000000e+00    4.097731e-14
+expanded-eager   aligned component x^12                     6         2               2           0.000000e+00    4.688392e-14
+expanded-eager   term x^1*x^4 raw product                   4         2               3           8.433820e-03    7.074137e-14
+expanded-eager   term x^1*x^4 materialized                  4         2               2           4.298144e-02    5.107243e-14
+expanded-eager   scaled term c*x^5                          6         2               2           0.000000e+00    6.785764e-14
+expanded-eager   term x^3*x^4 raw product                   4         2               3           4.311356e-03    2.583385e-14
+expanded-eager   term x^3*x^4 materialized                  4         2               2           3.581874e-02    6.204172e-14
+expanded-eager   scaled term c*x^7                          6         2               2           0.000000e+00    3.275241e-14
+expanded-eager   term x^2*x^8 raw product                   6         2               3           6.683911e-03    4.583294e-14
+expanded-eager   term x^2*x^8 materialized                  6         2               2           1.560987e-02    4.610296e-14
+expanded-eager   scaled term c*x^10                         8         2               2           0.000000e+00    6.579476e-14
+expanded-eager   term x^1*x^12 raw product                  8         2               3           5.962430e-03    5.461225e-14
+expanded-eager   term x^1*x^12 materialized                 8         2               2           5.302462e-02    6.902621e-14
+expanded-eager   scaled term c*x^13                         10        2               2           0.000000e+00    5.545157e-14
+expanded-eager   term x^3*x^12 raw product                  8         2               3           5.483791e-03    5.503902e-14
+expanded-eager   term x^3*x^12 materialized                 8         2               2           3.406397e-02    6.506422e-14
+expanded-eager   scaled term c*x^15                         10        2               2           0.000000e+00    6.506750e-14
+expanded-eager   final materialized term sum                10        2               2           4.765438e-03    8.459070e-14
+grouped-lazy     S1^(0) component x                         0         1               2           0.000000e+00    1.868880e-12
+grouped-lazy     S1^(0) build x^2 raw product               0         2               3           4.439729e-03    8.734923e-13
+grouped-lazy     S1^(0) build x^2 materialized              0         2               2           6.544999e-02    7.374379e-13
+grouped-lazy     S1^(0) build x^3 raw product               2         2               3           8.679945e-03    4.233489e-13
+grouped-lazy     S1^(0) build x^3 materialized              2         2               2           6.952991e-02    4.967311e-13
+grouped-lazy     S1^(1) build x^4 raw product               2         2               3           5.436532e-03    1.783261e-13
+grouped-lazy     S1^(1) build x^4 materialized              2         2               2           4.688332e-02    1.935392e-13
+grouped-lazy     S1^(1) build x^8 raw product               4         2               3           4.873030e-03    3.240529e-14
+grouped-lazy     S1^(1) build x^8 materialized              4         2               2           7.037155e-03    6.494952e-14
+grouped-lazy     S1^(1) build x^12 raw product              6         2               3           6.043635e-03    4.767378e-14
+grouped-lazy     S1^(1) build x^12 materialized             6         2               2           1.307748e-02    8.252616e-14
+grouped-lazy     aligned component x^1                      0         2               2           0.000000e+00    2.255252e-12
+grouped-lazy     aligned component x^2                      0         2               2           0.000000e+00    8.909436e-13
+grouped-lazy     aligned component x^3                      2         2               2           0.000000e+00    5.523637e-13
+grouped-lazy     aligned component x^4                      2         2               2           0.000000e+00    1.263087e-13
+grouped-lazy     aligned component x^8                      4         2               2           0.000000e+00    4.649921e-14
+grouped-lazy     aligned component x^12                     6         2               2           0.000000e+00    3.022840e-14
+grouped-lazy     term x^1*x^4 raw product                   4         2               3           6.927770e-03    6.568742e-14
+grouped-lazy     raw scaled term c*x^5                      6         2               3           0.000000e+00    1.719568e-12
+grouped-lazy     term x^3*x^4 raw product                   4         2               3           4.519347e-03    4.282981e-14
+grouped-lazy     raw scaled term c*x^7                      6         2               3           0.000000e+00    9.843392e-13
+grouped-lazy     term x^2*x^8 raw product                   6         2               3           6.179780e-03    5.195305e-14
+grouped-lazy     raw scaled term c*x^10                     8         2               3           0.000000e+00    4.119222e-12
+grouped-lazy     term x^1*x^12 raw product                  8         2               3           5.431107e-03    3.206125e-14
+grouped-lazy     raw scaled term c*x^13                     10        2               3           0.000000e+00    1.329917e-12
+grouped-lazy     term x^3*x^12 raw product                  8         2               3           4.759541e-03    6.017017e-14
+grouped-lazy     raw scaled term c*x^15                     10        2               3           0.000000e+00    1.957673e-12
+grouped-lazy     raw decomposed terms folded                10        2               3           6.357049e-03    4.177800e-12
+grouped-lazy     final folded sum materialized              10        2               2           2.523617e-02    3.949055e-12
+
+summary:
+  expanded-eager tensor products    = 10
+  expanded-eager relin count        = 10
+  expanded-eager rescale count      = 10
+  expanded-eager scalar mult count  = 7
+  expanded-eager level-align count  = 6
+  expanded-eager add count          = 4
+  expanded-eager total operator sec = 5.502089e-01
+  grouped-lazy   tensor products    = 10
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 7
+  grouped-lazy   level-align count  = 6
+  grouped-lazy   add count          = 4
+  grouped-lazy   total operator sec = 3.042804e-01
+  expanded-eager final max_abs_err = 1.002049e-13
+  grouped-lazy   final max_abs_err = 5.258145e-12
+
+comparison:
+  tensor products           = 10 vs 10
+  relin count               = 10 vs 6
+  rescale count             = 10 vs 6
+  note                      = fixed set decomposition; lazy folds 5 raw decomposed products

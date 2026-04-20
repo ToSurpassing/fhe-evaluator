@@ -45,6 +45,11 @@ struct DecompTerm {
     double coeff = 0.0;
 };
 
+struct PatternCase {
+    std::string name;
+    std::vector<DecompTerm> terms;
+};
+
 struct EvalOutput {
     Ciphertext<DCRTPoly> value;
     EvalStats stats;
@@ -59,17 +64,34 @@ struct EvalOutput {
 //
 // This deliberately omits pure tail terms so the first prototype focuses on
 // set-decomposition products and grouped lazy materialization.
-const std::vector<DecompTerm> kTerms = {
-    DecompTerm{1, 1, 0.15},   // x^5
-    DecompTerm{2, 1, -0.25},  // x^6
-    DecompTerm{3, 1, 0.35},   // x^7
-    DecompTerm{1, 2, 0.45},   // x^9
-    DecompTerm{2, 2, -0.55},  // x^10
-    DecompTerm{3, 2, 0.65},   // x^11
-    DecompTerm{1, 3, -0.20},  // x^13
-    DecompTerm{2, 3, 0.30},   // x^14
-    DecompTerm{3, 3, -0.40},  // x^15
-};
+std::vector<PatternCase> BuildPatternCases() {
+    return {
+        PatternCase{
+            "dense_3x3",
+            {
+                DecompTerm{1, 1, 0.15},   // x^5
+                DecompTerm{2, 1, -0.25},  // x^6
+                DecompTerm{3, 1, 0.35},   // x^7
+                DecompTerm{1, 2, 0.45},   // x^9
+                DecompTerm{2, 2, -0.55},  // x^10
+                DecompTerm{3, 2, 0.65},   // x^11
+                DecompTerm{1, 3, -0.20},  // x^13
+                DecompTerm{2, 3, 0.30},   // x^14
+                DecompTerm{3, 3, -0.40},  // x^15
+            },
+        },
+        PatternCase{
+            "sparse_cross",
+            {
+                DecompTerm{1, 1, -0.30},  // x^5
+                DecompTerm{3, 1, 0.25},   // x^7
+                DecompTerm{2, 2, 0.55},   // x^10
+                DecompTerm{1, 3, -0.45},  // x^13
+                DecompTerm{3, 3, 0.35},   // x^15
+            },
+        },
+    };
+}
 
 size_t TermPower(const DecompTerm& term) {
     return term.a + 4 * term.b;
@@ -100,9 +122,9 @@ std::vector<double> RefScaledPower(size_t power, double scalar) {
     return ref;
 }
 
-std::vector<double> RefPolynomial() {
+std::vector<double> RefPolynomial(const std::vector<DecompTerm>& terms) {
     std::vector<double> ref(kInput.size(), 0.0);
-    for (const auto& term : kTerms) {
+    for (const auto& term : terms) {
         const size_t power = TermPower(term);
         for (size_t i = 0; i < kInput.size(); ++i) {
             ref[i] += term.coeff * PlainPower(kInput[i], power);
@@ -375,7 +397,8 @@ Ciphertext<DCRTPoly> AddTerms(CC cc,
 
 EvalOutput RunExpandedEager(CC cc,
                             const PrivateKey<DCRTPoly>& sk,
-                            const Ciphertext<DCRTPoly>& input) {
+                            const Ciphertext<DCRTPoly>& input,
+                            const std::vector<DecompTerm>& terms) {
     EvalOutput out;
     out.trace.reserve(64);
     auto components = BuildComponentSets(cc, sk, "expanded-eager", input, out.trace, out.stats);
@@ -383,8 +406,8 @@ EvalOutput RunExpandedEager(CC cc,
         cc, sk, "expanded-eager", components, out.trace, out.stats);
 
     std::vector<Ciphertext<DCRTPoly>> materializedTerms;
-    materializedTerms.reserve(kTerms.size());
-    for (const auto& term : kTerms) {
+    materializedTerms.reserve(terms.size());
+    for (const auto& term : terms) {
         const size_t leftPower = term.a;
         const size_t rightPower = 4 * term.b;
         const size_t outPower = TermPower(term);
@@ -405,13 +428,14 @@ EvalOutput RunExpandedEager(CC cc,
     }
 
     out.value = AddTerms(cc, sk, "expanded-eager", "final materialized term sum",
-                         materializedTerms, RefPolynomial(), out.trace, out.stats);
+                         materializedTerms, RefPolynomial(terms), out.trace, out.stats);
     return out;
 }
 
 EvalOutput RunGroupedLazy(CC cc,
                           const PrivateKey<DCRTPoly>& sk,
-                          const Ciphertext<DCRTPoly>& input) {
+                          const Ciphertext<DCRTPoly>& input,
+                          const std::vector<DecompTerm>& terms) {
     EvalOutput out;
     out.trace.reserve(64);
     auto components = BuildComponentSets(cc, sk, "grouped-lazy", input, out.trace, out.stats);
@@ -419,8 +443,8 @@ EvalOutput RunGroupedLazy(CC cc,
         cc, sk, "grouped-lazy", components, out.trace, out.stats);
 
     std::vector<Ciphertext<DCRTPoly>> rawTerms;
-    rawTerms.reserve(kTerms.size());
-    for (const auto& term : kTerms) {
+    rawTerms.reserve(terms.size());
+    for (const auto& term : terms) {
         const size_t leftPower = term.a;
         const size_t rightPower = 4 * term.b;
         const size_t outPower = TermPower(term);
@@ -441,23 +465,24 @@ EvalOutput RunGroupedLazy(CC cc,
     }
 
     auto rawSum = AddTerms(cc, sk, "grouped-lazy", "raw decomposed terms folded",
-                           rawTerms, RefPolynomial(), out.trace, out.stats);
+                           rawTerms, RefPolynomial(terms), out.trace, out.stats);
 
     auto t0 = Clock::now();
     out.value = Materialize(cc, rawSum, out.stats);
     auto t1 = Clock::now();
     out.trace.push_back(Capture("grouped-lazy", "final folded sum materialized",
-                                cc, sk, out.value, RefPolynomial(),
+                                cc, sk, out.value, RefPolynomial(terms),
                                 std::chrono::duration<double>(t1 - t0).count()));
     return out;
 }
 
-void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
+void RunOneCase(const PatternCase& pattern, const std::string& modeName, ScalingTechnique scalTech) {
     std::cout << "\n============================================================\n";
     std::cout << "[EVALUATOR] asymmetric prototype t=2 fixed decomposition\n";
     std::cout << "[PROJECT DECISION] t=2 is a conservative teaching prototype, not the paper's optimal t>=3 setting\n";
     std::cout << "[DECOMP] B=4, S1^(0)={x,x^2,x^3}, S1^(1)={x^4,x^8,x^12}\n";
     std::cout << "[POLY] terms use x^(a+4b), a in {1,2,3}, b in {1,2,3}; degree <= 15\n";
+    std::cout << "[CASE] " << pattern.name << ", active decomposed products = " << pattern.terms.size() << "\n";
     std::cout << "[MODE] " << modeName << "\n";
 
     auto cc = BuildContext(scalTech);
@@ -471,10 +496,10 @@ void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
     std::cout << "ringDim = " << cc->GetRingDimension() << "\n";
     PrintCtState("input", ct);
 
-    auto eager = RunExpandedEager(cc, kp.secretKey, ct);
-    auto lazy = RunGroupedLazy(cc, kp.secretKey, ct);
+    auto eager = RunExpandedEager(cc, kp.secretKey, ct, pattern.terms);
+    auto lazy = RunGroupedLazy(cc, kp.secretKey, ct, pattern.terms);
 
-    const auto ref = RefPolynomial();
+    const auto ref = RefPolynomial(pattern.terms);
     const double eagerErr = MaxAbsErrReal(DecryptVec(cc, kp.secretKey, eager.value, kSlots), ref);
     const double lazyErr = MaxAbsErrReal(DecryptVec(cc, kp.secretKey, lazy.value, kSlots), ref);
 
@@ -500,7 +525,8 @@ void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
               << lazy.stats.relinCount << '\n';
     std::cout << "  rescale count             = " << eager.stats.rescaleCount << " vs "
               << lazy.stats.rescaleCount << '\n';
-    std::cout << "  note                      = fixed set decomposition; lazy folds 9 raw decomposed products\n";
+    std::cout << "  note                      = fixed set decomposition; lazy folds "
+              << pattern.terms.size() << " raw decomposed products\n";
 
     if (eagerErr >= 1e-8 || lazyErr >= 1e-8) {
         throw std::runtime_error("asym proto t2 error threshold failed");
@@ -508,6 +534,12 @@ void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
     if (lazy.stats.relinCount > eager.stats.relinCount ||
         lazy.stats.rescaleCount > eager.stats.rescaleCount) {
         throw std::runtime_error("asym proto t2 lazy switch count is worse than eager");
+    }
+}
+
+void RunOneMode(const std::string& modeName, ScalingTechnique scalTech) {
+    for (const auto& pattern : BuildPatternCases()) {
+        RunOneCase(pattern, modeName, scalTech);
     }
 }
 
