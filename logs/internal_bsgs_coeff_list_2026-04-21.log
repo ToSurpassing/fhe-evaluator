@@ -1,0 +1,153 @@
+[EVALUATOR] fixed t=2,B=4 Internal BSGS coefficient-list evaluator
+[BOUNDARY] accepts degree <= 31, skips zero coefficients, rejects unsupported nonzero powers
+[SUPPORTED_POWERS] x^5..x^15 and x^21..x^31 through outer+low+high decomposition
+
+============================================================
+[COEFF_LIST] coeff_list_sparse_degree31
+  active coeffs = 4
+    c[ 5] = 1.000000e-01
+    c[11] = -4.000000e-02
+    c[22] = 8.000000e-02
+    c[31] = -3.000000e-02
+  outer0 outer=x^0 terms=2
+  outer1 outer=x^16 terms=2
+[MODE] FIXEDMANUAL
+summary:
+  tensor products = 11 vs 11
+  relin count     = 11 vs 9
+  rescale count   = 11 vs 9
+  scalar mult     = 12 vs 12
+  level align     = 10 vs 9
+  add count       = 3 vs 3
+  eager err       = 3.386692e-13
+  inner-lazy err  = 3.847463e-13
+
+============================================================
+[COEFF_LIST] coeff_list_sparse_degree31
+  active coeffs = 4
+    c[ 5] = 1.000000e-01
+    c[11] = -4.000000e-02
+    c[22] = 8.000000e-02
+    c[31] = -3.000000e-02
+  outer0 outer=x^0 terms=2
+  outer1 outer=x^16 terms=2
+[MODE] COMPOSITESCALINGMANUAL
+summary:
+  tensor products = 11 vs 11
+  relin count     = 11 vs 9
+  rescale count   = 11 vs 9
+  scalar mult     = 5 vs 6
+  level align     = 7 vs 11
+  add count       = 3 vs 3
+  eager err       = 7.350752e-14
+  inner-lazy err  = 6.446939e-14
+
+============================================================
+[COEFF_LIST] coeff_list_zero_skipping
+  active coeffs = 5
+    c[ 5] = 5.000000e-02
+    c[10] = -2.000000e-02
+    c[14] = 7.000000e-02
+    c[25] = -4.000000e-02
+    c[30] = 9.000000e-02
+  outer0 outer=x^0 terms=3
+  outer1 outer=x^16 terms=2
+[MODE] FIXEDMANUAL
+summary:
+  tensor products = 12 vs 12
+  relin count     = 12 vs 9
+  rescale count   = 12 vs 9
+  scalar mult     = 14 vs 14
+  level align     = 12 vs 9
+  add count       = 4 vs 4
+  eager err       = 1.769446e-13
+  inner-lazy err  = 1.923724e-13
+
+============================================================
+[COEFF_LIST] coeff_list_zero_skipping
+  active coeffs = 5
+    c[ 5] = 5.000000e-02
+    c[10] = -2.000000e-02
+    c[14] = 7.000000e-02
+    c[25] = -4.000000e-02
+    c[30] = 9.000000e-02
+  outer0 outer=x^0 terms=3
+  outer1 outer=x^16 terms=2
+[MODE] COMPOSITESCALINGMANUAL
+summary:
+  tensor products = 12 vs 12
+  relin count     = 12 vs 9
+  rescale count   = 12 vs 9
+  scalar mult     = 6 vs 7
+  level align     = 11 vs 15
+  add count       = 4 vs 4
+  eager err       = 4.022466e-14
+  inner-lazy err  = 4.044626e-14
+
+============================================================
+[COEFF_LIST] coeff_list_dense_supported
+  active coeffs = 18
+    c[ 5] = 1.250000e-02
+    c[ 6] = -1.500000e-02
+    c[ 7] = 1.750000e-02
+    c[ 9] = -2.000000e-02
+    c[10] = 2.250000e-02
+    c[11] = -2.500000e-02
+    c[13] = 2.750000e-02
+    c[14] = -3.000000e-02
+    c[15] = 3.250000e-02
+    c[21] = -3.500000e-02
+    c[22] = 3.750000e-02
+    c[23] = -4.000000e-02
+    c[25] = 4.250000e-02
+    c[26] = -4.500000e-02
+    c[27] = 4.750000e-02
+    c[29] = -5.000000e-02
+    c[30] = 5.250000e-02
+    c[31] = -5.500000e-02
+  outer0 outer=x^0 terms=9
+  outer1 outer=x^16 terms=9
+[MODE] FIXEDMANUAL
+summary:
+  tensor products = 13 vs 13
+  relin count     = 13 vs 9
+  rescale count   = 13 vs 9
+  scalar mult     = 28 vs 28
+  level align     = 24 vs 9
+  add count       = 17 vs 17
+  eager err       = 4.593895e-14
+  inner-lazy err  = 7.081542e-14
+
+============================================================
+[COEFF_LIST] coeff_list_dense_supported
+  active coeffs = 18
+    c[ 5] = 1.250000e-02
+    c[ 6] = -1.500000e-02
+    c[ 7] = 1.750000e-02
+    c[ 9] = -2.000000e-02
+    c[10] = 2.250000e-02
+    c[11] = -2.500000e-02
+    c[13] = 2.750000e-02
+    c[14] = -3.000000e-02
+    c[15] = 3.250000e-02
+    c[21] = -3.500000e-02
+    c[22] = 3.750000e-02
+    c[23] = -4.000000e-02
+    c[25] = 4.250000e-02
+    c[26] = -4.500000e-02
+    c[27] = 4.750000e-02
+    c[29] = -5.000000e-02
+    c[30] = 5.250000e-02
+    c[31] = -5.500000e-02
+  outer0 outer=x^0 terms=9
+  outer1 outer=x^16 terms=9
+[MODE] COMPOSITESCALINGMANUAL
+summary:
+  tensor products = 13 vs 13
+  relin count     = 13 vs 9
+  rescale count   = 13 vs 9
+  scalar mult     = 19 vs 20
+  level align     = 21 vs 20
+  add count       = 17 vs 17
+  eager err       = 6.921631e-14
+  inner-lazy err  = 3.577006e-14
