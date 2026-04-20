@@ -1,4 +1,5 @@
 #include "smoke_common.h"
+#include "internal_bsgs_common.h"
 
 #include <algorithm>
 #include <chrono>
@@ -11,6 +12,7 @@
 #include <vector>
 
 using namespace fhe_smoke;
+using namespace fhe_eval::internal_bsgs;
 using Clock = std::chrono::high_resolution_clock;
 
 namespace {
@@ -40,109 +42,11 @@ struct PowerCt {
     Ciphertext<DCRTPoly> ct;
 };
 
-struct InnerTerm {
-    size_t lowPower = 0;
-    size_t highPower = 0;
-    double coeff = 0.0;
-};
-
-struct OuterBlock {
-    std::string name;
-    size_t outerPower = 0;
-    std::vector<InnerTerm> terms;
-};
-
-struct InternalBsgsPlan {
-    std::string name;
-    size_t base = 4;
-    size_t t = 2;
-    std::vector<size_t> lowPowers;
-    std::vector<size_t> highPowers;
-    size_t outerPower = 16;
-    std::vector<OuterBlock> blocks;
-};
-
 struct EvalOutput {
     Ciphertext<DCRTPoly> value;
     EvalStats stats;
     std::vector<TraceRow> trace;
 };
-
-InternalBsgsPlan MakeTinyInternalBsgsPlan() {
-    return InternalBsgsPlan{
-        "tiny_internal_bsgs_t2_b4",
-        4,
-        2,
-        {1, 2, 3},
-        {4, 8, 12},
-        16,
-        {
-            OuterBlock{
-                "outer0",
-                0,
-                {
-                    InnerTerm{1, 4, 0.12},    // x^5
-                    InnerTerm{2, 4, 0.05},    // x^6
-                    InnerTerm{2, 8, -0.18},   // x^10
-                    InnerTerm{3, 8, 0.04},    // x^11
-                    InnerTerm{3, 12, 0.09},   // x^15
-                },
-            },
-            OuterBlock{
-                "outer1",
-                16,
-                {
-                    InnerTerm{2, 4, -0.07},   // x^22 after outer x^16
-                    InnerTerm{3, 4, 0.03},    // x^23 after outer x^16
-                    InnerTerm{1, 8, 0.11},    // x^25 after outer x^16
-                    InnerTerm{3, 12, -0.05},  // x^31 after outer x^16
-                },
-            },
-        },
-    };
-}
-
-InternalBsgsPlan MakeTinyInternalBsgsPlanAlt() {
-    return InternalBsgsPlan{
-        "tiny_internal_bsgs_t2_b4_alt",
-        4,
-        2,
-        {1, 2, 3},
-        {4, 8, 12},
-        16,
-        {
-            OuterBlock{
-                "outer0",
-                0,
-                {
-                    InnerTerm{1, 4, -0.08},   // x^5
-                    InnerTerm{3, 4, 0.06},    // x^7
-                    InnerTerm{1, 8, 0.14},    // x^9
-                    InnerTerm{2, 8, -0.03},   // x^10
-                    InnerTerm{2, 12, 0.07},   // x^14
-                },
-            },
-            OuterBlock{
-                "outer1",
-                16,
-                {
-                    InnerTerm{1, 4, 0.05},    // x^21 after outer x^16
-                    InnerTerm{3, 4, -0.04},   // x^23 after outer x^16
-                    InnerTerm{2, 8, -0.09},   // x^26 after outer x^16
-                    InnerTerm{1, 12, 0.025},  // x^29 after outer x^16
-                    InnerTerm{3, 12, 0.035},  // x^31 after outer x^16
-                },
-            },
-        },
-    };
-}
-
-std::vector<InternalBsgsPlan> KnownInternalPlans() {
-    return {
-        MakeTinyInternalBsgsPlan(),
-        MakeTinyInternalBsgsPlanAlt(),
-    };
-}
 
 double PlainPower(double x, size_t power) {
     double y = 1.0;
@@ -245,35 +149,6 @@ std::vector<double> AsymmetricOuterPlain(const InternalBsgsPlan& plan) {
         }
     }
     return acc;
-}
-
-bool HasPower(const std::vector<size_t>& powers, size_t power) {
-    return std::find(powers.begin(), powers.end(), power) != powers.end();
-}
-
-void ValidatePlan(const InternalBsgsPlan& plan) {
-    if (plan.base != 4 || plan.t != 2) {
-        throw std::runtime_error("ValidatePlan: this prototype is fixed to t=2, B=4");
-    }
-    if (plan.blocks.size() != 2) {
-        throw std::runtime_error("ValidatePlan: this prototype requires exactly two outer blocks");
-    }
-    if (plan.blocks[0].outerPower != 0 || plan.blocks[1].outerPower != plan.outerPower) {
-        throw std::runtime_error("ValidatePlan: expected outer powers 0 and x^16");
-    }
-    for (const auto& block : plan.blocks) {
-        if (block.terms.empty()) {
-            throw std::runtime_error("ValidatePlan: empty block");
-        }
-        for (const auto& term : block.terms) {
-            if (!HasPower(plan.lowPowers, term.lowPower)) {
-                throw std::runtime_error("ValidatePlan: term low power is outside bar(S1)");
-            }
-            if (!HasPower(plan.highPowers, term.highPower)) {
-                throw std::runtime_error("ValidatePlan: term high power is outside hat(S1)");
-            }
-        }
-    }
 }
 
 CC BuildInternalContext(ScalingTechnique scalTech) {
@@ -779,7 +654,7 @@ int main() {
         const auto plans = KnownInternalPlans();
         std::cout << "[KNOWN_INTERNAL_PLANS] " << plans.size() << "\n";
         for (const auto& plan : plans) {
-            ValidatePlan(plan);
+            ValidateInternalPlan(plan);
             std::cout << "\n[INTERNAL_PLAN] " << plan.name << '\n';
             PrintPlainCheck(plan);
             RunOneMode(plan, "FIXEDMANUAL", FIXEDMANUAL);
