@@ -1,0 +1,33 @@
+[EVALUATOR] asymmetric plan object smoke
+[PROJECT DECISION] validate fixed plan data before wiring a planner-driven executor
+
+============================================================
+[PLAN] outer_assembly_24_shape
+components: x x^2 x^4 x^8
+block block0 outer=1 terms=4
+  coeff=   0.150 factors=(x,x^2,x^4) inner=x^7 final=x^7
+  coeff=  -0.250 factors=(x^2,x^2,x^4) inner=x^8 final=x^8
+  coeff=   0.350 factors=(x,x^4,x^4) inner=x^9 final=x^9
+  coeff=  -0.200 factors=(x,x^2,x^8) inner=x^11 final=x^11
+block block1 outer=x^8 terms=3
+  coeff=  -0.180 factors=(x,x^2,x^4) inner=x^7 final=x^15
+  coeff=   0.220 factors=(x^2,x^2,x^4) inner=x^8 final=x^16
+  coeff=  -0.120 factors=(x,x^4,x^4) inner=x^9 final=x^17
+final polynomial: +0.150*x^7 -0.250*x^8 +0.350*x^9 -0.200*x^11 -0.180*x^15 +0.220*x^16 -0.120*x^17
+max_abs_plain_on_kInput = 4.927e-04
+[PASS] plan object validated
+
+============================================================
+[PLAN] outer_pattern_25_shape
+components: x x^2 x^4 x^8
+block block0 outer=1 terms=3
+  coeff=  -0.110 factors=(x,x,x^8) inner=x^10 final=x^10
+  coeff=   0.280 factors=(x^2,x^4,x^8) inner=x^14 final=x^14
+  coeff=  -0.190 factors=(x^4,x^4,x^8) inner=x^16 final=x^16
+block block1 outer=x^8 terms=3
+  coeff=   0.170 factors=(x,x^2,x^8) inner=x^11 final=x^19
+  coeff=  -0.130 factors=(x^2,x^4,x^8) inner=x^14 final=x^22
+  coeff=   0.090 factors=(x^4,x^8,x^8) inner=x^20 final=x^28
+final polynomial: -0.110*x^10 +0.280*x^14 -0.190*x^16 +0.170*x^19 -0.130*x^22 +0.090*x^28
+max_abs_plain_on_kInput = 1.087e-05
+[PASS] plan object validated
