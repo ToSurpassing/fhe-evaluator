@@ -1,0 +1,30 @@
+[  6%] Built target smoke_common
+[  6%] Built target fhe-evaluator
+[ 13%] Built target ckks_lazy_poly_evaluator
+[ 13%] Built target ckks_smoke_01_norelin
+[ 20%] Built target ckks_smoke_02_relin_add_same_scale
+[ 20%] Built target ckks_smoke_03_rescale_manual
+[ 23%] Built target ckks_smoke_04_scaling_modes
+[ 26%] Built target ckks_smoke_05_evalpolyps
+[ 33%] Built target ckks_survival_01_state_trace
+[ 33%] Built target ckks_smoke_06_mixed_add
+[ 40%] Built target ckks_survival_03_raw_cube_times_x
+[ 40%] Built target ckks_survival_02_raw_square_times_x
+[ 46%] Built target ckks_baseline_01_square_chain
+[ 46%] Built target ckks_lazy_01_square_chain
+[ 50%] Built target ckks_baseline_02_double_square_aggregate
+[ 53%] Built target ckks_lazy_02_double_square_aggregate
+[ 56%] Built target ckks_lazy_03_poly_block_fold
+[ 60%] Built target ckks_baseline_03_poly_block_fold
+[ 63%] Built target ckks_evaluator_01_poly_naive
+[ 66%] Built target ckks_evaluator_02_poly_lazy
+[ 70%] Built target ckks_evaluator_03_poly2_affine_compare
+[ 73%] Built target ckks_evaluator_04_poly3_compare
+[ 80%] Built target ckks_evaluator_06_baby_step_block_trace
+[ 80%] Built target ckks_evaluator_05_power_cache_trace
+[ 86%] Built target ckks_evaluator_08_grouped_same_state_block_eval
+[ 86%] Built target ckks_evaluator_07_baby_step_linear_block_eval
+[ 93%] Built target ckks_evaluator_10_coeff_block_outer_assembly
+[ 93%] Built target ckks_evaluator_09_two_block_outer_assembly
+[100%] Built target ckks_evaluator_12_coeff_pattern_regression
+[100%] Built target ckks_evaluator_11_param_coeff_blocks

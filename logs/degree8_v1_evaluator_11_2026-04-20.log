@@ -1,0 +1,236 @@
+
+============================================================
+[EVALUATOR] parameterized coefficient block prototype
+[POLY] P(x)=0.25 -0.3*x +0.7*x^2 -1.2*x^3 +0.5*x^4 +0.2*x^5 -0.4*x^6 +0.9*x^7 +1.1*x^8
+[MODE] FIXEDMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                    level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   x input                                 0         1               2           0.000000e+00    1.076583e-12
+expanded-eager   precompute x^2 raw product              0         2               3           1.096517e-03    8.877898e-13
+expanded-eager   precompute x^2 materialized             1         1               2           1.961831e-01    1.461542e-11
+expanded-eager   x aligned with x^2                      1         1               2           0.000000e+00    1.360023e-12
+expanded-eager   precompute z=x^4 raw product            1         2               3           2.518807e-03    4.673865e-12
+expanded-eager   precompute z=x^4 materialized           2         1               2           9.122404e-02    4.347505e-12
+expanded-eager   block0 x*x raw product                  1         2               3           6.780131e-03    4.978236e-13
+expanded-eager   block0 x*x materialized                 2         1               2           1.938429e-01    2.767064e-12
+expanded-eager   block0 coeff*x^2                        2         2               2           0.000000e+00    2.156234e-12
+expanded-eager   block0 x*x^2 raw product                1         2               3           1.885143e-03    5.704284e-12
+expanded-eager   block0 x*x^2 materialized               2         1               2           1.555625e-01    5.053166e-12
+expanded-eager   block0 coeff/2*x*x^2                    2         2               2           0.000000e+00    2.887676e-12
+expanded-eager   block0 x^2*x raw product                1         2               3           4.620156e-03    5.828157e-12
+expanded-eager   block0 x^2*x materialized               2         1               2           1.188952e-01    5.104667e-12
+expanded-eager   block0 coeff/2*x^2*x                    2         2               2           0.000000e+00    2.967314e-12
+expanded-eager   block0 x^2*x^2 raw product              1         2               3           7.632463e-03    4.764879e-12
+expanded-eager   block0 x^2*x^2 materialized             2         1               2           1.003058e-01    4.268769e-12
+expanded-eager   block0 coeff*x^4                        2         2               2           0.000000e+00    2.105600e-12
+expanded-eager   block0 materialized coeff block         2         2               2           7.203581e-03    6.083162e-12
+expanded-eager   block1 x*x raw product                  1         2               3           1.094814e-02    4.850287e-13
+expanded-eager   block1 x*x materialized                 2         1               2           1.027690e-01    2.410391e-12
+expanded-eager   block1 coeff*x^2                        2         2               2           0.000000e+00    1.148179e-12
+expanded-eager   block1 x*x^2 raw product                1         2               3           7.021186e-03    5.738215e-12
+expanded-eager   block1 x*x^2 materialized               2         1               2           1.648752e-01    4.795359e-12
+expanded-eager   block1 coeff/2*x*x^2                    2         2               2           0.000000e+00    2.152500e-12
+expanded-eager   block1 x^2*x raw product                1         2               3           2.270913e-03    5.660999e-12
+expanded-eager   block1 x^2*x materialized               2         1               2           1.699435e-01    4.978254e-12
+expanded-eager   block1 coeff/2*x^2*x                    2         2               2           0.000000e+00    2.185880e-12
+expanded-eager   block1 x^2*x^2 raw product              1         2               3           1.284571e-02    4.700521e-12
+expanded-eager   block1 x^2*x^2 materialized             2         1               2           1.612568e-01    4.354756e-12
+expanded-eager   block1 coeff*x^4                        2         2               2           0.000000e+00    4.669667e-12
+expanded-eager   block1 materialized coeff block         2         2               2           9.372810e-04    4.013033e-12
+expanded-eager   block0 starts outer assembly            2         2               2           0.000000e+00    6.224132e-12
+expanded-eager   outer block1*z raw product              2         3               3           1.665275e-03    3.171092e-13
+expanded-eager   outer block1*z materialized             3         2               2           1.518843e-01    6.373053e-13
+expanded-eager   block0 aligned for outer sum            3         2               2           0.000000e+00    6.009332e-12
+expanded-eager   block0 + block1*z                       3         2               2           1.914410e-04    5.635409e-12
+expanded-eager   tail x*z=x^5 raw product                2         2               3           1.366352e-03    1.663822e-12
+expanded-eager   tail x*z=x^5 materialized               3         1               2           1.100585e-01    2.983455e-12
+expanded-eager   tail coeff*x^5                          3         2               2           0.000000e+00    6.163850e-13
+expanded-eager   add tail c5*x^5                         3         2               2           6.339326e-03    5.102974e-12
+expanded-eager   tail coeff*x                            0         2               2           0.000000e+00    2.321060e-13
+expanded-eager   add tail c1*x                           3         2               2           3.056900e-04    4.831635e-12
+expanded-eager   add tail c0                             3         2               2           9.422158e-03    4.243383e-12
+expanded-eager   final degree<=8 result                  3         2               2           0.000000e+00    5.321632e-12
+grouped-lazy     x input                                 0         1               2           0.000000e+00    1.871558e-12
+grouped-lazy     precompute x^2 raw product              0         2               3           1.002645e-02    5.024592e-13
+grouped-lazy     precompute x^2 materialized             1         1               2           2.436442e-01    1.484451e-11
+grouped-lazy     x aligned with x^2                      1         1               2           0.000000e+00    8.574808e-13
+grouped-lazy     precompute z=x^4 raw product            1         2               3           8.926589e-03    4.698356e-12
+grouped-lazy     precompute z=x^4 materialized           2         1               2           1.864391e-01    4.275892e-12
+grouped-lazy     block0 x*x raw product                  1         2               3           1.072157e-02    6.007694e-13
+grouped-lazy     block0 raw coeff*x^2                    1         3               3           0.000000e+00    4.785200e-13
+grouped-lazy     block0 x*x^2 raw product                1         2               3           2.502765e-03    5.941678e-12
+grouped-lazy     block0 raw coeff/2*x*x^2                1         3               3           0.000000e+00    3.527643e-12
+grouped-lazy     block0 x^2*x raw product                1         2               3           2.419378e-03    5.984588e-12
+grouped-lazy     block0 raw coeff/2*x^2*x                1         3               3           0.000000e+00    3.491769e-12
+grouped-lazy     block0 x^2*x^2 raw product              1         2               3           2.964680e-03    4.776630e-12
+grouped-lazy     block0 raw coeff*x^4                    1         3               3           0.000000e+00    2.380401e-12
+grouped-lazy     block0 raw coeff block folded           1         3               3           7.833102e-03    9.157342e-12
+grouped-lazy     block0 materialized coeff block         2         2               2           1.000503e-01    6.107864e-12
+grouped-lazy     block1 x*x raw product                  1         2               3           7.625515e-03    7.239209e-13
+grouped-lazy     block1 raw coeff*x^2                    1         3               3           0.000000e+00    2.753839e-13
+grouped-lazy     block1 x*x^2 raw product                1         2               3           3.803014e-03    5.858564e-12
+grouped-lazy     block1 raw coeff/2*x*x^2                1         3               3           0.000000e+00    2.629785e-12
+grouped-lazy     block1 x^2*x raw product                1         2               3           9.204770e-04    5.788633e-12
+grouped-lazy     block1 raw coeff/2*x^2*x                1         3               3           0.000000e+00    2.564983e-12
+grouped-lazy     block1 x^2*x^2 raw product              1         2               3           1.845297e-02    4.733033e-12
+grouped-lazy     block1 raw coeff*x^4                    1         3               3           0.000000e+00    5.160098e-12
+grouped-lazy     block1 raw coeff block folded           1         3               3           1.982918e-03    3.921285e-12
+grouped-lazy     block1 materialized coeff block         2         2               2           1.184930e-01    4.108051e-12
+grouped-lazy     block0 starts outer assembly            2         2               2           0.000000e+00    6.192852e-12
+grouped-lazy     outer block1*z raw product              2         3               3           3.078041e-03    3.053148e-13
+grouped-lazy     outer block1*z materialized             3         2               2           1.270423e-01    7.214676e-13
+grouped-lazy     block0 aligned for outer sum            3         2               2           0.000000e+00    6.506379e-12
+grouped-lazy     block0 + block1*z                       3         2               2           2.287684e-03    5.705991e-12
+grouped-lazy     tail x*z=x^5 raw product                2         2               3           1.246184e-02    1.731290e-12
+grouped-lazy     tail x*z=x^5 materialized               3         1               2           9.297907e-02    3.066413e-12
+grouped-lazy     tail coeff*x^5                          3         2               2           0.000000e+00    6.338124e-13
+grouped-lazy     add tail c5*x^5                         3         2               2           3.956809e-03    4.944378e-12
+grouped-lazy     tail coeff*x                            0         2               2           0.000000e+00    3.718068e-13
+grouped-lazy     add tail c1*x                           3         2               2           2.150692e-03    4.391265e-12
+grouped-lazy     add tail c0                             3         2               2           1.022020e-04    4.636291e-12
+grouped-lazy     final degree<=8 result                  3         2               2           0.000000e+00    4.470868e-12
+
+summary:
+  expanded-eager tensor products    = 12
+  expanded-eager relin count        = 12
+  expanded-eager rescale count      = 12
+  expanded-eager scalar mult count  = 10
+  expanded-eager level-align count  = 4
+  expanded-eager add count          = 10
+  expanded-eager total operator sec = 1.828086e+00
+  grouped-lazy   tensor products    = 12
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 10
+  grouped-lazy   level-align count  = 4
+  grouped-lazy   add count          = 10
+  grouped-lazy   total operator sec = 1.025541e+00
+  expanded-eager final max_abs_err = 4.856449e-12
+  grouped-lazy   final max_abs_err = 4.859890e-12
+
+comparison:
+  tensor products           = 12 vs 12
+  relin count               = 12 vs 6
+  rescale count             = 12 vs 6
+  note                      = first reusable restricted-degree evaluator prototype
+
+============================================================
+[EVALUATOR] parameterized coefficient block prototype
+[POLY] P(x)=0.25 -0.3*x +0.7*x^2 -1.2*x^3 +0.5*x^4 +0.2*x^5 -0.4*x^6 +0.9*x^7 +1.1*x^8
+[MODE] COMPOSITESCALINGMANUAL
+ringDim = 4096
+input | level = 0, noiseScaleDeg = 1
+
+strategy         step                                    level     noiseScaleDeg   ctElems     time_sec        max_abs_err
+-------------------------------------------------------------------------------------------------------------------------------
+expanded-eager   x input                                 0         1               2           0.000000e+00    8.423817e-13
+expanded-eager   precompute x^2 raw product              0         2               3           2.430008e-02    3.738468e-13
+expanded-eager   precompute x^2 materialized             0         2               2           3.098067e-01    2.955492e-13
+expanded-eager   x aligned with x^2                      0         2               2           0.000000e+00    1.041695e-12
+expanded-eager   precompute z=x^4 raw product            2         2               3           7.827919e-02    9.387283e-14
+expanded-eager   precompute z=x^4 materialized           2         2               2           2.507725e-01    1.626997e-13
+expanded-eager   block0 x*x raw product                  2         2               3           1.048065e-01    3.237272e-13
+expanded-eager   block0 x*x materialized                 2         2               2           2.583011e-01    4.265061e-13
+expanded-eager   block0 coeff*x^2                        4         2               2           0.000000e+00    2.299549e-13
+expanded-eager   block0 x*x^2 raw product                2         2               3           9.367818e-02    1.213474e-13
+expanded-eager   block0 x*x^2 materialized               2         2               2           2.291794e-01    2.346526e-13
+expanded-eager   block0 coeff/2*x*x^2                    4         2               2           0.000000e+00    1.370709e-13
+expanded-eager   block0 x^2*x raw product                2         2               3           9.583136e-02    2.793599e-13
+expanded-eager   block0 x^2*x materialized               2         2               2           2.216800e-01    1.327376e-13
+expanded-eager   block0 coeff/2*x^2*x                    4         2               2           0.000000e+00    1.090725e-13
+expanded-eager   block0 x^2*x^2 raw product              2         2               3           7.822382e-02    8.279141e-14
+expanded-eager   block0 x^2*x^2 materialized             2         2               2           2.729361e-01    1.485721e-13
+expanded-eager   block0 coeff*x^4                        4         2               2           0.000000e+00    7.584439e-14
+expanded-eager   block0 materialized coeff block         4         2               2           7.042320e-03    4.844181e-13
+expanded-eager   block1 x*x raw product                  2         2               3           1.104131e-01    4.274081e-13
+expanded-eager   block1 x*x materialized                 2         2               2           2.575412e-01    4.914680e-13
+expanded-eager   block1 coeff*x^2                        4         2               2           0.000000e+00    2.510006e-13
+expanded-eager   block1 x*x^2 raw product                2         2               3           8.179219e-02    1.564165e-13
+expanded-eager   block1 x*x^2 materialized               2         2               2           2.949408e-01    2.440131e-13
+expanded-eager   block1 coeff/2*x*x^2                    4         2               2           0.000000e+00    8.366571e-14
+expanded-eager   block1 x^2*x raw product                2         2               3           1.188092e-01    1.948858e-13
+expanded-eager   block1 x^2*x materialized               2         2               2           2.513667e-01    2.434095e-13
+expanded-eager   block1 coeff/2*x^2*x                    4         2               2           0.000000e+00    7.466323e-14
+expanded-eager   block1 x^2*x^2 raw product              2         2               3           8.608598e-02    1.253407e-13
+expanded-eager   block1 x^2*x^2 materialized             2         2               2           1.973439e-01    9.510101e-14
+expanded-eager   block1 coeff*x^4                        4         2               2           0.000000e+00    9.843862e-14
+expanded-eager   block1 materialized coeff block         4         2               2           6.596866e-03    3.573530e-13
+expanded-eager   block0 starts outer assembly            4         2               2           0.000000e+00    6.076979e-13
+expanded-eager   outer block1*z raw product              6         2               3           8.410037e-02    4.949576e-14
+expanded-eager   outer block1*z materialized             6         2               2           2.011665e-01    2.740602e-14
+expanded-eager   block0 aligned for outer sum            4         2               2           0.000000e+00    6.152197e-13
+expanded-eager   block0 + block1*z                       6         2               2           6.008595e-03    4.528912e-13
+expanded-eager   tail x*z=x^5 raw product                4         2               3           1.330434e-01    9.603429e-14
+expanded-eager   tail x*z=x^5 materialized               4         2               2           1.970709e-01    9.114411e-14
+expanded-eager   tail coeff*x^5                          6         2               2           0.000000e+00    8.381316e-14
+expanded-eager   add tail c5*x^5                         6         2               2           2.875260e-04    6.263323e-13
+expanded-eager   tail coeff*x                            0         2               2           0.000000e+00    3.673589e-13
+expanded-eager   add tail c1*x                           6         2               2           8.164539e-02    8.379686e-13
+expanded-eager   add tail c0                             6         2               2           4.946800e-04    5.605516e-13
+expanded-eager   final degree<=8 result                  6         2               2           0.000000e+00    4.714007e-13
+grouped-lazy     x input                                 0         1               2           0.000000e+00    1.047440e-12
+grouped-lazy     precompute x^2 raw product              0         2               3           2.120237e-02    4.451994e-13
+grouped-lazy     precompute x^2 materialized             0         2               2           2.778400e-01    3.609751e-13
+grouped-lazy     x aligned with x^2                      0         2               2           0.000000e+00    8.932577e-13
+grouped-lazy     precompute z=x^4 raw product            2         2               3           1.464009e-01    7.929768e-14
+grouped-lazy     precompute z=x^4 materialized           2         2               2           2.252324e-01    1.256044e-13
+grouped-lazy     block0 x*x raw product                  2         2               3           8.205734e-02    4.946321e-13
+grouped-lazy     block0 raw coeff*x^2                    4         2               3           0.000000e+00    3.258144e-12
+grouped-lazy     block0 x*x^2 raw product                2         2               3           8.960167e-02    1.536410e-13
+grouped-lazy     block0 raw coeff/2*x*x^2                4         2               3           0.000000e+00    3.003712e-12
+grouped-lazy     block0 x^2*x raw product                2         2               3           1.039330e-01    2.430001e-13
+grouped-lazy     block0 raw coeff/2*x^2*x                4         2               3           0.000000e+00    3.604335e-12
+grouped-lazy     block0 x^2*x^2 raw product              2         2               3           1.029961e-01    8.871029e-14
+grouped-lazy     block0 raw coeff*x^4                    4         2               3           0.000000e+00    5.270021e-12
+grouped-lazy     block0 raw coeff block folded           4         2               3           8.614815e-02    8.671214e-12
+grouped-lazy     block0 materialized coeff block         4         2               2           1.115025e-01    8.114162e-12
+grouped-lazy     block1 x*x raw product                  2         2               3           9.816763e-02    3.996248e-13
+grouped-lazy     block1 raw coeff*x^2                    4         2               3           0.000000e+00    3.022270e-12
+grouped-lazy     block1 x*x^2 raw product                2         2               3           8.821014e-02    2.089440e-13
+grouped-lazy     block1 raw coeff/2*x*x^2                4         2               3           0.000000e+00    1.586786e-12
+grouped-lazy     block1 x^2*x raw product                2         2               3           1.207489e-01    2.017796e-13
+grouped-lazy     block1 raw coeff/2*x^2*x                4         2               3           0.000000e+00    2.528858e-12
+grouped-lazy     block1 x^2*x^2 raw product              2         2               3           1.175578e-01    9.823045e-14
+grouped-lazy     block1 raw coeff*x^4                    4         2               3           0.000000e+00    1.080699e-11
+grouped-lazy     block1 raw coeff block folded           4         2               3           3.347710e-03    1.036315e-11
+grouped-lazy     block1 materialized coeff block         4         2               2           2.289340e-01    4.635228e-12
+grouped-lazy     block0 starts outer assembly            4         2               2           0.000000e+00    1.163759e-11
+grouped-lazy     outer block1*z raw product              6         2               3           1.011426e-01    1.467079e-13
+grouped-lazy     outer block1*z materialized             6         2               2           1.827815e-01    1.093648e-13
+grouped-lazy     block0 aligned for outer sum            4         2               2           0.000000e+00    9.157495e-12
+grouped-lazy     block0 + block1*z                       6         2               2           2.834382e-02    9.198083e-12
+grouped-lazy     tail x*z=x^5 raw product                4         2               3           7.843256e-02    7.682570e-14
+grouped-lazy     tail x*z=x^5 materialized               4         2               2           1.811279e-01    5.602810e-14
+grouped-lazy     tail coeff*x^5                          6         2               2           0.000000e+00    6.817078e-14
+grouped-lazy     add tail c5*x^5                         6         2               2           7.602270e-04    7.533002e-12
+grouped-lazy     tail coeff*x                            0         2               2           0.000000e+00    2.680564e-13
+grouped-lazy     add tail c1*x                           6         2               2           4.128126e-02    7.699293e-12
+grouped-lazy     add tail c0                             6         2               2           5.584240e-04    8.537449e-12
+grouped-lazy     final degree<=8 result                  6         2               2           0.000000e+00    4.970135e-12
+
+summary:
+  expanded-eager tensor products    = 12
+  expanded-eager relin count        = 12
+  expanded-eager rescale count      = 12
+  expanded-eager scalar mult count  = 11
+  expanded-eager level-align count  = 3
+  expanded-eager add count          = 10
+  expanded-eager total operator sec = 4.526298e+00
+  grouped-lazy   tensor products    = 12
+  grouped-lazy   relin count        = 6
+  grouped-lazy   rescale count      = 6
+  grouped-lazy   scalar mult count  = 11
+  grouped-lazy   level-align count  = 3
+  grouped-lazy   add count          = 10
+  grouped-lazy   total operator sec = 3.239525e+00
+  expanded-eager final max_abs_err = 7.870371e-13
+  grouped-lazy   final max_abs_err = 5.869472e-12
+
+comparison:
+  tensor products           = 12 vs 12
+  relin count               = 12 vs 6
+  rescale count             = 12 vs 6
+  note                      = first reusable restricted-degree evaluator prototype
