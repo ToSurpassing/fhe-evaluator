@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -17,9 +18,12 @@ using Clock = std::chrono::steady_clock;
 
 namespace {
 
-constexpr size_t kWarmup = 1;
-constexpr size_t kRepeat = 3;
 constexpr double kErrThreshold = 1e-8;
+
+struct BenchmarkConfig {
+    size_t warmup = 1;
+    size_t repeat = 3;
+};
 
 struct EvalStats {
     size_t tensorProducts = 0;
@@ -382,7 +386,53 @@ void PrintMarkdownHeader() {
     std::cout << "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
 }
 
-void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
+size_t ParsePositiveSize(const std::string& name, const std::string& value) {
+    size_t consumed = 0;
+    size_t parsed = 0;
+    try {
+        parsed = std::stoull(value, &consumed);
+    }
+    catch (const std::exception&) {
+        throw std::runtime_error(name + " must be a positive integer");
+    }
+    if (consumed != value.size() || parsed == 0) {
+        throw std::runtime_error(name + " must be a positive integer");
+    }
+    return parsed;
+}
+
+void PrintUsage(const char* argv0) {
+    std::cout << "Usage: " << argv0 << " [--warmup N] [--repeat N]\n\n";
+    std::cout << "Defaults: --warmup 1 --repeat 3\n";
+}
+
+BenchmarkConfig ParseArgs(int argc, char** argv) {
+    BenchmarkConfig config;
+    for (int i = 1; i < argc; ++i) {
+        const std::string arg = argv[i];
+        if (arg == "--help" || arg == "-h") {
+            PrintUsage(argv[0]);
+            std::exit(0);
+        }
+        if (arg == "--warmup" || arg == "--repeat") {
+            if (i + 1 >= argc) {
+                throw std::runtime_error(arg + " requires a value");
+            }
+            const auto value = ParsePositiveSize(arg, argv[++i]);
+            if (arg == "--warmup") {
+                config.warmup = value;
+            }
+            else {
+                config.repeat = value;
+            }
+            continue;
+        }
+        throw std::runtime_error("unknown argument: " + arg);
+    }
+    return config;
+}
+
+void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech, const BenchmarkConfig& config) {
     const auto referencePlan = ReferencePlanForPattern(pattern);
     const auto plan = GenerateInternalPlanFromCoeffs(pattern);
     ValidateInternalPlan(referencePlan);
@@ -398,7 +448,7 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
     pt->SetLength(kSlots);
     auto ct = cc->Encrypt(kp.publicKey, pt);
 
-    for (size_t i = 0; i < kWarmup; ++i) {
+    for (size_t i = 0; i < config.warmup; ++i) {
         (void)RunInternalEager(cc, plan, ct);
         (void)RunInternalLazy(cc, plan, ct);
     }
@@ -407,7 +457,7 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
     std::vector<double> lazyTimes;
     EvalOutput lastEager;
     EvalOutput lastLazy;
-    for (size_t i = 0; i < kRepeat; ++i) {
+    for (size_t i = 0; i < config.repeat; ++i) {
         auto eager = TimeRunInternalEager(cc, plan, ct);
         auto lazy = TimeRunInternalLazy(cc, plan, ct);
         eagerTimes.push_back(eager.seconds);
@@ -425,8 +475,8 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
     std::cout << "| " << pattern.name
               << " | " << ModeName(scalTech)
               << " | eager"
-              << " | " << kWarmup
-              << " | " << kRepeat
+              << " | " << config.warmup
+              << " | " << config.repeat
               << " | " << lastEager.stats.tensorProducts
               << " | " << lastEager.stats.relinCount
               << " | " << lastEager.stats.rescaleCount
@@ -438,8 +488,8 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
     std::cout << "| " << pattern.name
               << " | " << ModeName(scalTech)
               << " | inner-lazy"
-              << " | " << kWarmup
-              << " | " << kRepeat
+              << " | " << config.warmup
+              << " | " << config.repeat
               << " | " << lastLazy.stats.tensorProducts
               << " | " << lastLazy.stats.relinCount
               << " | " << lastLazy.stats.rescaleCount
@@ -451,15 +501,18 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech) {
 
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
     try {
+        const auto config = ParseArgs(argc, argv);
         std::cout << "# Internal BSGS Runtime Benchmark\n\n";
         std::cout << "This benchmark measures core evaluator runtime only. "
                   << "Key generation and encryption are outside the timed region.\n\n";
+        std::cout << "Configuration: warmup=" << config.warmup
+                  << ", repeat=" << config.repeat << "\n\n";
         PrintMarkdownHeader();
         for (const auto& pattern : KnownCoeffPatterns()) {
-            BenchmarkOne(pattern, FIXEDMANUAL);
-            BenchmarkOne(pattern, COMPOSITESCALINGMANUAL);
+            BenchmarkOne(pattern, FIXEDMANUAL, config);
+            BenchmarkOne(pattern, COMPOSITESCALINGMANUAL, config);
         }
     }
     catch (const std::exception& e) {

@@ -11,6 +11,7 @@ Target:
 - executable: `ckks_benchmark_01_internal_bsgs_runtime`
 - file: `src/benchmark/ckks_benchmark_01_internal_bsgs_runtime.cpp`
 - validation log: `logs/internal_bsgs_runtime_2026-04-21.log`
+- configurable-args smoke log: `logs/internal_bsgs_runtime_configurable_2026-04-21.log`
 
 This benchmark uses the same fixed Internal BSGS constraints as `34/35`:
 
@@ -21,6 +22,12 @@ This benchmark uses the same fixed Internal BSGS constraints as `34/35`:
 - `S2 = {x^16}`
 
 The benchmark measures core evaluator runtime only. Key generation and encryption are outside the timed region.
+
+The benchmark now accepts command-line controls:
+
+```text
+./build/ckks_benchmark_01_internal_bsgs_runtime --warmup N --repeat N
+```
 
 Default settings:
 
@@ -87,8 +94,7 @@ The lazy evaluator is always faster.
 Before using runtime data as a final thesis result, the benchmark should be rerun with larger repeat counts, for example:
 
 ```text
-warmup = 3
-repeat = 20
+./build/ckks_benchmark_01_internal_bsgs_runtime --warmup 3 --repeat 20
 ```
 
 It may also be useful to print per-repeat samples or CSV output, so outliers can be inspected.

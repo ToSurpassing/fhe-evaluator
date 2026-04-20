@@ -1,0 +1,16 @@
+# Internal BSGS Runtime Benchmark
+
+This benchmark measures core evaluator runtime only. Key generation and encryption are outside the timed region.
+
+Configuration: warmup=1, repeat=1
+
+| pattern | mode | path | warmup | repeat | tensor | relin | rescale | median_sec | mean_sec | final_err |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| coeff_pattern_internal_t2_b4_a | FIXEDMANUAL | eager | 1 | 1 | 13 | 13 | 13 | 8.251209e-01 | 8.251209e-01 | 2.578350e-13 |
+| coeff_pattern_internal_t2_b4_a | FIXEDMANUAL | inner-lazy | 1 | 1 | 13 | 9 | 9 | 5.338501e-01 | 5.338501e-01 | 3.714175e-13 |
+| coeff_pattern_internal_t2_b4_a | COMPOSITESCALINGMANUAL | eager | 1 | 1 | 13 | 13 | 13 | 1.434856e+00 | 1.434856e+00 | 3.090469e-14 |
+| coeff_pattern_internal_t2_b4_a | COMPOSITESCALINGMANUAL | inner-lazy | 1 | 1 | 13 | 9 | 9 | 1.035737e+00 | 1.035737e+00 | 2.459510e-14 |
+| coeff_pattern_internal_t2_b4_b | FIXEDMANUAL | eager | 1 | 1 | 13 | 13 | 13 | 4.994737e-01 | 4.994737e-01 | 2.022726e-13 |
+| coeff_pattern_internal_t2_b4_b | FIXEDMANUAL | inner-lazy | 1 | 1 | 13 | 9 | 9 | 3.671666e-01 | 3.671666e-01 | 1.976729e-13 |
+| coeff_pattern_internal_t2_b4_b | COMPOSITESCALINGMANUAL | eager | 1 | 1 | 13 | 13 | 13 | 1.518396e+00 | 1.518396e+00 | 4.213933e-14 |
+| coeff_pattern_internal_t2_b4_b | COMPOSITESCALINGMANUAL | inner-lazy | 1 | 1 | 13 | 9 | 9 | 1.521018e+00 | 1.521018e+00 | 5.159865e-14 |
