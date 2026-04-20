@@ -65,6 +65,8 @@ std::vector<CaseDef> BuildCases() {
                 {ExpectedBlock{"block0", 1, "One"}}, 2, 2, 2, 2, 2, 2, 2},
         CaseDef{"block0_only", {0.0, 0.0, 0.7, -1.2, 0.5}, "compact-active",
                 {ExpectedBlock{"block0", 3, "One"}}, 0, 5, 5, 5, 2, 5, 2},
+        CaseDef{"linear_plus_c6", {0.0, -0.3, 0.0, 0.0, 0.0, 0.0, -0.4}, "compact-active",
+                {ExpectedBlock{"block1", 1, "Z"}}, 1, 4, 4, 4, 4, 4, 4},
         CaseDef{"block1_only", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.4, 0.9, 1.1}, "compact-active",
                 {ExpectedBlock{"block1", 3, "Z"}}, 0, 7, 7, 7, 4, 7, 4},
         CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4",
@@ -81,7 +83,7 @@ std::vector<CaseDef> BuildCases() {
 
 void PrintSummaryHeader() {
     std::cout << std::left
-              << std::setw(23) << "case"
+              << std::setw(29) << "case"
               << std::setw(24) << "mode"
               << std::setw(78) << "plan"
               << std::setw(14) << "eager_err"
@@ -91,12 +93,12 @@ void PrintSummaryHeader() {
               << std::setw(12) << "rescale"
               << std::setw(8) << "pass"
               << '\n';
-    std::cout << std::string(195, '-') << '\n';
+    std::cout << std::string(201, '-') << '\n';
 }
 
 void PrintSummaryRow(const CaseResult& row) {
     std::cout << std::left
-              << std::setw(23) << row.name
+              << std::setw(29) << row.name
               << std::setw(24) << row.mode
               << std::setw(78) << row.planSummary
               << std::setw(14) << std::scientific << row.eagerErr
