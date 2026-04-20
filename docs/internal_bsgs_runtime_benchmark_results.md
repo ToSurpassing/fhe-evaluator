@@ -12,6 +12,8 @@ Target:
 - file: `src/benchmark/ckks_benchmark_01_internal_bsgs_runtime.cpp`
 - validation log: `logs/internal_bsgs_runtime_2026-04-21.log`
 - configurable-args smoke log: `logs/internal_bsgs_runtime_configurable_2026-04-21.log`
+- CSV smoke log: `logs/internal_bsgs_runtime_csv_2026-04-21.log`
+- CSV sample output: `logs/internal_bsgs_runtime_samples_2026-04-21.csv`
 
 This benchmark uses the same fixed Internal BSGS constraints as `34/35`:
 
@@ -26,7 +28,7 @@ The benchmark measures core evaluator runtime only. Key generation and encryptio
 The benchmark now accepts command-line controls:
 
 ```text
-./build/ckks_benchmark_01_internal_bsgs_runtime --warmup N --repeat N
+./build/ckks_benchmark_01_internal_bsgs_runtime --warmup N --repeat N --csv PATH
 ```
 
 Default settings:
@@ -98,3 +100,4 @@ Before using runtime data as a final thesis result, the benchmark should be reru
 ```
 
 It may also be useful to print per-repeat samples or CSV output, so outliers can be inspected.
+The benchmark supports this directly through `--csv PATH`; each row records one timed repeat with path, scaling mode, operation counts, and wall-clock seconds.

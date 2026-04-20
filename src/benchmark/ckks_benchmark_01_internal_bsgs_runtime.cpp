@@ -5,6 +5,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <numeric>
@@ -23,6 +24,7 @@ constexpr double kErrThreshold = 1e-8;
 struct BenchmarkConfig {
     size_t warmup = 1;
     size_t repeat = 3;
+    std::string csvPath;
 };
 
 struct EvalStats {
@@ -386,6 +388,35 @@ void PrintMarkdownHeader() {
     std::cout << "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |\n";
 }
 
+void WriteCsvHeader(std::ostream& out) {
+    out << "pattern,mode,path,warmup,repeat,iteration,seconds,tensor,relin,rescale,"
+        << "scalar_mult,level_align,adds\n";
+}
+
+void WriteCsvRow(std::ostream& out,
+                 const std::string& pattern,
+                 ScalingTechnique scalTech,
+                 const std::string& path,
+                 const BenchmarkConfig& config,
+                 size_t iteration,
+                 double seconds,
+                 const EvalStats& stats) {
+    out << pattern
+        << ',' << ModeName(scalTech)
+        << ',' << path
+        << ',' << config.warmup
+        << ',' << config.repeat
+        << ',' << iteration
+        << ',' << std::scientific << seconds
+        << ',' << stats.tensorProducts
+        << ',' << stats.relinCount
+        << ',' << stats.rescaleCount
+        << ',' << stats.scalarMultCount
+        << ',' << stats.levelAlignCount
+        << ',' << stats.addCount
+        << '\n';
+}
+
 size_t ParsePositiveSize(const std::string& name, const std::string& value) {
     size_t consumed = 0;
     size_t parsed = 0;
@@ -402,7 +433,7 @@ size_t ParsePositiveSize(const std::string& name, const std::string& value) {
 }
 
 void PrintUsage(const char* argv0) {
-    std::cout << "Usage: " << argv0 << " [--warmup N] [--repeat N]\n\n";
+    std::cout << "Usage: " << argv0 << " [--warmup N] [--repeat N] [--csv PATH]\n\n";
     std::cout << "Defaults: --warmup 1 --repeat 3\n";
 }
 
@@ -413,6 +444,16 @@ BenchmarkConfig ParseArgs(int argc, char** argv) {
         if (arg == "--help" || arg == "-h") {
             PrintUsage(argv[0]);
             std::exit(0);
+        }
+        if (arg == "--csv") {
+            if (i + 1 >= argc) {
+                throw std::runtime_error(arg + " requires a path");
+            }
+            config.csvPath = argv[++i];
+            if (config.csvPath.empty()) {
+                throw std::runtime_error(arg + " requires a non-empty path");
+            }
+            continue;
         }
         if (arg == "--warmup" || arg == "--repeat") {
             if (i + 1 >= argc) {
@@ -432,7 +473,10 @@ BenchmarkConfig ParseArgs(int argc, char** argv) {
     return config;
 }
 
-void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech, const BenchmarkConfig& config) {
+void BenchmarkOne(const CoeffPattern& pattern,
+                  ScalingTechnique scalTech,
+                  const BenchmarkConfig& config,
+                  std::ostream* csvOut) {
     const auto referencePlan = ReferencePlanForPattern(pattern);
     const auto plan = GenerateInternalPlanFromCoeffs(pattern);
     ValidateInternalPlan(referencePlan);
@@ -464,6 +508,10 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech, const 
         lazyTimes.push_back(lazy.seconds);
         lastEager = eager.output;
         lastLazy = lazy.output;
+        if (csvOut != nullptr) {
+            WriteCsvRow(*csvOut, pattern.name, scalTech, "eager", config, i, eager.seconds, eager.output.stats);
+            WriteCsvRow(*csvOut, pattern.name, scalTech, "inner-lazy", config, i, lazy.seconds, lazy.output.stats);
+        }
     }
 
     const double eagerErr = FinalErr(cc, kp.secretKey, lastEager.value, plan);
@@ -504,15 +552,29 @@ void BenchmarkOne(const CoeffPattern& pattern, ScalingTechnique scalTech, const 
 int main(int argc, char** argv) {
     try {
         const auto config = ParseArgs(argc, argv);
+        std::ofstream csvFile;
+        std::ostream* csvOut = nullptr;
+        if (!config.csvPath.empty()) {
+            csvFile.open(config.csvPath);
+            if (!csvFile) {
+                throw std::runtime_error("failed to open CSV output: " + config.csvPath);
+            }
+            WriteCsvHeader(csvFile);
+            csvOut = &csvFile;
+        }
+
         std::cout << "# Internal BSGS Runtime Benchmark\n\n";
         std::cout << "This benchmark measures core evaluator runtime only. "
                   << "Key generation and encryption are outside the timed region.\n\n";
         std::cout << "Configuration: warmup=" << config.warmup
                   << ", repeat=" << config.repeat << "\n\n";
+        if (!config.csvPath.empty()) {
+            std::cout << "CSV samples: " << config.csvPath << "\n\n";
+        }
         PrintMarkdownHeader();
         for (const auto& pattern : KnownCoeffPatterns()) {
-            BenchmarkOne(pattern, FIXEDMANUAL, config);
-            BenchmarkOne(pattern, COMPOSITESCALINGMANUAL, config);
+            BenchmarkOne(pattern, FIXEDMANUAL, config, csvOut);
+            BenchmarkOne(pattern, COMPOSITESCALINGMANUAL, config, csvOut);
         }
     }
     catch (const std::exception& e) {
