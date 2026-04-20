@@ -11,6 +11,7 @@ Target:
 - executable: `ckks_evaluator_35_internal_bsgs_generated_plan`
 - file: `src/evaluator/ckks_evaluator_35_internal_bsgs_generated_plan.cpp`
 - validation log: `logs/internal_bsgs_generated_plan_2026-04-21.log`
+- generated-only pattern validation log: `logs/internal_bsgs_generated_plan_3patterns_2026-04-21.log`
 
 This target keeps the same conservative teaching constraints as `34`:
 
@@ -30,6 +31,7 @@ high_power in {4, 8, 12}
 ```
 
 The generated plan is validated against the input coefficients before CKKS execution.
+The current target also includes a third generated-only coefficient pattern that has no handwritten reference plan; this checks that the executor path is no longer merely replaying the two original fixed plans.
 
 ## Result
 
@@ -39,12 +41,15 @@ The generated plan is validated against the input coefficients before CKKS execu
 | `coeff_pattern_internal_t2_b4_a` | COMPOSITESCALINGMANUAL | 13 vs 13 | 13 vs 9 | 13 vs 9 | 5.042757e-14 | 4.085794e-14 |
 | `coeff_pattern_internal_t2_b4_b` | FIXEDMANUAL | 13 vs 13 | 13 vs 9 | 13 vs 9 | 2.166109e-13 | 2.447759e-13 |
 | `coeff_pattern_internal_t2_b4_b` | COMPOSITESCALINGMANUAL | 13 vs 13 | 13 vs 9 | 13 vs 9 | 3.470928e-14 | 3.620760e-14 |
+| `coeff_pattern_internal_t2_b4_c_generated_only` | FIXEDMANUAL | 13 vs 13 | 13 vs 9 | 13 vs 9 | 1.565715e-13 | 2.115596e-13 |
+| `coeff_pattern_internal_t2_b4_c_generated_only` | COMPOSITESCALINGMANUAL | 13 vs 13 | 13 vs 9 | 13 vs 9 | 5.870138e-14 | 4.843437e-14 |
 
 Plaintext skeleton checks:
 
 ```text
 coeff_pattern_internal_t2_b4_a direct-vs-internal max_abs_err = 2.168404e-19
 coeff_pattern_internal_t2_b4_b direct-vs-internal max_abs_err = 1.084202e-19
+coeff_pattern_internal_t2_b4_c_generated_only direct-vs-internal max_abs_err = 1.084202e-19
 ```
 
 ## Interpretation
@@ -52,7 +57,7 @@ coeff_pattern_internal_t2_b4_b direct-vs-internal max_abs_err = 1.084202e-19
 What this demonstrates:
 
 - the repo now has `coefficients -> fixed decomposition -> InternalBsgsPlan -> executor`
-- the generated plan path works for two fixed coefficient patterns
+- the generated plan path works for two original coefficient patterns plus one generated-only coefficient pattern
 - eager and inner-lazy paths still share the same Internal BSGS topology
 - inner-lazy keeps tensor products unchanged while reducing relin/rescale counts
 - final errors remain below the current `1e-8` experimental threshold

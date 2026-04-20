@@ -149,7 +149,7 @@ hat(S1) = {x^4, x^8, x^12}
 S2 = {x^16}
 ```
 
-The important result is stable across two fixed coefficient patterns:
+The important result is stable across two original coefficient patterns and one generated-only coefficient pattern:
 
 ```text
 tensor products: 13 vs 13

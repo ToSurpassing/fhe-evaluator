@@ -148,10 +148,36 @@ inline CoeffPattern MakeInternalPatternB() {
     };
 }
 
+inline CoeffPattern MakeInternalPatternC() {
+    return CoeffPattern{
+        "coeff_pattern_internal_t2_b4_c_generated_only",
+        {
+            {5, 0.04},
+            {6, -0.02},
+            {11, 0.13},
+            {13, -0.06},
+            {15, 0.025},
+            {21, -0.05},
+            {26, 0.075},
+            {27, -0.035},
+            {30, 0.045},
+            {31, -0.02},
+        },
+    };
+}
+
 inline std::vector<CoeffPattern> KnownCoeffPatterns() {
     return {
         MakeInternalPatternA(),
         MakeInternalPatternB(),
+    };
+}
+
+inline std::vector<CoeffPattern> GeneratedPlanCoeffPatterns() {
+    return {
+        MakeInternalPatternA(),
+        MakeInternalPatternB(),
+        MakeInternalPatternC(),
     };
 }
 

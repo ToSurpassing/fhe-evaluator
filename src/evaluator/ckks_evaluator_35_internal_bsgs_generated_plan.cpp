@@ -651,14 +651,11 @@ void RunOneMode(const InternalBsgsPlan& plan, const std::string& modeName, Scali
 
 int main() {
     try {
-        const auto patterns = KnownCoeffPatterns();
-        std::cout << "[KNOWN_COEFF_PATTERNS] " << patterns.size() << "\n";
+        const auto patterns = GeneratedPlanCoeffPatterns();
+        std::cout << "[GENERATED_PLAN_COEFF_PATTERNS] " << patterns.size() << "\n";
         for (const auto& pattern : patterns) {
-            const auto referencePlan = ReferencePlanForPattern(pattern);
             const auto plan = GenerateInternalPlanFromCoeffs(pattern);
-            ValidateInternalPlan(referencePlan);
             ValidateInternalPlan(plan);
-            ValidateGeneratedPlanMatchesCoeffs(referencePlan, pattern);
             ValidateGeneratedPlanMatchesCoeffs(plan, pattern);
             std::cout << "\n[COEFF_PATTERN] " << pattern.name << '\n';
             std::cout << "\n[INTERNAL_PLAN] " << plan.name << '\n';
