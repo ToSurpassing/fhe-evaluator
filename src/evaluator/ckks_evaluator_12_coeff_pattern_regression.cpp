@@ -62,6 +62,12 @@ std::vector<CaseDef> BuildCases() {
                 {}, 1, 3, 3, 3, 3, 3, 3},
         CaseDef{"linear_plus_c5", {0.0, -0.3, 0.0, 0.0, 0.0, 0.2}, "compact-active",
                 {}, 2, 3, 3, 3, 3, 3, 3},
+        CaseDef{"linear_block0_plus_c5", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2}, "compact-active",
+                {ExpectedBlock{"block0", 1, "One"}}, 2, 4, 4, 4, 4, 4, 4},
+        CaseDef{"constant_linear_block0_c5", {0.25, -0.3, 0.0, 0.0, 0.5, 0.2}, "compact-active",
+                {ExpectedBlock{"block0", 1, "One"}}, 3, 4, 4, 4, 4, 4, 4},
+        CaseDef{"linear_block1_plus_c5", {0.0, -0.3, 0.0, 0.0, 0.0, 0.2, -0.4}, "compact-active",
+                {ExpectedBlock{"block1", 1, "Z"}}, 2, 5, 5, 5, 5, 5, 5},
 
         // Block0 guards: c1 uses a separate linear block, not a mixed block0 term.
         CaseDef{"linear_plus_c2", {0.0, -0.3, 0.7}, "compact-active",
@@ -84,6 +90,9 @@ std::vector<CaseDef> BuildCases() {
         CaseDef{"linear_block0_block1", {0.0, -0.3, 0.7, 0.0, 0.0, 0.0, -0.4}, "two-block-z4",
                 {ExpectedBlock{"linear", 1, "One"}, ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
                 0, 5, 5, 5, 5, 5, 5},
+        CaseDef{"constant_linear_blocks_c5", {0.25, -0.3, 0.7, 0.0, 0.0, 0.2, -0.4}, "two-block-z4",
+                {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
+                3, 6, 6, 6, 6, 6, 6},
         CaseDef{"sparse_tail_block_mix", {0.0, -0.3, 0.7, 0.0, 0.0, 0.2, 0.0, 0.0, 1.1}, "two-block-z4",
                 {ExpectedBlock{"block0", 1, "One"}, ExpectedBlock{"block1", 1, "Z"}},
                 2, 6, 6, 6, 6, 6, 6},
