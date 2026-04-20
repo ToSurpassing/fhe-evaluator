@@ -1,0 +1,48 @@
+
+============================================================
+[EVALUATOR] coefficient pattern regression
+[CHECK] EvalRestrictedDegree8 across sparse/dense coefficient patterns
+[PASS] eager/lazy err < 1.000000e-08 and lazy relin/rescale <= eager
+
+case                         mode                    plan                                                                          eager_err     lazy_err      tensor      relin       rescale     pass
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+only_c0                      FIXEDMANUAL             compact-active tail=1 c0=yes c1=no c5=no                                      3.452794e-14  4.052314e-14  0/0         0/0         0/0         yes
+only_c0                      COMPOSITESCALINGMANUAL  compact-active tail=1 c0=yes c1=no c5=no                                      4.746203e-14  4.479750e-14  0/0         0/0         0/0         yes
+only_c1                      FIXEDMANUAL             compact-active linear:One=1 tail=0 c0=no c1=no c5=no                          4.459766e-13  4.418757e-13  0/0         0/0         0/0         yes
+only_c1                      COMPOSITESCALINGMANUAL  compact-active linear:One=1 tail=0 c0=no c1=no c5=no                          3.422679e-13  2.510422e-13  0/0         0/0         0/0         yes
+constant_linear              FIXEDMANUAL             compact-active linear:One=1 tail=1 c0=yes c1=no c5=no                         3.055334e-13  5.318523e-13  0/0         0/0         0/0         yes
+constant_linear              COMPOSITESCALINGMANUAL  compact-active linear:One=1 tail=1 c0=yes c1=no c5=no                         4.682643e-13  4.505563e-13  0/0         0/0         0/0         yes
+only_c5                      FIXEDMANUAL             compact-active tail=1 c0=no c1=no c5=yes                                      6.305624e-13  6.499176e-13  3/3         3/3         3/3         yes
+only_c5                      COMPOSITESCALINGMANUAL  compact-active tail=1 c0=no c1=no c5=yes                                      3.719160e-14  5.675104e-14  3/3         3/3         3/3         yes
+linear_plus_c5               FIXEDMANUAL             compact-active tail=2 c0=no c1=yes c5=yes                                     6.259160e-13  7.077672e-13  3/3         3/3         3/3         yes
+linear_plus_c5               COMPOSITESCALINGMANUAL  compact-active tail=2 c0=no c1=yes c5=yes                                     3.352388e-13  3.569783e-13  3/3         3/3         3/3         yes
+linear_block0_plus_c5        FIXEDMANUAL             compact-active block0:One=1 tail=2 c0=no c1=yes c5=yes                        2.998768e-12  2.731038e-12  4/4         4/4         4/4         yes
+linear_block0_plus_c5        COMPOSITESCALINGMANUAL  compact-active block0:One=1 tail=2 c0=no c1=yes c5=yes                        1.156991e-12  4.951407e-12  4/4         4/4         4/4         yes
+constant_linear_block0_c5    FIXEDMANUAL             compact-active block0:One=1 tail=3 c0=yes c1=yes c5=yes                       1.702694e-12  1.916578e-12  4/4         4/4         4/4         yes
+constant_linear_block0_c5    COMPOSITESCALINGMANUAL  compact-active block0:One=1 tail=3 c0=yes c1=yes c5=yes                       4.825029e-13  4.895195e-12  4/4         4/4         4/4         yes
+linear_block1_plus_c5        FIXEDMANUAL             compact-active block1:Z=1 tail=2 c0=no c1=yes c5=yes                          1.216499e-12  1.293077e-12  5/5         5/5         5/5         yes
+linear_block1_plus_c5        COMPOSITESCALINGMANUAL  compact-active block1:Z=1 tail=2 c0=no c1=yes c5=yes                          5.254339e-13  3.327338e-13  5/5         5/5         5/5         yes
+linear_plus_c2               FIXEDMANUAL             compact-active linear:One=1 block0:One=1 tail=0 c0=no c1=no c5=no             9.347245e-13  1.551009e-12  2/2         2/2         2/2         yes
+linear_plus_c2               COMPOSITESCALINGMANUAL  compact-active linear:One=1 block0:One=1 tail=0 c0=no c1=no c5=no             6.512846e-13  3.901920e-12  2/2         2/2         2/2         yes
+constant_linear_plus_c4      FIXEDMANUAL             compact-active linear:One=1 block0:One=1 tail=1 c0=yes c1=no c5=no            2.062406e-12  1.797007e-12  2/2         2/2         2/2         yes
+constant_linear_plus_c4      COMPOSITESCALINGMANUAL  compact-active linear:One=1 block0:One=1 tail=1 c0=yes c1=no c5=no            7.029932e-13  2.840339e-12  2/2         2/2         2/2         yes
+block0_only                  FIXEDMANUAL             compact-active block0:One=3 tail=0 c0=no c1=no c5=no                          6.064482e-12  5.599687e-12  5/5         5/2         5/2         yes
+block0_only                  COMPOSITESCALINGMANUAL  compact-active block0:One=3 tail=0 c0=no c1=no c5=no                          1.098649e-12  9.080153e-12  5/5         5/2         5/2         yes
+linear_plus_c6               FIXEDMANUAL             compact-active linear:One=1 block1:Z=1 tail=0 c0=no c1=no c5=no               6.330908e-13  6.272136e-13  4/4         4/4         4/4         yes
+linear_plus_c6               COMPOSITESCALINGMANUAL  compact-active linear:One=1 block1:Z=1 tail=0 c0=no c1=no c5=no               2.678777e-13  4.956036e-13  4/4         4/4         4/4         yes
+block1_only                  FIXEDMANUAL             compact-active block1:Z=3 tail=0 c0=no c1=no c5=no                            6.688855e-13  7.067827e-13  7/7         7/4         7/4         yes
+block1_only                  COMPOSITESCALINGMANUAL  compact-active block1:Z=3 tail=0 c0=no c1=no c5=no                            5.706286e-14  9.412885e-14  7/7         7/4         7/4         yes
+linear_block0_block1         FIXEDMANUAL             two-block-z4 linear:One=1 block0:One=1 block1:Z=1 tail=0 c0=no c1=no c5=no    1.765477e-12  1.935868e-12  5/5         5/5         5/5         yes
+linear_block0_block1         COMPOSITESCALINGMANUAL  two-block-z4 linear:One=1 block0:One=1 block1:Z=1 tail=0 c0=no c1=no c5=no    8.432421e-13  4.822504e-12  5/5         5/5         5/5         yes
+constant_linear_blocks_c5    FIXEDMANUAL             two-block-z4 block0:One=1 block1:Z=1 tail=3 c0=yes c1=yes c5=yes              4.864775e-12  3.558986e-12  6/6         6/6         6/6         yes
+constant_linear_blocks_c5    COMPOSITESCALINGMANUAL  two-block-z4 block0:One=1 block1:Z=1 tail=3 c0=yes c1=yes c5=yes              4.699019e-13  4.870382e-12  6/6         6/6         6/6         yes
+sparse_tail_block_mix        FIXEDMANUAL             two-block-z4 block0:One=1 block1:Z=1 tail=2 c0=no c1=yes c5=yes               1.610351e-12  1.615652e-12  6/6         6/6         6/6         yes
+sparse_tail_block_mix        COMPOSITESCALINGMANUAL  two-block-z4 block0:One=1 block1:Z=1 tail=2 c0=no c1=yes c5=yes               4.180545e-13  8.551278e-12  6/6         6/6         6/6         yes
+constant_x4_x7               FIXEDMANUAL             two-block-z4 block0:One=1 block1:Z=1 tail=1 c0=yes c1=no c5=no                1.850520e-12  1.823042e-12  6/6         6/5         6/5         yes
+constant_x4_x7               COMPOSITESCALINGMANUAL  two-block-z4 block0:One=1 block1:Z=1 tail=1 c0=yes c1=no c5=no                1.445510e-13  3.140099e-12  6/6         6/5         6/5         yes
+dense_degree8                FIXEDMANUAL             two-block-z4 block0:One=3 block1:Z=3 tail=3 c0=yes c1=yes c5=yes              4.005685e-12  4.250711e-12  12/12       12/6        12/6        yes
+dense_degree8                COMPOSITESCALINGMANUAL  two-block-z4 block0:One=3 block1:Z=3 tail=3 c0=yes c1=yes c5=yes              8.228973e-13  6.474182e-12  12/12       12/6        12/6        yes
+
+summary:
+  cases             = 36
+  all pass          = yes
