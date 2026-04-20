@@ -181,7 +181,6 @@ Degree8ExecutionPlan BuildDegree8ExecutionPlan(const std::vector<double>& coeffs
     const double c5 = CoeffAt(coeffs, 5);
     const auto layout = SelectDegree8Layout(block0, block1);
     const bool useLinearBlock = IsActiveCoeff(c1) &&
-                                !IsActiveBlock(block1) &&
                                 !IsActiveCoeff(c5);
 
     std::vector<BlockPlan> blocks;
