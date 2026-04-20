@@ -1,0 +1,27 @@
+[EVALUATOR] asymmetric exponent decomposition smoke
+[PROJECT DECISION] verify known coefficient patterns against explicit t=3 decompositions
+
+============================================================
+[DECOMP] coeff_pattern_outer_assembly_24
+[PLAN]   outer_assembly_24_shape
+components: x x^2 x^4 x^8
+  final= x^7 inner=(x,x^2,x^4) inner_power= x^7 outer=   1 coeff=+0.150
+  final= x^8 inner=(x^2,x^2,x^4) inner_power= x^8 outer=   1 coeff=-0.250
+  final= x^9 inner=(x,x^4,x^4) inner_power= x^9 outer=   1 coeff=+0.350
+  final=x^11 inner=(x,x^2,x^8) inner_power=x^11 outer=   1 coeff=-0.200
+  final=x^15 inner=(x,x^2,x^4) inner_power= x^7 outer= x^8 coeff=-0.180
+  final=x^16 inner=(x^2,x^2,x^4) inner_power= x^8 outer= x^8 coeff=+0.220
+  final=x^17 inner=(x,x^4,x^4) inner_power= x^9 outer= x^8 coeff=-0.120
+[PASS] coefficient powers match inner t=3 factors plus optional outer x^8
+
+============================================================
+[DECOMP] coeff_pattern_outer_pattern_25
+[PLAN]   outer_pattern_25_shape
+components: x x^2 x^4 x^8
+  final=x^10 inner=(x,x,x^8) inner_power=x^10 outer=   1 coeff=-0.110
+  final=x^14 inner=(x^2,x^4,x^8) inner_power=x^14 outer=   1 coeff=+0.280
+  final=x^16 inner=(x^4,x^4,x^8) inner_power=x^16 outer=   1 coeff=-0.190
+  final=x^19 inner=(x,x^2,x^8) inner_power=x^11 outer= x^8 coeff=+0.170
+  final=x^22 inner=(x^2,x^4,x^8) inner_power=x^14 outer= x^8 coeff=-0.130
+  final=x^28 inner=(x^4,x^8,x^8) inner_power=x^20 outer= x^8 coeff=+0.090
+[PASS] coefficient powers match inner t=3 factors plus optional outer x^8
